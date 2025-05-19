@@ -1,0 +1,23 @@
+{
+  "header": {
+    "home": "الصفحة الرئيسية",
+    "logout": "تسجيل الخروج",
+    "protected_route": "مسار محمي"
+  },
+  "auth": {
+    "Email": "البريد الإلكتروني",
+    "Password": "كلمة المرور",
+    "Login": "تسجيل الدخول",
+    "Register": "إنشاء حساب",
+    "Submit": "إرسال",
+    "Logout": "تسجيل الخروج",
+    "LoginFailed": "فشل تسجيل الدخول، حاول مرة أخرى.",
+    "RegisterFailed": "فشل إنشاء الحساب، حاول مرة أخرى.",
+    "ForgotPassword": "نسيت كلمة المرور؟",
+    "LoginTitle": "تسجيل الدخول",
+    "RegisterTitle": "انشاء حساب"
+  },
+  "hoeme": {
+    "welcome": "مرحبا"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "header": {
+    "home": "Home",
+    "logout": "Logout",
+    "protected_route": "Protected Route"
+  },
+  "auth": {
+    "Email": "Email",
+    "Password": "Password",
+    "Login": "Login",
+    "Register": "Register",
+    "Submit": "Submit",
+    "Logout": "Logout",
+    "LoginFailed": "Login failed, please try again.",
+    "RegisterFailed": "Registration failed, please try again.",
+    "ForgotPassword": "Forgot Password?",
+    "LoginTitle": "Login",
+    "RegisterTitle": "Register",
+    "LoginSuccess": "Login successful",
+    "NetworkError": "Network error, please try again"
+  },
+  "hoeme": {
+    "welcome": "Welcome"
+  }
+}

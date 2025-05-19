@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useRouter } from 'next/navigation'; // <-- updated import
+import { useRouter } from './i18n/routing';
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const pathIsPublic = publicPaths.some((path) => window.location.pathname.startsWith(path));
 
     if (!loggedIn && !pathIsPublic) {
-      router.push('/signin');
+      router.push(`/signin`);
     }
   }, [router]);
 
