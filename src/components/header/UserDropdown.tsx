@@ -5,13 +5,17 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
+import { useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 // import { logout } from "../../../services/auth";/
 // import { useRouter } from "next/navigation";
 // import { cookies } from "next/headers";
 export default function UserDropdown() {
-    // const router = useRouter(); 
+    
   const [isOpen, setIsOpen] = useState(false);
   const [User, setUser] = useState({ name: "", email: "",});
+  const locale = useLocale();
+  const router = useRouter();
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -44,7 +48,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     });
   
     // Redirect to sign-in page
-    // router.push("/en/signin");
+    router.push(`/${locale}/signin`);
   }
   
   return (
