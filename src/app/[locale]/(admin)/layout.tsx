@@ -6,36 +6,40 @@ import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 
-export default function AdminLayout({children,}: {children: React.ReactNode;}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const router = useRouter();
+  const locale = useLocale();
 
-  // Dynamic class for main content margin based on sidebar state
+  const isRTL = locale === "ar"; // detect RTL
+
+  // Determine margin based on layout direction and sidebar state
+  const sidebarSize = isExpanded || isHovered ? "290px" : "90px";
+
   const mainContentMargin = isMobileOpen
-    ? "ml-0"
-    : isExpanded || isHovered
-    ? "lg:ml-[290px]"
-    : "lg:ml-[90px]";
+    ? "ml-0 mr-0"
+    : isRTL
+    ? `lg:mr-[${sidebarSize}]`
+    : `lg:ml-[${sidebarSize}]`;
 
-    useEffect(() => {
-    // Check if we're in a browser environment
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
       if (!token) {
-        router.push('/en/signin'); // Redirect to login page if token is not present
+        router.push(`/${locale}/signin`);
       }
     }
-  }, [router]); 
+  }, [router, locale]);
+
   return (
     <div className="min-h-screen xl:flex">
       {/* Sidebar and Backdrop */}
       <AppSidebar />
       <Backdrop />
       {/* Main Content Area */}
-      <div
-        className={`flex-1 transition-all  duration-300 ease-in-out ${mainContentMargin}`}
-      >
+      <div className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}>
         {/* Header */}
         <AppHeader />
         {/* Page Content */}
@@ -44,5 +48,3 @@ export default function AdminLayout({children,}: {children: React.ReactNode;}) {
     </div>
   );
 }
-
-

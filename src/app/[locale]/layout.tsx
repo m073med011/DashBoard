@@ -23,9 +23,9 @@ export default async function RootLayout({
       <body className={`${outfit.className} dark:bg-gray-900`}>
          <NextIntlClientProvider locale={locale}>
         <ThemeProvider>
-          {/* <AuthProvider> */}
+          <AuthProvider>
           <SidebarProvider>{children}</SidebarProvider>
-          {/* </AuthProvider> */}
+          </AuthProvider>
           </ThemeProvider>
           </NextIntlClientProvider>
       </body>
