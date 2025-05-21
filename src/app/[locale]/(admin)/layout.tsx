@@ -1,50 +1,30 @@
-"use client";
-
-import { useSidebar } from "@/context/SidebarContext";
-import AppHeader from "@/layout/AppHeader";
+import { redirect } from "@/i18n/routing";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { cookies } from "next/headers";
+import ClientLayout from "./ClientLayout"; // 👈 import client wrapper
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-  const router = useRouter();
-  const locale = useLocale();
+export default async function AdminLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
 
-  const isRTL = locale === "ar"; // detect RTL
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
 
-  // Determine margin based on layout direction and sidebar state
-  const sidebarSize = isExpanded || isHovered ? "290px" : "90px";
-
-  const mainContentMargin = isMobileOpen
-    ? "ml-0 mr-0"
-    : isRTL
-    ? `lg:mr-[${sidebarSize}]`
-    : `lg:ml-[${sidebarSize}]`;
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        router.push(`/${locale}/signin`);
-      }
-    }
-  }, [router, locale]);
+  if (!token) {
+    redirect({ href: `/signin`, locale });
+  }
 
   return (
     <div className="min-h-screen xl:flex">
-      {/* Sidebar and Backdrop */}
       <AppSidebar />
       <Backdrop />
-      {/* Main Content Area */}
-      <div className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}>
-        {/* Header */}
-        <AppHeader />
-        {/* Page Content */}
-        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
-      </div>
+      <ClientLayout>{children}</ClientLayout>
     </div>
   );
 }

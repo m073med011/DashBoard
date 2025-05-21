@@ -6,10 +6,10 @@ import React, { useState, useEffect } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 // import { logout } from "../../../services/auth";/
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 // import { cookies } from "next/headers";
 export default function UserDropdown() {
-    const router = useRouter(); 
+    // const router = useRouter(); 
   const [isOpen, setIsOpen] = useState(false);
   const [User, setUser] = useState({ name: "", email: "",});
   useEffect(() => {
@@ -39,12 +39,12 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     localStorage.clear();
   
     // Call the logout API (this hits your /api/logout route on the server)
-    await fetch("/api/logout", {
+    await fetch("/api/auth/logout", {
       method: "POST",
     });
   
     // Redirect to sign-in page
-    router.push("/en/signin");
+    // router.push("/en/signin");
   }
   
   return (
