@@ -3,7 +3,7 @@ import './globals.css';
 import { NextIntlClientProvider } from "next-intl";
 
 import { SidebarProvider } from '@/context/SidebarContext';
-import { ThemeProvider } from '@/context/ThemeContext';
+// import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/AuthProvider';
 
 const outfit = Outfit({
@@ -22,11 +22,11 @@ export default async function RootLayout({
     <html dir={locale === "ar" ? "rtl" : "ltr"} lang="en">
       <body className={`${outfit.className} dark:bg-gray-900`}>
          <NextIntlClientProvider locale={locale}>
-        <ThemeProvider>
+        {/* <ThemeProvider> */}
           <AuthProvider>
           <SidebarProvider>{children}</SidebarProvider>
           </AuthProvider>
-          </ThemeProvider>
+          {/* </ThemeProvider> */}
           </NextIntlClientProvider>
       </body>
     </html>

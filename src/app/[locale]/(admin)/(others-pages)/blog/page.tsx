@@ -1,7 +1,9 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
+// import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import Image from 'next/image';
 
 // Define the Blog interface based on the actual API response
 interface Blog {
@@ -30,6 +32,7 @@ export default function AdminBlogsPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const locale = useLocale();
 
 
   // Handle token-related redirects
@@ -118,8 +121,12 @@ export default function AdminBlogsPage() {
     }
   };
 
+  const handleViewBlog = (blogId: number) => {
+    router.push(`/${locale}/blog/${blogId}`);
+  };
+
   const handleAddNewBlog = () => {
-    router.push('/blog/create');
+    router.push(`/${locale}/blog/create`);
   };
 
   return (
@@ -230,7 +237,9 @@ export default function AdminBlogsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 flex-shrink-0 rounded-md overflow-hidden">
-                          <img 
+                          <Image 
+                            width={100}
+                            height={100}
                             src={blog.image} 
                             alt={blog.title}
                             className="h-10 w-10 object-cover" 
@@ -252,12 +261,12 @@ export default function AdminBlogsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end space-x-2">
-                        <Link href={`/blog/${blog.slug}`} target="_blank" className="text-indigo-600 hover:text-indigo-900 p-2">
+                        <button onClick={() => handleViewBlog(blog.id)}    className="text-indigo-600 hover:text-indigo-900 p-2">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                           </svg>
-                        </Link>
+                        </button>
                         <button onClick={() => handleEditBlog(blog.id)} className="text-blue-600 hover:text-blue-900 p-2">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -281,7 +290,9 @@ export default function AdminBlogsPage() {
               <div key={blog.id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
                 {blog.cover && (
                   <div className="h-48 overflow-hidden">
-                    <img 
+                    <Image 
+                      width={100}
+                      height={100}
                       src={blog.cover} 
                       alt={blog.title}
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
@@ -303,7 +314,9 @@ export default function AdminBlogsPage() {
                 <div className="bg-gray-50 px-5 py-3 flex justify-between items-center border-t border-gray-100">
                   <div className="flex items-center">
                     <div className="h-8 w-8 rounded-full overflow-hidden mr-2">
-                      <img 
+                      <Image
+                        width={100}
+                        height={100}
                         src={blog.image} 
                         alt="Blog thumbnail" 
                         className="w-full h-full object-cover"
@@ -311,12 +324,12 @@ export default function AdminBlogsPage() {
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <Link href={`/blog/${blog.slug}`} target="_blank" className="text-indigo-600 hover:text-indigo-900 p-1">
+                    <button onClick={() => handleViewBlog(blog.id)} className="text-indigo-600 hover:text-indigo-900 p-1">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                       </svg>
-                    </Link>
+                    </button>
                     <button onClick={() => handleEditBlog(blog.id)} className="text-blue-600 hover:text-blue-900 p-1">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>

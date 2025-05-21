@@ -5,9 +5,9 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { logout } from "../../../services/auth";
+// import { logout } from "../../../services/auth";/
 import { useRouter } from "next/navigation";
-import { cookies } from "next/headers";
+// import { cookies } from "next/headers";
 export default function UserDropdown() {
     const router = useRouter(); 
   const [isOpen, setIsOpen] = useState(false);

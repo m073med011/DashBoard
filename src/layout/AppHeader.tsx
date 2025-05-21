@@ -3,14 +3,30 @@ import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
 import UserDropdown from "@/components/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
+import { routing, usePathname, useRouter } from "@/i18n/routing";
+import { CheckCircleIcon, ChevronDownIcon } from "@/icons";
+import { useLocale } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import React, { useState ,useEffect,useRef} from "react";
+
+
+const flagMap: Record<string, string> = {
+  en: "gb",
+  ar: "sa",
+};
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const locale = useLocale();
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -18,6 +34,14 @@ const AppHeader: React.FC = () => {
     } else {
       toggleMobileSidebar();
     }
+  };
+
+  const changeLanguage = (l: string) => {
+    const paramsString = searchParams.toString();
+    const url = paramsString ? `${pathname}?${paramsString}` : pathname;
+
+    router.replace(url, { locale: l });
+    setLangOpen(false);
   };
 
   const toggleApplicationMenu = () => {
@@ -161,6 +185,58 @@ const AppHeader: React.FC = () => {
           } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
+          <div className="relative">
+                  <button
+                    onClick={() => setLangOpen((o) => !o)}
+                    className="flex items-center hover:border hover:border-white/70 rounded-[clamp(10px,0.833vw,20px)] font-['Libre_Baskerville'] text-[clamp(14px,1.042vw,20px)] font-[400] py-[clamp(3px,0.417vw,5px)] px-[clamp(5px,1.562vw,10px)] justify-center gap-2 text-white cursor-pointer transition focus:outline-none"
+                  >
+                    <span className={`fi fi-${flagMap[locale]} mr-1`} />
+                    <Image
+                      src={`/images/${locale}.svg`}
+                      alt="Arrow Down"
+                      width={30}
+                      height={20}
+                    />
+                    <span className="uppercase font-medium font-['Libre_Baskerville'] text-[18px]">
+                      {locale}
+                    </span>
+                    <ChevronDownIcon className="w-4 h-4 text-[18px] text-gray-300" />
+                  </button>
+                  <div className="" ref={langRef}>
+                    <div
+                      className={`absolute  mt-2 w-[clamp(50px,6.5vw,144px)] border border-gray-200 bg-white bg-opacity-95 backdrop-blur-sm rounded-xl shadow-xl transform origin-top-left transition-all duration-150 ${
+                        langOpen
+                          ? "opacity-100 scale-100 pointer-events-auto"
+                          : "opacity-0 scale-95 pointer-events-none"
+                      }`}
+                    >
+                      <ul className="divide-y divide-gray-100">
+                        {routing.locales.map((l) => (
+                          <li key={l}>
+                            <button
+                              onClick={() => changeLanguage(l)}
+                              className="w-full flex items-center px-3 py-2 hover:bg-gray-100 transition-colors rounded-xl"
+                            >
+                              <Image
+                                src={`/images/${l}.svg`}
+                                alt="Arrow Down"
+                                width={30}
+                                height={20}
+                              />
+                              <span className={`fi fi-${flagMap[l]} mr-2`} />
+                              <span className="capitalize font-[400] font-['Libre_Baskerville'] text-[clamp(12px,0.938vw,20px)] flex-1">
+                                {l}
+                              </span>
+                              {l === locale && (
+                                <CheckCircleIcon className="w-4 h-4 text-blue-600" />
+                              )}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
