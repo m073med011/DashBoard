@@ -26,16 +26,34 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const sidebarSize = isExpanded || isHovered ? "290px" : "90px";
+  // Determine the sidebar size based on expansion and hover state
+  const getSidebarSize = () => (isExpanded || isHovered ? "290px" : "90px");
 
-  const mainContentMargin = isMobileOpen
-    ? "ml-0 mr-0"
-    : isRTL
-    ? `lg:mr-[${sidebarSize}]`
-    : `lg:ml-[${sidebarSize}]`;
+  // Determine the main content margin based on mobile and RTL settings
+  const getMainContentMargin = () => {
+    if (isMobileOpen) return "ml-0 mr-0";
+    return isRTL ? `lg:mr-[${getSidebarSize()}]` : `lg:ml-[${getSidebarSize()}]`;
+  };
+
+  // Construct the main content classes
+  const getMainContentClasses = () => {
+    const classes = [
+      "flex-1",
+      "transition-all",
+      "duration-300",
+      "ease-in-out",
+      isLargeScreen && isRTL ? "mr-23 ml-0" : "mr-0 ml-23",
+      isExpanded && !isRTL ? "mr-0 ml-73" : null,
+      isExpanded && isRTL ? "mr-73 ml-0" : null,
+      isHovered && !isRTL ? "mr-0 ml-73" : null,
+      isHovered && isRTL ? "mr-73 ml-0" : null,
+      getMainContentMargin(),
+    ];
+    return classes.filter(Boolean).join(" ");
+  };
 
   return (
-    <div className={`flex-1 transition-all duration-300 ease-in-out ${isLargeScreen && isRTL ? "mr-23" : "mr-0"} ${mainContentMargin}`}>
+    <div className={getMainContentClasses()}>
       <AppHeader />
       <div className="p-4 mx-auto max-w-[--breakpoint-2xl] md:p-6">{children}</div>
     </div>
