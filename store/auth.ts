@@ -4,7 +4,7 @@ import { create } from 'zustand';
 type User = {
   id: number;
   name: string;
-  login: string;
+  email: string;
   phone: string;
   avatar: string;
   subscription: string;

@@ -28,11 +28,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const loggedIn = checkLogin();
 
-    const publicPaths = ['/login', '/signup', '/public'];
+    const publicPaths = ['/en/signin', '/en/signup', '/public'];
     const pathIsPublic = publicPaths.some((path) => window.location.pathname.startsWith(path));
 
     if (!loggedIn && !pathIsPublic) {
-      router.push(`/signin`);
+      router.push(`/en/signin`);
     }
   }, [router]);
 

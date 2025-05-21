@@ -33,15 +33,7 @@ export default function AdminBlogsPage() {
 
 
   // Handle token-related redirects
-  useEffect(() => {
-    // Check if we're in a browser environment
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login'); // Redirect to login page if token is not present
-      }
-    }
-  }, [router]);
+  
 
   useEffect(() => {
     const fetchBlogs = async () => {

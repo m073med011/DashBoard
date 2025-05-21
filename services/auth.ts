@@ -5,11 +5,11 @@ import api from '../lib/axios';
 import { useAuthStore } from '../store/auth';
 
 type LoginPayload = {
-  login: string;  
+  email: string;  
   password: string;
 };
 
-export const loginn = async (data: LoginPayload) => {
+export const login = async (data: LoginPayload) => {
   const response = await api.post('/owner/login', data);
   const { token, data: user } = response.data;
 

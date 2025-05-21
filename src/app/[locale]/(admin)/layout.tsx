@@ -4,11 +4,12 @@ import { useSidebar } from "@/context/SidebarContext";
 import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayout({children,}: {children: React.ReactNode;}) {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-  
+  const router = useRouter();
 
   // Dynamic class for main content margin based on sidebar state
   const mainContentMargin = isMobileOpen
@@ -17,6 +18,15 @@ export default function AdminLayout({children,}: {children: React.ReactNode;}) {
     ? "lg:ml-[290px]"
     : "lg:ml-[90px]";
 
+    useEffect(() => {
+    // Check if we're in a browser environment
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/en/signin'); // Redirect to login page if token is not present
+      }
+    }
+  }, [router]); 
   return (
     <div className="min-h-screen xl:flex">
       {/* Sidebar and Backdrop */}

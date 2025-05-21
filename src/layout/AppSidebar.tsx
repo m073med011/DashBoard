@@ -2,8 +2,9 @@
 import React, { useEffect, useRef, useState,useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
+import { useTranslations,useLocale } from "next-intl";
 import {
   ChevronDownIcon,
   GridIcon,
@@ -32,36 +33,6 @@ const navItems: NavItem[] = [
     path: "/blog",
     // subItems: [{ name: "Blog", path: "/blog", pro: false }],
   },
-  // {
-  //   icon: <CalenderIcon />,
-  //   name: "Calendar",
-  //   path: "/calendar",
-  // },
-  // {
-  //   icon: <UserCircleIcon />,
-  //   name: "User Profile",
-  //   path: "/profile",
-  // },
-
-  // {
-  //   name: "Forms",
-  //   icon: <ListIcon />,
-  //   subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  // },
-  // {
-  //   name: "Tables",
-  //   icon: <TableIcon />,
-  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  // },
-  // {
-  //   name: "Pages",
-  //   icon: <PageIcon />,
-  //   subItems: [
-  //     { name: "Blank Page", path: "/blank", pro: false },
-  //     { name: "404 Error", path: "/error-404", pro: false },
-  //   ],
-  // },
-  // 
 ];
 
 // const othersItems: NavItem[] = [
@@ -98,6 +69,11 @@ const navItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+  const t = useTranslations();
+  const locale = useLocale();
+  // const router = useRouter();
+    
+
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -145,7 +121,7 @@ const AppSidebar: React.FC = () => {
           ) : (
             nav.path && (
               <Link
-                href={nav.path}
+                href={`/${locale}${nav.path}`}
                 className={`menu-item group ${
                   isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
                 }`}
@@ -182,14 +158,14 @@ const AppSidebar: React.FC = () => {
                 {nav.subItems.map((subItem) => (
                   <li key={subItem.name}>
                     <Link
-                      href={subItem.path}
+                      href={`/${locale}${subItem.path}`}
                       className={`menu-dropdown-item ${
                         isActive(subItem.path)
                           ? "menu-dropdown-item-active"
                           : "menu-dropdown-item-inactive"
                       }`}
                     >
-                      {subItem.name}
+                      {t(subItem.name)}
                       <span className="flex items-center gap-1 ml-auto">
                         {subItem.new && (
                           <span
@@ -199,7 +175,7 @@ const AppSidebar: React.FC = () => {
                                 : "menu-dropdown-badge-inactive"
                             } menu-dropdown-badge `}
                           >
-                            new
+                            {t("new")}
                           </span>
                         )}
                         {subItem.pro && (
@@ -210,7 +186,7 @@ const AppSidebar: React.FC = () => {
                                 : "menu-dropdown-badge-inactive"
                             } menu-dropdown-badge `}
                           >
-                            pro
+                            {t("pro")}
                           </span>
                         )}
                       </span>
@@ -261,7 +237,7 @@ const AppSidebar: React.FC = () => {
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-  }, [pathname,isActive]);
+  }, [pathname,isActive,locale]);
 
   useEffect(() => {
     // Set the height of the submenu items when the submenu is opened

@@ -6,7 +6,7 @@ export async function POST() {
   cookieStore.set("token", "", {
     httpOnly: true,
     expires: new Date(0),
-    path: "/",
+    path: "/en/signin",
   });
 
   return NextResponse.json({ message: "Logged out" });

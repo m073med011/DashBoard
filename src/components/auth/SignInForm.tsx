@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { loginn } from '../../../services/auth';
+import { login } from '../../../services/auth';
 
 export default function SignInForm() {
   const router = useRouter();
 
-  const [login, setLogin] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ export default function SignInForm() {
     setError(null);
 
     try {
-      await loginn({ login: login, password: password });   
+      await login({ email: email, password: password });   
       router.push('/'); // redirect on success
     } catch (err) {
       console.error(err);
@@ -32,13 +32,13 @@ export default function SignInForm() {
     <div className="flex items-center justify-center h-screen w-full">
     <form onSubmit={handleLogin} className="space-y-4 w-full max-w-sm mx-auto">
       <div>
-        <label htmlFor="login" className="block mb-1 font-medium">Login</label>
+        <label htmlFor="email" className="block mb-1 font-medium">Email</label>
         <input
-          id="login"
-          type="login"
+          id="email"
+          type="email"
           className="w-full border px-3 py-2 rounded"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
       </div>

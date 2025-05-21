@@ -7,6 +7,7 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { logout } from "../../../services/auth";
 import { useRouter } from "next/navigation";
+import { cookies } from "next/headers";
 export default function UserDropdown() {
     const router = useRouter(); 
   const [isOpen, setIsOpen] = useState(false);
@@ -33,11 +34,19 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     setIsOpen(false);
   }
 
-  function logoutHandler() {
-    logout();
-    router.push('/signin');
+  async function logoutHandler() {
+    // Clear local storage
+    localStorage.clear();
+  
+    // Call the logout API (this hits your /api/logout route on the server)
+    await fetch("/api/logout", {
+      method: "POST",
+    });
+  
+    // Redirect to sign-in page
+    router.push("/en/signin");
   }
-
+  
   return (
     <div className="relative">
       <button
