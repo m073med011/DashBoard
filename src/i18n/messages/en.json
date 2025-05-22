@@ -21,5 +21,12 @@
   },
   "hoeme": {
     "welcome": "Welcome"
+    },
+  "blogs":{
+    "Manage Blogs": "Manage Blogs",
+    "Add New Blog": "Add New Blog",
+    "No blogs found": "No blogs found.",
+    "Edit": "Edit",
+    "Read More": "Read More"
   }
 }

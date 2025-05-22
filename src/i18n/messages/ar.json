@@ -19,5 +19,12 @@
   },
   "hoeme": {
     "welcome": "مرحبا"
+  },
+  "blogs": {
+    "Manage Blogs": "إدارة المدونات",
+    "Add New Blog": "إضافة مدونة جديدة",
+    "No blogs found": "لا توجد مدونات.",
+    "Edit": "تعديل",
+    "Read More": "اقرأ المزيد"
   }
 }
