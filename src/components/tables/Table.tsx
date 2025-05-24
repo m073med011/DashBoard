@@ -1,134 +1,9 @@
-// 'use client';
-
-// import { useState } from 'react';
-// // import { Eye, Pencil, Trash, ZoomIn } from 'lucide-react';
-
-// // Replace button text with icons:
-
-
-// interface TableProps<T> {
-//   data: T[];
-//   columns: { key: keyof T; label: string }[];
-//   onCreate: () => void;
-//   onEdit: (item: T) => void;
-//   onDelete: (item: T) => void;
-//   onView: (item: T) => void;
-//   onQuickView: (item: T) => void;
-// }
-
-// export default function Table<T extends { id: string | number }>({
-//   data,
-//   columns,
-//   onCreate,
-//   onEdit,
-//   onDelete,
-//   onView,
-//   onQuickView,
-// }: TableProps<T>) {
-//   const [search, setSearch] = useState('');
-
-//   const filteredData = data.filter(item =>
-//     columns.some(col =>
-//       String(item[col.key]).toLowerCase().includes(search.toLowerCase())
-//     )
-//   );
-
-//   return (
-//     <div className="space-y-6">
-//       {/* Header Section */}
-//       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-//         <input
-//           type="text"
-//           placeholder="Search..."
-//           className="border border-gray-300 px-4 py-2 rounded-full shadow-sm w-full max-w-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-//           value={search}
-//           onChange={e => setSearch(e.target.value)}
-//         />
-//         <button
-//           onClick={onCreate}
-//           className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold px-6 py-2 rounded-full shadow-md transition"
-//         >
-//           + Create New
-//         </button>
-//       </div>
-
-//       {/* Table Section */}
-//       <div className="overflow-x-auto bg-white rounded-xl shadow-lg ring-1 ring-gray-200">
-//         <table className="min-w-full text-sm">
-//           <thead className="bg-gray-50 text-gray-700 text-sm uppercase tracking-wider">
-//             <tr>
-//               {columns.map(col => (
-//                 <th key={String(col.key)} className="px-6 py-4 text-left whitespace-nowrap">
-//                   {col.label}
-//                 </th>
-//               ))}
-//               <th className="px-6 py-4 text-left">Actions</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {filteredData.length === 0 ? (
-//               <tr>
-//                 <td
-//                   colSpan={columns.length + 1}
-//                   className="px-6 py-8 text-center text-gray-400 text-base"
-//                 >
-//                   No results found.
-//                 </td>
-//               </tr>
-//             ) : (
-//               filteredData.map((item) => (
-//                 <tr
-//                   key={item.id}
-//                   className="hover:bg-gray-50 transition border-t border-gray-100"
-//                 >
-//                   {columns.map(col => (
-//                     <td key={String(col.key)} className="px-6 py-4 text-gray-800">
-//                       {String(item[col.key])}
-//                     </td>
-//                   ))}
-//                  <td className="px-6 py-4">
-//   <div className="flex flex-wrap gap-2">
-//     <button
-//       onClick={() => onView(item)}
-//       className="bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium px-3 py-1.5 rounded-full text-xs shadow-sm transition"
-//     >
-//       View
-//     </button>
-//     <button
-//       onClick={() => onQuickView(item)}
-//       className="bg-cyan-100 text-cyan-700 hover:bg-cyan-200 font-medium px-3 py-1.5 rounded-full text-xs shadow-sm transition"
-//     >
-//       Quick View
-//     </button>
-//     <button
-//       onClick={() => onEdit(item)}
-//       className="bg-yellow-100 text-yellow-700 hover:bg-yellow-200 font-medium px-3 py-1.5 rounded-full text-xs shadow-sm transition"
-//     >
-//       Edit
-//     </button>
-//     <button
-//       onClick={() => onDelete(item)}
-//       className="bg-red-100 text-red-700 hover:bg-red-200 font-medium px-3 py-1.5 rounded-full text-xs shadow-sm transition"
-//     >
-//       Delete
-//     </button>
-//   </div>
-// </td>
-
-//                 </tr>
-//               ))
-//             )}
-//           </tbody>
-//         </table>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-// components/tables/Table.tsx
+'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
+import { Eye, ZoomIn, Pencil, Trash2, Plus } from 'lucide-react';
 
 type Column<T> = {
   key: keyof T;
@@ -155,51 +30,95 @@ export default function Table<T extends { id: number }>({
   onView,
   onQuickView,
 }: TableProps<T>) {
+  const t = useTranslations('Tables');
+  const pathname = usePathname();
+  const pathSegment = pathname?.split('/').filter(Boolean).pop() ?? '';
+
   return (
     <div>
-      <div className="flex justify-between mb-4">
-        <h2 className="text-xl font-semibold">Table</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          {t('Table')} {t(pathSegment.charAt(0).toUpperCase() + pathSegment.slice(1))}
+        </h2>
         {onCreate && (
-          <button onClick={onCreate} className="bg-green-600 text-white px-4 py-2 rounded">
-            Create New
+          <button
+            onClick={onCreate}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow transition-all duration-200"
+          >
+            <Plus className="w-4 h-4" />
+            {t('Create New')}
           </button>
         )}
       </div>
-      <table className="w-full table-auto border">
-        <thead>
-          <tr>
-            {columns.map((col) => (
-              <th key={String(col.key)} className="border px-4 py-2">{col.label}</th>
-            ))}
-            <th className="border px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item) => (
-            <tr key={item.id}>
+      <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+        <table className="w-full text-sm text-left text-gray-700 dark:text-gray-200 transition-colors">
+          <thead className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase">
+            <tr>
               {columns.map((col) => (
-                <td key={String(col.key)} className="border px-4 py-2">
-                  {col.render ? col.render(item) : String(item[col.key])}
-                </td>
+                <th key={String(col.key)} className="px-4 py-3 border border-gray-200 dark:border-gray-700">
+                  {t(col.label)}
+                </th>
               ))}
-              <td className="border px-4 py-2 flex gap-2">
-                {onView && (
-                  <button onClick={() => onView(item)} className="text-blue-500">View</button>
-                )}
-                {onQuickView && (
-                  <button onClick={() => onQuickView(item)} className="text-purple-500">Quick</button>
-                )}
-                {onEdit && (
-                  <button onClick={() => onEdit(item)} className="text-yellow-500">Edit</button>
-                )}
-                {onDelete && (
-                  <button onClick={() => onDelete(item)} className="text-red-500">Delete</button>
-                )}
-              </td>
+              <th className="px-4 py-3 border border-gray-200 dark:border-gray-700">{t('Actions')}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((item) => (
+              <tr
+                key={item.id}
+                className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+              >
+                {columns.map((col) => (
+                  <td key={String(col.key)} className="px-4 py-3 border border-gray-200 dark:border-gray-700">
+                    {col.render ? col.render(item) : String(item[col.key])}
+                  </td>
+                ))}
+                <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">
+                <div className="flex gap-2 flex-wrap">
+  {onView && (
+    <button
+      onClick={() => onView(item)}
+      className="inline-flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+    >
+      <Eye className="w-4 h-4" />
+      {t('View')}
+    </button>
+  )}
+  {onQuickView && (
+    <button
+      onClick={() => onQuickView(item)}
+      className="inline-flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+    >
+      <ZoomIn className="w-4 h-4" />
+      {t('Quick View')}
+    </button>
+  )}
+  {onEdit && (
+    <button
+      onClick={() => onEdit(item)}
+      className="inline-flex items-center gap-2 text-white bg-yellow-500 hover:bg-yellow-600 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+    >
+      <Pencil className="w-4 h-4" />
+      {t('Edit')}
+    </button>
+  )}
+  {onDelete && (
+    <button
+      onClick={() => onDelete(item)}
+      className="inline-flex items-center gap-2 text-white bg-red-600 hover:bg-red-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+    >
+      <Trash2 className="w-4 h-4" />
+      {t('Delete')}
+    </button>
+  )}
+</div>
+
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

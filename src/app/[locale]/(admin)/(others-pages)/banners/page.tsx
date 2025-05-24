@@ -7,8 +7,10 @@ import BannerTable from "./components/BannerTable";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
 import BannerFormModal from "./components/BannerFormModal";
 import { Banner } from "@/types/User";
+import { useTranslations } from "next-intl";
 
 export default function BannersPage() {
+  const t = useTranslations('Tables');
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"grid" | "row">("grid");
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
@@ -33,7 +35,7 @@ export default function BannersPage() {
       <div className="mb-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <input
           type="text"
-          placeholder="Search banners..."
+          placeholder={t('Search banners')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full sm:w-1/2 p-2 border border-gray-300 rounded dark:bg-gray-700"
@@ -43,19 +45,19 @@ export default function BannersPage() {
             onClick={() => setView(view === "grid" ? "row" : "grid")}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
           >
-            {view === "grid" ? "Row View" : "Card View"}
+            {view === "grid" ? t('Row View') : t('Card View')}
           </button>
           <button
             onClick={() => setShowCreate(true)}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
           >
-            + Create New Banner
+              {t('Create New Banner')}
           </button>
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <p>No banners found.</p>
+        <p className="text-center text-gray-500">{t('No banners found')}</p>
       ) : view === "grid" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {filtered.map((banner) => (
