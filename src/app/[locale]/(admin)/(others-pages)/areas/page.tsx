@@ -104,8 +104,14 @@ export default function AreasPage() {
             {
               key: 'image',
               label: 'Image',
-              render: (item) => (
-                <Image src={item.image} alt="area" className="h-12 w-12 object-cover rounded" />
+              render: (item: Area) => (
+                <Image
+                  src={item.image}
+                  alt="area"
+                  width={48}
+                  height={48}
+                  className="rounded object-cover"
+                />
               ),
             },
             {
@@ -114,10 +120,10 @@ export default function AreasPage() {
             },
           ]}
           onCreate={() => setModalState({ type: 'create' })}
-          onEdit={item => setModalState({ type: 'edit', item })}
+          onEdit={(item) => setModalState({ type: 'edit', item })}
           onDelete={handleDelete}
-          onView={item => setModalState({ type: 'view', item })}
-          onQuickView={item => setModalState({ type: 'quick', item })}
+          onView={(item) => setModalState({ type: 'view', item })}
+          onQuickView={(item) => setModalState({ type: 'quick', item })}
         />
       )}
 
@@ -146,7 +152,7 @@ export default function AreasPage() {
           </div>
         ) : (
           <form
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               handleSubmit(formData);
