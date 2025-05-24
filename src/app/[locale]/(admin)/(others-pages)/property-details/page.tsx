@@ -56,7 +56,7 @@ export default function Page() {
         onEdit={item => setModalState({ type: 'edit', item })}
         onDelete={handleDelete}
         onView={item => setModalState({ type: 'view', item })}
-        onQuickView={item => setModalState({ type: 'quick', item })}
+        // onQuickView={item => setModalState({ type: 'quick', item })}
       />
 
       <ModalForm

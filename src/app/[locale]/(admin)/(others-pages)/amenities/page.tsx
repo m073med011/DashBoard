@@ -103,7 +103,7 @@ export default function AmenitiesPage() {
           onEdit={item => setModalState({ type: 'edit', item })}
           onDelete={handleDelete}
           onView={item => setModalState({ type: 'view', item })}
-          onQuickView={item => setModalState({ type: 'quick', item })}
+          // onQuickView={item => setModalState({ type: 'quick', item })}
         />
       )}
 
