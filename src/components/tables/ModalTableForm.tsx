@@ -14,7 +14,7 @@ export default function ModalForm({ open, title, onClose, children }: ModalFormP
 
   return (
     <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-all">
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 relative animate-fadeIn">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-9 relative animate-fadeIn">
         {/* Close button */}
         <button
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition text-xl"

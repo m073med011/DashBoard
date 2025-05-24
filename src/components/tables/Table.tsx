@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
-import { Eye, ZoomIn, Pencil, Trash2, Plus } from 'lucide-react';
+import { Eye, Pencil, Trash2, Plus } from 'lucide-react';
+import ConfirmDeleteModal from './ConfirmDeleteModal'; // adjust path as needed
 
 type Column<T> = {
   key: keyof T;
@@ -18,7 +19,7 @@ type TableProps<T> = {
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
   onView?: (item: T) => void;
-  onQuickView?: (item: T) => void;
+  // onQuickView?: (item: T) => void;
 };
 
 export default function Table<T extends { id: number }>({
@@ -28,11 +29,19 @@ export default function Table<T extends { id: number }>({
   onEdit,
   onDelete,
   onView,
-  onQuickView,
+  // onQuickView,
 }: TableProps<T>) {
   const t = useTranslations('Tables');
   const pathname = usePathname();
   const pathSegment = pathname?.split('/').filter(Boolean).pop() ?? '';
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<T | null>(null);
+
+  const handleDeleteClick = (item: T) => {
+    setSelectedItem(item);
+    setModalOpen(true);
+  };
 
   return (
     <div>
@@ -74,51 +83,63 @@ export default function Table<T extends { id: number }>({
                   </td>
                 ))}
                 <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">
-                <div className="flex gap-2 flex-wrap">
-  {onView && (
-    <button
-      onClick={() => onView(item)}
-      className="inline-flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
-    >
-      <Eye className="w-4 h-4" />
-      {t('View')}
-    </button>
-  )}
-  {onQuickView && (
-    <button
-      onClick={() => onQuickView(item)}
-      className="inline-flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
-    >
-      <ZoomIn className="w-4 h-4" />
-      {t('Quick View')}
-    </button>
-  )}
-  {onEdit && (
-    <button
-      onClick={() => onEdit(item)}
-      className="inline-flex items-center gap-2 text-white bg-yellow-500 hover:bg-yellow-600 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
-    >
-      <Pencil className="w-4 h-4" />
-      {t('Edit')}
-    </button>
-  )}
-  {onDelete && (
-    <button
-      onClick={() => onDelete(item)}
-      className="inline-flex items-center gap-2 text-white bg-red-600 hover:bg-red-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
-    >
-      <Trash2 className="w-4 h-4" />
-      {t('Delete')}
-    </button>
-  )}
-</div>
-
+                  <div className="flex gap-2 flex-wrap">
+                    {onView && (
+                      <button
+                        onClick={() => onView(item)}
+                        className="inline-flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+                      >
+                        <Eye className="w-4 h-4" />
+                        {t('View')}
+                      </button>
+                    )}
+                    {/* {onQuickView && (
+                      <button
+                        onClick={() => onQuickView(item)}
+                        className="inline-flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+                      >
+                        <ZoomIn className="w-4 h-4" />
+                        {t('Quick View')}
+                      </button>
+                    )} */}
+                    {onEdit && (
+                      <button
+                        onClick={() => onEdit(item)}
+                        className="inline-flex items-center gap-2 text-white bg-yellow-500 hover:bg-yellow-600 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+                      >
+                        <Pencil className="w-4 h-4" />
+                        {t('Edit')}
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        onClick={() => handleDeleteClick(item)}
+                        className="inline-flex items-center gap-2 text-white bg-red-600 hover:bg-red-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        {t('Delete')}
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {selectedItem && onDelete && (
+        <ConfirmDeleteModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onConfirm={() => {
+            onDelete(selectedItem);
+            setSelectedItem(null);
+          }}
+          message={t('Are you sure you want to delete this item?')}
+        />
+      )}
     </div>
   );
 }
