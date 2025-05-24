@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations, useLocale } from 'next-intl';
 // import { useRouter } from 'next/navigation';
 import { Blog } from '@/types/User';
 // import { deleteData } from '@/libs/axios/server';
@@ -16,8 +17,8 @@ interface Props {
 
 const BlogCardComponent = ({ blog  }: Props) => {
 
-  
-
+  const t = useTranslations('blogs');
+  const locale = useLocale();
   return (
     <article className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
       <div className="relative w-full h-48">

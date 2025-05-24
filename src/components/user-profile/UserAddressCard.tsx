@@ -1,18 +1,18 @@
 "use client";
 import React from "react";
-import { useModal } from "../../hooks/useModal";
-import { Modal } from "../ui/modal";
-import Button from "../ui/button/Button";
-import Input from "../form/input/InputField";
-import Label from "../form/Label";
+// import { useModal } from "../../hooks/useModal";  
+// import { Modal } from "../ui/modal";
+// import Button from "../ui/button/Button";
+// import Input from "../form/input/InputField";
+// import Label from "../form/Label";
 
 export default function UserAddressCard() {
-  const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
-  };
+    // const { isOpen, openModal, closeModal } = useModal();
+  // const handleSave = () => {
+  //   // Handle save logic here
+  //   console.log("Saving changes...");
+  //   closeModal();
+  // };
   return (
     <>
       <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -62,7 +62,7 @@ export default function UserAddressCard() {
           </div>
 
           <button
-            onClick={openModal}
+            // onClick={openModal} 
             className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
           >
             <svg
@@ -84,7 +84,7 @@ export default function UserAddressCard() {
           </button>
         </div>
       </div>
-      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
+      {/* <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
         <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
@@ -128,7 +128,7 @@ export default function UserAddressCard() {
             </div>
           </form>
         </div>
-      </Modal>
+      </Modal> */}
     </>
   );
 }

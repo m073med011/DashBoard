@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import countriesData from "./countries.json";
-import { countryTypes } from "@/libs/types/types";
+import { countryTypes } from "@/types/User";
 
 // Define a type for the keys of countriesData
-type CountryCode = keyof typeof countriesData;
+// type CountryCode = keyof typeof countriesData;
 
 export async function GET() {
   try {
@@ -17,6 +17,7 @@ export async function GET() {
 
     return NextResponse.json(countriesArray, { status: 200 });
   } catch (error) {
+    console.error("Error fetching countries data:", error);
     return NextResponse.json(
       { error: "Failed to fetch countries data" },
       { status: 500 }
@@ -50,8 +51,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Country not found" }, { status: 404 });
     }
 
-    return NextResponse.json(country[1] as countryTypes, { status: 200 });
+    return NextResponse.json(country[1] as unknown as countryTypes, {
+      status: 200,
+    });
   } catch (error) {
+    console.error("Error fetching country data:", error);
     return NextResponse.json(
       { error: "Failed to process request" },
       { status: 500 }

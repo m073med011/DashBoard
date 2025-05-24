@@ -1,13 +1,5 @@
 import BannerCard from "./components/BannerCard";
-
-interface Banner {
-  id: number;
-  type: string;
-  link: string | null;
-  image: string;
-  name: string;
-  description: string;
-}
+import { Banner } from "@/types/User";
 
 interface Props {
   banners: Banner[];
@@ -19,7 +11,7 @@ export default function BannerList({ banners, view, onDelete }: Props) {
   return (
     <div className={view === "grid" ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3" : "space-y-4"}>
       {banners.map(banner => (
-        <BannerCard key={banner.id} banner={banner} onDelete={() => onDelete(banner.id)} view={view} />
+        <BannerCard key={banner.id} onEdit={() => {}} onDelete={() => onDelete(banner.id)} view={view} banner={banner} />
       ))}
     </div>
   );

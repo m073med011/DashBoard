@@ -51,3 +51,9 @@ export type Type = {
   title_ar: string;
 };
 
+export type countryTypes = {
+  code: string;
+  name: string;
+  phone_code: string;
+};
+

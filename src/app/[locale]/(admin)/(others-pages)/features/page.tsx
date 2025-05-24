@@ -6,20 +6,20 @@ import ModalForm from '@/components/tables/ModalTableForm';
 import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 
-type TypeItem = {
+type Feature = {
   id: number;
-  title: string;
-  image: string;
+  key: string | null;
+  value: string | null;
 };
 
-export default function TypesPage() {
-  const [items, setItems] = useState<TypeItem[]>([]);
+export default function Page() {
+  const [items, setItems] = useState<Feature[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
 
   const [modalState, setModalState] = useState<{
     type: 'create' | 'edit' | 'view' | 'quick' | null;
-    item?: TypeItem;
+    item?: Feature;
   }>({ type: null });
 
   useEffect(() => {
@@ -32,29 +32,29 @@ export default function TypesPage() {
   }, []);
 
   useEffect(() => {
-    if (token) fetchTypes(token);
+    if (token) fetchItems(token);
   }, [token]);
 
-  const fetchTypes = async (authToken: string) => {
+  const fetchItems = async (authToken: string) => {
     try {
-      const res = await getData('owner/types', {}, new AxiosHeaders({
+      const res = await getData('owner/features', {}, new AxiosHeaders({
         Authorization: `Bearer ${authToken}`,
       }));
       setItems(res.data ?? []);
     } catch (error) {
-      console.error('Failed to fetch types', error);
+      console.error('Failed to fetch features', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (item: TypeItem) => {
+  const handleDelete = async (item: Feature) => {
     if (!token) return;
     try {
-      await deleteData(`owner/types/${item.id}`, new AxiosHeaders({
+      await deleteData(`owner/features/${item.id}`, new AxiosHeaders({
         Authorization: `Bearer ${token}`,
       }));
-      fetchTypes(token);
+      fetchItems(token);
     } catch (error) {
       console.error('Delete failed', error);
     }
@@ -63,27 +63,23 @@ export default function TypesPage() {
   const handleSubmit = async (formData: FormData) => {
     if (!token) return;
 
-    const payload = new FormData();
-    payload.append('title', formData.get('title') as string);
-    if (formData.get('image')) {
-      const file = formData.get('image') as File;
-      if (file && file.size > 0) {
-        payload.append('image', file);
-      }
-    }
+    const payload = {
+      key: formData.get('key'),
+      value: formData.get('value'),
+    };
 
     try {
       if (modalState.type === 'create') {
-        await postData('owner/types', payload, new AxiosHeaders({
+        await postData('owner/features', payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
       } else if (modalState.type === 'edit' && modalState.item) {
-        await patchData(`owner/types/${modalState.item.id}`, payload, new AxiosHeaders({
+        await patchData(`owner/features/${modalState.item.id}`, payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
       }
 
-      fetchTypes(token);
+      fetchItems(token);
       setModalState({ type: null });
     } catch (error) {
       console.error('Save failed', error);
@@ -95,17 +91,12 @@ export default function TypesPage() {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <Table<TypeItem>
+        <Table<Feature>
           data={items}
           columns={[
-            { key: 'title', label: 'Title' },
-            {
-              key: 'image',
-              label: 'Image',
-              render: (item) => (
-                <img src={item.image} alt="type" className="h-12 w-12 object-cover rounded" />
-              ),
-            },
+            { key: 'id', label: 'ID' },
+            { key: 'key', label: 'Key' },
+            { key: 'value', label: 'Value' },
           ]}
           onCreate={() => setModalState({ type: 'create' })}
           onEdit={item => setModalState({ type: 'edit', item })}
@@ -119,23 +110,18 @@ export default function TypesPage() {
         open={!!modalState.type}
         title={
           modalState.type === 'create'
-            ? 'Create Type'
+            ? 'Create Feature'
             : modalState.type === 'edit'
-            ? 'Edit Type'
-            : 'View Type'
+            ? 'Edit Feature'
+            : 'View Feature'
         }
         onClose={() => setModalState({ type: null })}
       >
         {modalState.type === 'view' || modalState.type === 'quick' ? (
           <div className="space-y-2">
-            <p><strong>Title:</strong> {modalState.item?.title}</p>
-            {modalState.item?.image && (
-              <img
-                src={modalState.item.image}
-                alt="Type"
-                className="w-full rounded"
-              />
-            )}
+            <p><strong>ID:</strong> {modalState.item?.id}</p>
+            <p><strong>Key:</strong> {modalState.item?.key ?? 'null'}</p>
+            <p><strong>Value:</strong> {modalState.item?.value ?? 'null'}</p>
           </div>
         ) : (
           <form
@@ -148,16 +134,16 @@ export default function TypesPage() {
           >
             <input
               type="text"
-              name="title"
-              placeholder="Type Title"
-              defaultValue={modalState.item?.title ?? ''}
+              name="key"
+              placeholder="Key"
+              defaultValue={modalState.item?.key ?? ''}
               className="w-full border p-2 rounded"
-              required
             />
             <input
-              type="file"
-              name="image"
-              accept="image/*"
+              type="text"
+              name="value"
+              placeholder="Value"
+              defaultValue={modalState.item?.value ?? ''}
               className="w-full border p-2 rounded"
             />
             <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">

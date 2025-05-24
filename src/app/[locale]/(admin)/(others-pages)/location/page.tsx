@@ -6,20 +6,21 @@ import ModalForm from '@/components/tables/ModalTableForm';
 import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 
-type TypeItem = {
+type Item = {
   id: number;
-  title: string;
-  image: string;
+  name: string;
+  latitude: number;
+  longitude: number;
 };
 
-export default function TypesPage() {
-  const [items, setItems] = useState<TypeItem[]>([]);
+export default function Page() {
+  const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
 
   const [modalState, setModalState] = useState<{
     type: 'create' | 'edit' | 'view' | 'quick' | null;
-    item?: TypeItem;
+    item?: Item;
   }>({ type: null });
 
   useEffect(() => {
@@ -32,29 +33,29 @@ export default function TypesPage() {
   }, []);
 
   useEffect(() => {
-    if (token) fetchTypes(token);
+    if (token) fetchItems(token);
   }, [token]);
 
-  const fetchTypes = async (authToken: string) => {
+  const fetchItems = async (authToken: string) => {
     try {
-      const res = await getData('owner/types', {}, new AxiosHeaders({
+      const data = await getData('owner/locations', {}, new AxiosHeaders({
         Authorization: `Bearer ${authToken}`,
       }));
-      setItems(res.data ?? []);
+      setItems(data);
     } catch (error) {
-      console.error('Failed to fetch types', error);
+      console.error('Failed to fetch locations', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (item: TypeItem) => {
+  const handleDelete = async (item: Item) => {
     if (!token) return;
     try {
-      await deleteData(`owner/types/${item.id}`, new AxiosHeaders({
+      await deleteData(`owner/locations/${item.id}`, new AxiosHeaders({
         Authorization: `Bearer ${token}`,
       }));
-      fetchTypes(token);
+      fetchItems(token);
     } catch (error) {
       console.error('Delete failed', error);
     }
@@ -63,27 +64,24 @@ export default function TypesPage() {
   const handleSubmit = async (formData: FormData) => {
     if (!token) return;
 
-    const payload = new FormData();
-    payload.append('title', formData.get('title') as string);
-    if (formData.get('image')) {
-      const file = formData.get('image') as File;
-      if (file && file.size > 0) {
-        payload.append('image', file);
-      }
-    }
+    const payload = {
+      name: formData.get('name') as string,
+      latitude: Number(formData.get('latitude')),
+      longitude: Number(formData.get('longitude')),
+    };
 
     try {
       if (modalState.type === 'create') {
-        await postData('owner/types', payload, new AxiosHeaders({
+        await postData('owner/locations', payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
-        }));
+        }))             ;
       } else if (modalState.type === 'edit' && modalState.item) {
-        await patchData(`owner/types/${modalState.item.id}`, payload, new AxiosHeaders({
+        await patchData(`owner/locations/${modalState.item.id}`, payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
       }
 
-      fetchTypes(token);
+      fetchItems(token);
       setModalState({ type: null });
     } catch (error) {
       console.error('Save failed', error);
@@ -95,17 +93,12 @@ export default function TypesPage() {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <Table<TypeItem>
+        <Table<Item>
           data={items}
           columns={[
-            { key: 'title', label: 'Title' },
-            {
-              key: 'image',
-              label: 'Image',
-              render: (item) => (
-                <img src={item.image} alt="type" className="h-12 w-12 object-cover rounded" />
-              ),
-            },
+            { key: 'name', label: 'Name' },
+            { key: 'latitude', label: 'Latitude' },
+            { key: 'longitude', label: 'Longitude' },
           ]}
           onCreate={() => setModalState({ type: 'create' })}
           onEdit={item => setModalState({ type: 'edit', item })}
@@ -119,23 +112,18 @@ export default function TypesPage() {
         open={!!modalState.type}
         title={
           modalState.type === 'create'
-            ? 'Create Type'
+            ? 'Create Location'
             : modalState.type === 'edit'
-            ? 'Edit Type'
-            : 'View Type'
+            ? 'Edit Location'
+            : 'View Location'
         }
         onClose={() => setModalState({ type: null })}
       >
         {modalState.type === 'view' || modalState.type === 'quick' ? (
           <div className="space-y-2">
-            <p><strong>Title:</strong> {modalState.item?.title}</p>
-            {modalState.item?.image && (
-              <img
-                src={modalState.item.image}
-                alt="Type"
-                className="w-full rounded"
-              />
-            )}
+            <p><strong>Name:</strong> {modalState.item?.name}</p>
+            <p><strong>Latitude:</strong> {modalState.item?.latitude}</p>
+            <p><strong>Longitude:</strong> {modalState.item?.longitude}</p>
           </div>
         ) : (
           <form
@@ -148,17 +136,29 @@ export default function TypesPage() {
           >
             <input
               type="text"
-              name="title"
-              placeholder="Type Title"
-              defaultValue={modalState.item?.title ?? ''}
+              name="name"
+              placeholder="Name"
+              defaultValue={modalState.item?.name}
               className="w-full border p-2 rounded"
               required
             />
             <input
-              type="file"
-              name="image"
-              accept="image/*"
+              type="number"
+              step="any"
+              name="latitude"
+              placeholder="Latitude"
+              defaultValue={modalState.item?.latitude}
               className="w-full border p-2 rounded"
+              required
+            />
+            <input
+              type="number"
+              step="any"
+              name="longitude"
+              placeholder="Longitude"
+              defaultValue={modalState.item?.longitude}
+              className="w-full border p-2 rounded"
+              required
             />
             <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
               Submit
