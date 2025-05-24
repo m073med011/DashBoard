@@ -4,6 +4,22 @@
     "logout": "تسجيل الخروج",
     "protected_route": "مسار محمي"
   },
+ "sidebar": {
+    "dashboard": "الرئيسية", 
+    "blogs": "المدونات",
+    "banners": "البنرات",
+    "menu": "القائمة",
+    "types": "الأنواع",
+    "areas": "المناطق",
+    "properties": "قائمة العقارات",
+    "Property Details": "تفاصيل العقار",
+    "Amenities": "المرفقات",
+    "Features": "المميزات",
+    "Location": "الموقع",
+    "Images": "الصور",
+    "Floor Plans": "الخرائط",
+    "Favourites": "المفضلة"
+    },
   "auth": {
     "Email": "البريد الإلكتروني",
     "Password": "كلمة المرور",
@@ -25,6 +41,17 @@
     "Add New Blog": "إضافة مدونة جديدة",
     "No blogs found": "لا توجد مدونات.",
     "Edit": "تعديل",
-    "Read More": "اقرأ المزيد"
+    "Read More": "اقرأ المزيد",
+    "Edit Blog": "تعديل المدونة",
+    "Title": "العنوان",
+    "Description": "الوصف",
+    "Image URL": "رابط الصورة",
+    "Save Changes": "حفظ التعديلات",
+    "Back to Blogs": "العودة للمدونات",
+    "Are you sure you want to delete this blog?": "هل أنت متأكد أنك تريد حذف هذه المدونة؟",
+    "Delete": "حذف",
+    "Failed to load blog data": "فشل تحميل بيانات المدونة",
+    "Blog not found": "المدونة غير موجودة",
+    "You must be logged in to view this blog": "يجب عليك تسجيل الدخول لعرض هذه المدونة"
   }
 }

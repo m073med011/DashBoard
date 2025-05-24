@@ -1,7 +1,7 @@
 'use client';
 
 import axios from 'axios';
-import api from '../lib/axios';
+import api from '@/libs/axios/server';
 import { useAuthStore } from '../store/auth';
 
 type LoginPayload = {

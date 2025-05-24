@@ -29,4 +29,25 @@ export interface Blog {
   meta_keywords: string;
 }
 
+export type Banner = {
+  id: number;
+  type: string;
+  link: string;
+  name: string;
+  name_en: string;
+  name_ar: string;
+  description: string;
+  description_en: string;
+  description_ar: string;
+  image: string;
+  image_en: string;
+  image_ar: string;
+};
+
+export type Type = {
+  id: number | null;
+  title: string;
+  title_en: string;
+  title_ar: string;
+};
 

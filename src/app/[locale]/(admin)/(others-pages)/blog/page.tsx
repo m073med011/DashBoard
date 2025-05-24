@@ -1,29 +1,22 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { AxiosHeaders } from "axios";
-import { getTranslations } from "next-intl/server";
-import { getData } from "@/libs/axios/server";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getData, deleteData } from "@/libs/axios/server";
 import { Blog } from "@/types/User";
+import { AxiosHeaders } from "axios";
 
-const BlogsPage = async ({ params }: { params: { locale: string } }) => {
+const BlogsPage = ({ params }: { params: { locale: string } }) => {
   const locale = params.locale;
+  const router = useRouter();
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedBlogId, setSelectedBlogId] = useState<number | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
-  // Get token from cookies
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
-  if (!token) {
-    // Redirect to login if no token
-    return {
-      redirect: {
-        destination: `/${locale}/login`,
-        permanent: false,
-      },
-    };
-  }
-
-  const fetchBlogs = async () => {
+  const fetchBlogs = async (token: string) => {
     try {
       const res = await getData(
         "owner/blogs",
@@ -33,21 +26,62 @@ const BlogsPage = async ({ params }: { params: { locale: string } }) => {
           lang: locale,
         })
       );
-      return res.data;
+      setBlogs(res.data);
     } catch (error) {
       console.error("Error fetching blogs:", error);
-      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const t = await getTranslations("blogs");
-  const blogs = await fetchBlogs();   
+  const handleDelete = (id: number) => {
+    setSelectedBlogId(id);
+    setShowModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedBlogId) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      await deleteData(
+        `owner/delete/${selectedBlogId}`,
+        new AxiosHeaders({
+          Authorization: `Bearer ${token}`,
+        })
+      );
+      setBlogs(prev => prev.filter(blog => blog.id !== selectedBlogId));
+    } catch (error) {
+      console.error("Error deleting blog:", error);
+    } finally {
+      setShowModal(false);
+      setSelectedBlogId(null);
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push(`/${locale}/login`);
+    } else {
+      fetchBlogs(token);
+    }
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <p className="text-xl text-gray-700 dark:text-gray-300">Loading...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">
-          {t("Manage Blogs")}
+          Manage Blogs
         </h1>
         <Link
           href={`/${locale}/blog/create`}
@@ -64,17 +98,17 @@ const BlogsPage = async ({ params }: { params: { locale: string } }) => {
           >
             <path d="M12 6v12m6-6H6" />
           </svg>
-          {t("Add New Blog")}
+          Add New Blog
         </Link>
       </header>
 
       {blogs.length === 0 ? (
         <p className="text-center text-gray-700 dark:text-gray-300 text-lg mt-20">
-          {t("No blogs found.")}
+          No blogs found.
         </p>
       ) : (
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogs.map((blog: Blog) => (
+          {blogs.map((blog) => (
             <article
               key={blog.id}
               className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
@@ -85,7 +119,6 @@ const BlogsPage = async ({ params }: { params: { locale: string } }) => {
                   alt={blog.title}
                   fill
                   className="object-cover"
-                  priority={false}
                 />
               </div>
               <div className="p-5">
@@ -99,12 +132,42 @@ const BlogsPage = async ({ params }: { params: { locale: string } }) => {
                   href={`/${locale}/blog/${blog.id}`}
                   className="text-blue-600 dark:text-blue-400 font-medium hover:underline"
                 >
-                  {t("Read More")}
+                  Read More
                 </Link>
+                <button
+                  onClick={() => handleDelete(blog.id)}
+                  className="ml-4 text-red-600 dark:text-red-400 font-medium hover:underline"
+                >
+                  Delete
+                </button>
               </div>
             </article>
           ))}
         </section>
+      )}
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Are you sure?</h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">This action cannot be undone.</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded hover:bg-gray-400 dark:hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </main>
   );
