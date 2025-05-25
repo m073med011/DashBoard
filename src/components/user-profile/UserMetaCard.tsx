@@ -3,8 +3,10 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 export default function UserMetaCard() {
+  const t = useTranslations("Profile");
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState({
     name: "",
@@ -73,7 +75,7 @@ export default function UserMetaCard() {
       }
 
       // Get token from localStorage
-      const authToken = localStorage.getItem("token") || "56|IxLVX1aJOTlxILvU7yT0nwdevoboM6Ec8s3s7FQ36d4a7ff2";
+      const authToken = localStorage.getItem("token");
 
       // Make the API request with FormData
       const response = await axios.post(
@@ -145,15 +147,15 @@ export default function UserMetaCard() {
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                {user.name || "User not found"}
+                {user.name || t("User not found")}
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {user.role || "User not found"}
+                  {user.role || t("User not found")}
                 </p>
                 <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {user.email || "User not found"}
+                  {user.email || t("User not found")}
                 </p>
               </div>
             </div>
@@ -177,7 +179,7 @@ export default function UserMetaCard() {
                 fill=""
               />
             </svg>
-            Edit
+            {t("Edit")}
           </button>
         </div>
       </div>
@@ -189,7 +191,7 @@ export default function UserMetaCard() {
           <div className="no-scrollbar relative w-full max-w-[700px] m-4 overflow-y-auto rounded-3xl bg-white backdrop-blur-sm p-4 dark:bg-black lg:p-11 z-10">
             <div className="px-2 pr-14">
               <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-                Edit Personal Information
+                {t("Edit Personal Information")}
               </h4>
               <button 
                 onClick={closeModal}
@@ -212,12 +214,12 @@ export default function UserMetaCard() {
               <div className="custom-scrollbar h-[410px] overflow-y-auto px-2 pb-3">
                 <div className="mt-7">
                   <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                    Personal Information
+                    {t("Personal Information")}
                   </h5>
 
                   <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                     <div className="col-span-2 lg:col-span-1">
-                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{t("Name")}</label>
                       <input 
                         type="text"
                         className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-brand-500"
@@ -227,7 +229,7 @@ export default function UserMetaCard() {
                     </div>
 
                     <div className="col-span-2 lg:col-span-1">
-                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{t("Email")}</label>
                       <input 
                         type="email"
                         className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-brand-500"
@@ -237,7 +239,7 @@ export default function UserMetaCard() {
                     </div>
 
                     <div className="col-span-2 lg:col-span-1">
-                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
+                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{t("Phone")}</label>
                       <input 
                         type="text"
                         className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-brand-500"
@@ -247,7 +249,7 @@ export default function UserMetaCard() {
                     </div>
 
                     <div className="col-span-2 lg:col-span-1">
-                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Secondary phone</label>
+                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{t("Secondary phone")}</label>
                       <input 
                         type="text"
                         className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-brand-500"
@@ -257,28 +259,39 @@ export default function UserMetaCard() {
                     </div>
 
                     <div className="col-span-2">
-                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Avatar (Optional)</label>
-                      <input 
-                        type="file"
-                        accept="image/*"
-                        className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-700 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-brand-500"
-                        onChange={handleFileChange}
-                      />
-                      {selectedFile && (
-                        <div className="mt-2">
-                          <p className="text-sm text-gray-500">
-                            New file selected: {selectedFile.name}
-                          </p>
-                          <button 
-                            type="button"
-                            onClick={() => setSelectedFile(null)}
-                            className="mt-1 text-xs text-red-500 hover:text-red-700"
-                          >
-                            Remove selected file
-                          </button>
-                        </div>
-                      )}
-                    </div>
+  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+    {t("Avatar (Optional)")}
+  </label>
+
+  <label
+    htmlFor="avatar-upload"
+    className="block cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+  >
+    {selectedFile ? selectedFile.name : t("Choose an image")}
+  </label>
+
+  <input
+    id="avatar-upload"
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={handleFileChange}
+  />
+
+  {selectedFile && (
+    <div className="mt-2">
+      <p className="text-sm text-gray-500">{t("New file selected")}: {selectedFile.name}</p>
+      <button
+        type="button"
+        onClick={() => setSelectedFile(null)}
+        className="mt-1 text-xs text-red-500 hover:text-red-700"
+      >
+        {t("Remove selected file")}
+      </button>
+    </div>
+  )}
+</div>
+
                   </div>
                 </div>
                 <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
@@ -288,14 +301,14 @@ export default function UserMetaCard() {
                     className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-4 py-3 text-sm bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300"
                     disabled={isLoading}
                   >
-                    Close
+                    {t("Close")}
                   </button>
                   <button 
                     type="submit"
                     className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Saving..." : "Save Changes"}
+                    {isLoading ? t("Saving...") : t("Save Changes")}
                   </button>
                 </div>
               </div>

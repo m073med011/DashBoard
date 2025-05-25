@@ -10,15 +10,10 @@ import Image from 'next/image';
 type Blog = {
   id: number;
   title: string;
+  description: string;
+  slug: string;
   image: string;
   cover: string;
-  description: string;
-  keywords: string | null;
-  slug: string;
-  meta_title: string;
-  meta_description: string;
-  meta_keywords: string;
-  created_at: string;
 };
 
 export default function BlogsPage() {
@@ -33,7 +28,11 @@ export default function BlogsPage() {
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
-    if (storedToken) setToken(storedToken);
+    if (storedToken) {
+      setToken(storedToken);
+    } else {
+      console.error('Token not found in localStorage');
+    }
   }, []);
 
   useEffect(() => {
@@ -47,7 +46,7 @@ export default function BlogsPage() {
       }));
       setItems(res.data ?? []);
     } catch (error) {
-      console.error('Fetch failed', error);
+      console.error('Failed to fetch blogs', error);
     } finally {
       setLoading(false);
     }
@@ -72,8 +71,13 @@ export default function BlogsPage() {
     payload.append('title', formData.get('title') as string);
     payload.append('description', formData.get('description') as string);
     payload.append('slug', formData.get('slug') as string);
-    if (formData.get('image')) payload.append('image', formData.get('image') as File);
-    if (formData.get('cover')) payload.append('cover', formData.get('cover') as File);
+
+    if (formData.get('image')) {
+      payload.append('image', formData.get('image') as File);
+    }
+    if (formData.get('cover')) {
+      payload.append('cover', formData.get('cover') as File);
+    }
 
     try {
       if (modalState.type === 'create') {
@@ -105,36 +109,27 @@ export default function BlogsPage() {
             {
               key: 'image',
               label: 'Image',
-              render: (item) => (
-                <Image
-                  src={item.image}
-                  alt="image"
-                  width={50}
-                  height={50}
-                  className="rounded object-cover"
-                />
-              ),
+              render: (item) =>
+                item.image && (
+                  <Image src={item.image} alt="image" width={50} height={50} className="rounded object-cover" />
+                ),
             },
             {
               key: 'cover',
               label: 'Cover',
-              render: (item) => (
-                <Image
-                  src={item.cover}
-                  alt="cover"
-                  width={50}
-                  height={50}
-                  className="rounded object-cover"
-                />
-              ),
+              render: (item) =>
+                item.cover && (
+                  <Image src={item.cover} alt="cover" width={50} height={50} className="rounded object-cover" />
+                ),
             },
             { key: 'slug', label: 'Slug' },
           ]}
-          onCreate={() => setModalState({ type: 'create' })}
+          // onCreate={() => setModalState({ type: 'create' })}
+          onCreatePage={() => setModalState({ type: 'create' })}
           onEdit={(item) => setModalState({ type: 'edit', item })}
           onDelete={handleDelete}
           onView={(item) => setModalState({ type: 'view', item })}
-          // onQuickView={(item) => setModalState({ type: 'quick', item })}
+          onQuickView={(item) => setModalState({ type: 'quick', item })}
         />
       )}
 
@@ -154,8 +149,12 @@ export default function BlogsPage() {
             <p><strong>Title:</strong> {modalState.item?.title}</p>
             <p><strong>Description:</strong> {modalState.item?.description}</p>
             <p><strong>Slug:</strong> {modalState.item?.slug}</p>
-            <Image src={modalState.item?.image || ''} alt="Blog image" width={200} height={120} />
-            <Image src={modalState.item?.cover || ''} alt="Blog cover" width={200} height={120} />
+            {modalState.item?.image && (
+              <Image src={modalState.item.image} alt="Blog image" width={200} height={120} />
+            )}
+            {modalState.item?.cover && (
+              <Image src={modalState.item.cover} alt="Blog cover" width={200} height={120} />
+            )}
           </div>
         ) : (
           <form

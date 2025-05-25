@@ -5,6 +5,31 @@
     "protected_route": "Protected Route"
   },
   "Comming Soon": "Coming Soon",
+  "Profile": {
+    "Profile": "Profile",
+    "Edit Personal Information": "Edit Personal Information",
+    "Personal Information": "Personal Information",
+    "Name": "Name",
+    "Email": "Email",
+    "Phone": "Phone",
+    "Secondary phone": "Secondary phone",
+    "Avatar (Optional)": "Avatar (Optional)",
+    "Remove selected file": "Remove selected file",
+    "Close": "Close",
+    "Saving...": "Saving...",
+    "Save Changes": "Save Changes",
+    "User not found": "User not found",
+    "Edit": "Edit",
+    "New file selected": "New file selected",
+    "File uploaded successfully": "File uploaded successfully",
+    "No file selected": "No file selected",
+    "Choose an image": "Choose an image",
+    "Edit profile": "Edit profile"
+  },
+  "Header": {
+    "Sign out": "Sign out",
+    "Edit profile": "Edit profile"
+  },
   "Tables": {
     "Create New": "Create New",
     "Actions": "Actions",
@@ -32,7 +57,7 @@
     "Table": "Table",
     "Value": "Value",
     "Key": "Key",
-          "ID": "ID",
+    "ID": "ID",
     "Type": "Type",
     "Created At": "Created At",
     "Updated At": "Updated At",
@@ -55,7 +80,15 @@
     "Blog": "Blog",
     "Confirm Delete": "Confirm Delete",
     "Are you sure you want to delete this item?": "Are you sure you want to delete this item?",
-    "Cancel": "Cancel"  },
+    "Cancel": "Cancel",
+    "quickedit": "Quick Edit",
+    "NAME (AR)": "Name(ar)",
+    "NAME (EN)": "Name(en)",
+    "Description(ar)": "Description(ar)",
+    "Description(en)": "Description(en)",
+    "Banners": "Banners",
+    "edit": "Edit"
+  },
   "sidebar": {
     "dashboard": "Dashboard",
     "blogs": "Blogs",
@@ -90,8 +123,8 @@
   },
   "hoeme": {
     "welcome": "Welcome"
-    },
-  "blogs":{
+  },
+  "blogs": {
     "Manage Blogs": "Manage Blogs",
     "Add New Blog": "Add New Blog",
     "No blogs found": "No blogs found.",
@@ -107,5 +140,6 @@
     "Delete": "Delete",
     "Failed to load blog data": "Failed to load blog data",
     "Blog not found": "Blog not found",
-    "You must be logged in to view this blog": "You must be logged in to view this blog"  }
+    "You must be logged in to view this blog": "You must be logged in to view this blog"
+  }
 }

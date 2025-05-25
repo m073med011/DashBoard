@@ -5,10 +5,16 @@ import Table from '@/components/tables/Table';
 import ModalForm from '@/components/tables/ModalTableForm';
 import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
+import Image from 'next/image';
+
+type TitleObject = {
+  en: string;
+  ar: string;
+};
 
 type TypeItem = {
   id: number;
-  title: string;
+  title: TitleObject;
   image: string;
 };
 
@@ -40,7 +46,15 @@ export default function TypesPage() {
       const res = await getData('owner/types', {}, new AxiosHeaders({
         Authorization: `Bearer ${authToken}`,
       }));
-      setItems(res.data ?? []);
+
+      const normalized = (res.data ?? []).map((item: TypeItem) => ({
+        ...item,
+        title: typeof item.title === 'string'
+          ? { en: item.title, ar: '' }
+          : item.title,
+      }));
+
+      setItems(normalized);
     } catch (error) {
       console.error('Failed to fetch types', error);
     } finally {
@@ -64,12 +78,12 @@ export default function TypesPage() {
     if (!token) return;
 
     const payload = new FormData();
-    payload.append('title', formData.get('title') as string);
-    if (formData.get('image')) {
-      const file = formData.get('image') as File;
-      if (file && file.size > 0) {
-        payload.append('image', file);
-      }
+    payload.append('title[en]', formData.get('title[en]') as string);
+    payload.append('title[ar]', formData.get('title[ar]') as string);
+
+    const file = formData.get('image') as File;
+    if (file && file.size > 0) {
+      payload.append('image', file);
     }
 
     try {
@@ -98,12 +112,22 @@ export default function TypesPage() {
         <Table<TypeItem>
           data={items}
           columns={[
-            { key: 'title', label: 'Title' },
+            {
+              key: 'title',
+              label: 'Title',
+              render: (item) => item.title.en ?? '-',
+            },
             {
               key: 'image',
               label: 'Image',
               render: (item) => (
-                <img src={item.image} alt="type" className="h-12 w-12 object-cover rounded" />
+                <Image
+                  width={50}
+                  height={50}
+                  src={item.image}
+                  alt="type"
+                  className="h-12 w-12 object-cover rounded"
+                />
               ),
             },
           ]}
@@ -111,7 +135,6 @@ export default function TypesPage() {
           onEdit={item => setModalState({ type: 'edit', item })}
           onDelete={handleDelete}
           onView={item => setModalState({ type: 'view', item })}
-          // onQuickView={item => setModalState({ type: 'quick', item })}
         />
       )}
 
@@ -128,9 +151,12 @@ export default function TypesPage() {
       >
         {modalState.type === 'view' || modalState.type === 'quick' ? (
           <div className="space-y-2">
-            <p><strong>Title:</strong> {modalState.item?.title}</p>
+            <p><strong>Title (EN):</strong> {modalState.item?.title.en}</p>
+            <p><strong>Title (AR):</strong> {modalState.item?.title.ar}</p>
             {modalState.item?.image && (
-              <img
+              <Image
+                width={300}
+                height={200}
                 src={modalState.item.image}
                 alt="Type"
                 className="w-full rounded"
@@ -148,9 +174,17 @@ export default function TypesPage() {
           >
             <input
               type="text"
-              name="title"
-              placeholder="Type Title"
-              defaultValue={modalState.item?.title ?? ''}
+              name="title[en]"
+              placeholder="Title (EN)"
+              defaultValue={modalState.item?.title.en}
+              className="w-full border p-2 rounded"
+              required
+            />
+            <input
+              type="text"
+              name="title[ar]"
+              placeholder="Title (AR)"
+              defaultValue={modalState.item?.title.ar ?? ''}
               className="w-full border p-2 rounded"
               required
             />

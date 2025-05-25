@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { usePathname } from 'next/navigation';
-import { Eye, Pencil, Trash2, Plus } from 'lucide-react';
+import { Eye, Pencil, Trash2, Plus, ZoomIn } from 'lucide-react';
 import ConfirmDeleteModal from './ConfirmDeleteModal'; // adjust path as needed
+import { usePathname, useRouter } from "@/i18n/routing";
 
 type Column<T> = {
   key: keyof T;
@@ -16,22 +16,25 @@ type TableProps<T> = {
   data: T[];
   columns: Column<T>[];
   onCreate?: () => void;
+  onCreatePage?:()=>void;
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
   onView?: (item: T) => void;
-  // onQuickView?: (item: T) => void;
+  onQuickView?: (item: T) => void;
 };
 
 export default function Table<T extends { id: number }>({
   data,
   columns,
   onCreate,
+  onCreatePage,
   onEdit,
   onDelete,
   onView,
-  // onQuickView,
+  onQuickView,
 }: TableProps<T>) {
   const t = useTranslations('Tables');
+  const router = useRouter();
   const pathname = usePathname();
   const pathSegment = pathname?.split('/').filter(Boolean).pop() ?? '';
 
@@ -47,8 +50,9 @@ export default function Table<T extends { id: number }>({
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          {t('Table')} {t(pathSegment.charAt(0).toUpperCase() + pathSegment.slice(1))}
+           {t(pathSegment.charAt(0).toUpperCase() + pathSegment.slice(1))}
         </h2>
+        <div className='flex gap-3'>
         {onCreate && (
           <button
             onClick={onCreate}
@@ -58,6 +62,16 @@ export default function Table<T extends { id: number }>({
             {t('Create New')}
           </button>
         )}
+        {onCreatePage && (
+          <button
+          onClick={() => router.push(`${pathname}/add`)}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow transition-all duration-200"
+          >
+            <Plus className="w-4 h-4" />
+            {t('Create New')}
+          </button>
+        )}
+        </div>
       </div>
       <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
         <table className="w-full text-sm text-left text-gray-700 dark:text-gray-200 transition-colors">
@@ -82,8 +96,8 @@ export default function Table<T extends { id: number }>({
                     {col.render ? col.render(item) : String(item[col.key])}
                   </td>
                 ))}
-                <td className="px-4 py-3 border border-gray-200 dark:border-gray-700">
-                  <div className="flex gap-2 flex-wrap">
+                <td className=" p-4 border border-gray-200 dark:border-gray-700 max-w-[140px]">
+                  <div className="flex gap-2 flex-wrap flex-start">
                     {onView && (
                       <button
                         onClick={() => onView(item)}
@@ -93,22 +107,23 @@ export default function Table<T extends { id: number }>({
                         {t('View')}
                       </button>
                     )}
-                    {/* {onQuickView && (
+                    {onQuickView && (
                       <button
-                        onClick={() => onQuickView(item)}
+                      // on click route to page id 
+                      onClick={() => router.push(`${pathname}/Edit/${item.id}`)}
                         className="inline-flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
                       >
                         <ZoomIn className="w-4 h-4" />
-                        {t('Quick View')}
+                        {t('edit')}
                       </button>
-                    )} */}
+                    )}
                     {onEdit && (
                       <button
                         onClick={() => onEdit(item)}
                         className="inline-flex items-center gap-2 text-white bg-yellow-500 hover:bg-yellow-600 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
                       >
                         <Pencil className="w-4 h-4" />
-                        {t('Edit')}
+                        {t('quickedit')}
                       </button>
                     )}
                     {onDelete && (
