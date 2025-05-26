@@ -138,6 +138,24 @@
     "Delete": "حذف",
     "Failed to load blog data": "فشل تحميل بيانات المدونة",
     "Blog not found": "المدونة غير موجودة",
-    "You must be logged in to view this blog": "يجب عليك تسجيل الدخول لعرض هذه المدونة"
+    "You must be logged in to view this blog": "يجب عليك تسجيل الدخول لعرض هذه المدونة",
+    "Create Content": "إنشاء محتوى",
+    "Type ID": "معرف النوع",
+    "User ID": "معرف المستخدم",
+    "Cover": "الغلاف",
+    "Image": "الصورة",
+    "Description (EN)": "الوصف (انجليزي)",
+    "Description (AR)": "الوصف (عربي)",
+    "Submit": "إرسال",
+    "Title (EN)": "العنوان (انجليزي)",
+    "Title (AR)": "العنوان (عربي)",
+    "Keywords": "الكلمات المفتاحية",
+    "Slug (EN)": "الرابط (انجليزي)",
+    "Slug (AR)": "الرابط (عربي)",
+    "Meta Title": "العنوان الميتا",
+    "Meta Description": "وصف الميتا",
+    "Meta Keywords": "الكلمات المفتاحية الميتا",
+    "User": "المستخدم",
+    "This field is required": "هذا الحقل مطلوب"
   }
 }

@@ -6,6 +6,8 @@ import ModalForm from '@/components/tables/ModalTableForm';
 import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import Image from 'next/image';
+import Toast from '@/components/Toast';
+
 
 type TitleObject = {
   en: string;
@@ -18,10 +20,26 @@ type TypeItem = {
   image: string;
 };
 
+type ToastState = {
+  message: string;
+  type: 'success' | 'error' | 'info';
+  show: boolean;
+};
+
+
 export default function TypesPage() {
   const [items, setItems] = useState<TypeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState>({
+    message: '',
+    type: 'info',
+    show: false
+  }); 
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type, show: true });
+    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
+  };
 
   const [modalState, setModalState] = useState<{
     type: 'create' | 'edit' | 'view' | 'quick' | null;
@@ -69,8 +87,10 @@ export default function TypesPage() {
         Authorization: `Bearer ${token}`,
       }));
       fetchTypes(token);
+      showToast('Type deleted successfully', 'success');
     } catch (error) {
       console.error('Delete failed', error);
+      showToast('Delete failed', 'error');
     }
   };
 
@@ -99,14 +119,19 @@ export default function TypesPage() {
 
       fetchTypes(token);
       setModalState({ type: null });
+      showToast('Type saved successfully', 'success');
     } catch (error) {
       console.error('Save failed', error);
+      showToast('Save failed', 'error');
     }
   };
 
   return (
     <div className="p-6">
-      
+      {toast.show && (
+        <Toast message={toast.message} type={toast.type} duration={3000} />
+      )}  
+
       {loading ? (
         <p>Loading...</p>
       ) : (

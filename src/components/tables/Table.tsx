@@ -74,7 +74,7 @@ export default function Table<T extends { id: number }>({
         </div>
       </div>
       <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-        <table className="w-full text-sm text-left text-gray-700 dark:text-gray-200 transition-colors">
+        <table className="w-full text-sm  text-gray-700 dark:text-gray-200 transition-colors">
           <thead className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase">
             <tr>
               {columns.map((col) => (
@@ -89,7 +89,7 @@ export default function Table<T extends { id: number }>({
             {data.map((item) => (
               <tr
                 key={item.id}
-                className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition items-center"
               >
                 {columns.map((col) => (
                   <td key={String(col.key)} className="px-4 py-3 border border-gray-200 dark:border-gray-700">
@@ -97,7 +97,7 @@ export default function Table<T extends { id: number }>({
                   </td>
                 ))}
                 <td className=" p-4 border border-gray-200 dark:border-gray-700 ">
-                  <div className="flex gap-2 flex-wrap flex-start justify-start w-full items-center">
+                  <div className="flex gap-2 justify-center w-full items-center">
                     {onView && (
                       <button
                         onClick={() => onView(item)}

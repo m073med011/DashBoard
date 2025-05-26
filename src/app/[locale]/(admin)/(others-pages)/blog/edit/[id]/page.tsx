@@ -4,7 +4,10 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import dynamic from "next/dynamic";
-import { EditorState, convertToRaw, convertFromRaw } from "draft-js";
+import { EditorState, convertToRaw, ContentState } from "draft-js";
+import draftToHtml from "draftjs-to-html";
+import htmlToDraft from "html-to-draftjs";
+
 import type { ComponentType } from "react";
 import type { EditorProps } from "react-draft-wysiwyg";
 import { getData, postData } from "@/libs/axios/server";
@@ -109,7 +112,7 @@ export default function EditBlogPage() {
     if (token && id) {
       fetchBlog(id as string, token);
     }
-  },);
+  }, [token, id]);
 
   const fetchBlog = async (blogId: string, token: string) => {
     try {
@@ -139,17 +142,27 @@ export default function EditBlogPage() {
       setValue('user_ar', '');
       setValue('keywords_ar', blogData.keywords || '');
 
-      // Set editor states - description is a single field with JSON string
+      // Set editor states - description is HTML, convert it to Draft.js format
       if (blogData.description) {
         try {
-          const contentState = convertFromRaw(JSON.parse(blogData.description));
-          setDescriptionEn(EditorState.createWithContent(contentState));
-          setDescriptionAr(EditorState.createWithContent(contentState));
-        } catch  {
-          console.warn('Failed to parse description, using empty editor');
+          const contentBlock = htmlToDraft(blogData.description);
+          if (contentBlock) {
+            const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
+            setDescriptionEn(EditorState.createWithContent(contentState));
+            setDescriptionAr(EditorState.createWithContent(contentState));
+          } else {
+            // Fallback to empty editor if conversion fails
+            setDescriptionEn(EditorState.createEmpty());
+            setDescriptionAr(EditorState.createEmpty());
+          }
+        } catch (error) {
+          console.warn('Failed to parse HTML description, using empty editor', error);
           setDescriptionEn(EditorState.createEmpty());
           setDescriptionAr(EditorState.createEmpty());
         }
+      } else {
+        setDescriptionEn(EditorState.createEmpty());
+        setDescriptionAr(EditorState.createEmpty());
       }
 
     } catch (error) {
@@ -175,7 +188,6 @@ export default function EditBlogPage() {
     
     // English fields
     formData.append("title[en]", data.title_en);
-    formData.append("description[en]", JSON.stringify(convertToRaw(descriptionEn.getCurrentContent())));
     formData.append("slug[en]", data.slug_en);
     formData.append("meta_title[en]", data.meta_title_en);
     formData.append("meta_description[en]", data.meta_description_en);
@@ -185,7 +197,6 @@ export default function EditBlogPage() {
     
     // Arabic fields
     formData.append("title[ar]", data.title_ar);
-    formData.append("description[ar]", JSON.stringify(convertToRaw(descriptionAr.getCurrentContent())));
     formData.append("slug[ar]", data.slug_ar);
     formData.append("meta_title[ar]", data.meta_title_ar);
     formData.append("meta_description[ar]", data.meta_description_ar);
@@ -193,19 +204,40 @@ export default function EditBlogPage() {
     formData.append("user[ar]", data.user_ar);
     formData.append("keywords[ar]", data.keywords_ar);
 
+    // Convert editor content to HTML before sending
+    const descriptionEnHtml = draftToHtml(convertToRaw(descriptionEn.getCurrentContent()));
+    const descriptionArHtml = draftToHtml(convertToRaw(descriptionAr.getCurrentContent()));
+    
+    formData.append("description[en]", descriptionEnHtml);
+    formData.append("description[ar]", descriptionArHtml);
+
     // Files (only append if new files are selected)
     if (cover) formData.append("cover", cover);
     if (image) formData.append("image", image);
 
+    // Debug: Log FormData contents (remove in production)
+    console.log('FormData contents:');
+    // for (let [key, value] of formData.entries()) {
+    //   console.log(key, ':', value);
+    // }
+
     try {
-      await postData(`owner/blogs/${id}`, formData, new AxiosHeaders({
+      // Make sure Content-Type header is NOT set for FormData
+      const response = await postData(`owner/blogs/${id}`, formData, new AxiosHeaders({
         Authorization: `Bearer ${token}`,
+        // DON'T set Content-Type header - let the browser set it automatically for FormData
       }));
       
+      console.log('Response:', response);
       // toast.success('Blog updated successfully!');
       router.push('/ar/blog');
     } catch (error) {
       console.error('Failed to update blog:', error);
+      // Log more details about the error
+      if (error instanceof Error) {
+        console.error('Error response:');
+        console.error('Error status:');
+      }
       // toast.error('Failed to update blog. Please try again.');
     }
   };

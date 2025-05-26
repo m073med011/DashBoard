@@ -59,7 +59,7 @@ export default function BlogsPage() {
 
   useEffect(() => {
     if (token) fetchItems(token);
-  },);
+  }, [token]);
 
   const fetchItems = async (authToken: string) => {
     try {
@@ -220,7 +220,13 @@ export default function BlogsPage() {
         {modalState.type === 'view' || modalState.type === 'quick' ? (
           <div className="space-y-2">
             <p><strong>Title:</strong> {modalState.item?.title}</p>
-            <p><strong>Description:</strong> {modalState.item?.description}</p>
+            <div>
+  <strong>Description:</strong>
+  <div
+    className="prose prose-sm max-w-none"
+    dangerouslySetInnerHTML={{ __html: modalState.item?.description ?? '' }}
+  />
+</div>
             <p><strong>Slug:</strong> {modalState.item?.slug}</p>
             {modalState.item?.image && (
               <Image src={modalState.item.image} alt="Blog image" width={200} height={120} />

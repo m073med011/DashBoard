@@ -6,18 +6,37 @@ import ModalForm from '@/components/tables/ModalTableForm';
 import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import Image from 'next/image';
+import Toast from '@/components/Toast';
 
 type Area = {
   id: number;
-  name: string;
+  name: {
+    en: string;
+    ar: string;
+  };
   image: string;
   count_of_properties: number;
+};
+
+type ToastState = {
+  message: string;
+  type: 'success' | 'error' | 'info';
+  show: boolean;
 };
 
 export default function AreasPage() {
   const [items, setItems] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState>({
+    message: '',
+    type: 'info',
+    show: false
+  }); 
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type, show: true });
+    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
+  };
 
   const [modalState, setModalState] = useState<{
     type: 'create' | 'edit' | 'view' | 'quick' | null;
@@ -57,8 +76,10 @@ export default function AreasPage() {
         Authorization: `Bearer ${token}`,
       }));
       fetchAreas(token);
+      showToast('Area deleted successfully', 'success');
     } catch (error) {
       console.error('Delete failed', error);
+      showToast('Delete failed', 'error');
     }
   };
 
@@ -66,12 +87,13 @@ export default function AreasPage() {
     if (!token) return;
 
     const payload = new FormData();
-    payload.append('name', formData.get('name') as string);
-    if (formData.get('image')) {
-      const file = formData.get('image') as File;
-      if (file && file.size > 0) {
-        payload.append('image', file);
-      }
+    payload.append('name[en]', formData.get('name[en]') as string);
+    payload.append('name[ar]', formData.get('name[ar]') as string);
+    payload.append('count_of_properties', formData.get('count_of_properties') as string);
+
+    const file = formData.get('image') as File;
+    if (file && file.size > 0) {
+      payload.append('image', file);
     }
 
     try {
@@ -87,20 +109,30 @@ export default function AreasPage() {
 
       fetchAreas(token);
       setModalState({ type: null });
+      showToast('Area saved successfully', 'success');
     } catch (error) {
       console.error('Save failed', error);
+      showToast('Save failed', 'error');
     }
   };
 
   return (
     <div className="p-6">
+      {toast.show && (
+        <Toast message={toast.message} type={toast.type} duration={3000} />
+      )}
+
       {loading ? (
         <p>Loading...</p>
       ) : (
         <Table<Area>
           data={items}
           columns={[
-            { key: 'name', label: 'Name' },
+            {
+              key: 'name',
+              label: 'Name',
+              render: (item) => `${item.name.en} / ${item.name.ar}`,
+            },
             {
               key: 'image',
               label: 'Image',
@@ -123,7 +155,6 @@ export default function AreasPage() {
           onEdit={(item) => setModalState({ type: 'edit', item })}
           onDelete={handleDelete}
           onView={(item) => setModalState({ type: 'view', item })}
-          // onQuickView={(item) => setModalState({ type: 'quick', item })}
         />
       )}
 
@@ -140,7 +171,8 @@ export default function AreasPage() {
       >
         {modalState.type === 'view' || modalState.type === 'quick' ? (
           <div className="space-y-2">
-            <p><strong>Name:</strong> {modalState.item?.name}</p>
+            <p><strong>Name (EN):</strong> {modalState.item?.name.en}</p>
+            <p><strong>Name (AR):</strong> {modalState.item?.name.ar}</p>
             <p><strong>Properties:</strong> {modalState.item?.count_of_properties}</p>
             {modalState.item?.image && (
               <Image
@@ -163,9 +195,27 @@ export default function AreasPage() {
           >
             <input
               type="text"
-              name="name"
-              placeholder="Area Name"
-              defaultValue={modalState.item?.name ?? ''}
+              name="name[en]"
+              placeholder="Area Name (EN)"
+              defaultValue={modalState.item?.name.en ?? ''}
+              className="w-full border p-2 rounded"
+              required
+            />
+            <input
+              type="text"
+              name="name[ar]"
+              placeholder="Area Name (AR)"
+              defaultValue={modalState.item?.name.ar ?? ''}
+              className="w-full border p-2 rounded"
+              required
+            />
+            <input
+              type="number"
+              name="count_of_properties"
+              placeholder="Number of Properties"
+              defaultValue={
+                modalState.item?.count_of_properties?.toString() ?? ''
+              }
               className="w-full border p-2 rounded"
               required
             />

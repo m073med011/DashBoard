@@ -31,6 +31,7 @@
     "Edit profile": "Edit profile"
   },
   "Tables": {
+    "Link": "Link",
     "Create New": "Create New",
     "Actions": "Actions",
     "View": "View",
@@ -140,6 +141,23 @@
     "Delete": "Delete",
     "Failed to load blog data": "Failed to load blog data",
     "Blog not found": "Blog not found",
-    "You must be logged in to view this blog": "You must be logged in to view this blog"
+    "You must be logged in to view this blog": "You must be logged in to view this blog",
+    "Create Content": "Create Content",
+    "Type ID": "Type ID",
+    "User ID": "User ID",
+    "Cover": "Cover",
+    "Image": "Image",
+    "Description (EN)": "Description (EN)",
+    "Description (AR)": "Description (AR)",
+    "Submit": "Submit",
+    "Title (EN)": "Title (EN)",
+    "Title (AR)": "Title (AR)",
+    "Keywords": "Keywords",
+    "Slug (EN)": "Slug (EN)",
+    "Slug (AR)": "Slug (AR)",
+    "Meta Title": "Meta Title",
+    "Meta Description": "Meta Description",
+    "Meta Keywords": "Meta Keywords",
+    "User": "User"
   }
 }
