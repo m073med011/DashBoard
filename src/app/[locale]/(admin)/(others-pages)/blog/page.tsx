@@ -6,7 +6,7 @@ import ModalForm from '@/components/tables/ModalTableForm';
 import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import Image from 'next/image';
-
+import { toast } from 'react-toastify';
 type Blog = {
   id: number;
   title: string;
@@ -59,6 +59,7 @@ export default function BlogsPage() {
         Authorization: `Bearer ${token}`,
       }));
       fetchItems(token);
+      toast.success('Blog deleted successfully');
     } catch (error) {
       console.error('Delete failed', error);
     }

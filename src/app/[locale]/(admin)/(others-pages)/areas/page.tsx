@@ -143,9 +143,11 @@ export default function AreasPage() {
             <p><strong>Name:</strong> {modalState.item?.name}</p>
             <p><strong>Properties:</strong> {modalState.item?.count_of_properties}</p>
             {modalState.item?.image && (
-              <img
+              <Image
                 src={modalState.item.image}
                 alt="Area"
+                width={100}
+                height={100}
                 className="w-full rounded"
               />
             )}
