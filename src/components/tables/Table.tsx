@@ -96,8 +96,8 @@ export default function Table<T extends { id: number }>({
                     {col.render ? col.render(item) : String(item[col.key])}
                   </td>
                 ))}
-                <td className=" p-4 border border-gray-200 dark:border-gray-700 max-w-[140px]">
-                  <div className="flex gap-2 flex-wrap flex-start">
+                <td className=" p-4 border border-gray-200 dark:border-gray-700 ">
+                  <div className="flex gap-2 flex-wrap flex-start justify-start w-full items-center">
                     {onView && (
                       <button
                         onClick={() => onView(item)}
@@ -110,7 +110,7 @@ export default function Table<T extends { id: number }>({
                     {onQuickView && (
                       <button
                       // on click route to page id 
-                      onClick={() => router.push(`${pathname}/Edit/${item.id}`)}
+                      onClick={() => router.push(`${pathname}/edit/${item.id}`)}
                         className="inline-flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
                       >
                         <ZoomIn className="w-4 h-4" />

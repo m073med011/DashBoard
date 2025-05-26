@@ -183,33 +183,21 @@ const CreateContentPage = () => {
               toolbar={{
                 options: [
                   "inline",
-                  "blockType",
+                  // "blockType",
                   "list",
                   "textAlign",
-                  "link",
-                  "image",
+                  // "link",
+                  // "image",
                   "remove",
                   "history",
                 ],
-                inline: {
-                  options: ["bold", "italic", "underline", "strikethrough"],
-                },
-                // image: {
-                //   uploadEnabled: true,
-                //   uploadCallback: (file) =>
-                //     new Promise((resolve, reject) => {
-                //       const reader = new FileReader();
-                //       reader.onload = () =>
-                //         resolve({ data: { link: reader.result as string } });
-                //       reader.onerror = reject;
-                //       reader.readAsDataURL(file);
-                //     }),
-                //   previewImage: true,
+                // inline: {
+                //   options: ["bold", "italic", "underline", "strikethrough"],
                 // },
-                link: {
-                  options: ["link", "unlink"],
-                  defaultTargetOption: "_blank",
-                },
+                // link: {
+                //   options: ["link", "unlink"],
+                //   defaultTargetOption: "_blank",
+                // },
               }}
             />
           </div>
@@ -228,33 +216,33 @@ const CreateContentPage = () => {
               toolbar={{
                 options: [
                   "inline",
-                  "blockType",
+                  // "blockType",
                   "list",
                   "textAlign",
-                  "link",
-                  "image",
+                  // "link",
+                  // "image",
                   "remove",
                   "history",
                 ],
-                inline: {
-                  options: ["bold", "italic", "underline", "strikethrough"],
-                },
-                image: {
-                  uploadEnabled: true,
-                  // uploadCallback: (file) =>
-                  //   new Promise((resolve, reject) => {
-                  //     const reader = new FileReader();
-                  //     reader.onload = () =>
-                  //       resolve({ data: { link: reader.result as string } });
-                  //     reader.onerror = reject;
-                  //     reader.readAsDataURL(file);
-                  //   }),
-                  previewImage: true,
-                },
-                link: {
-                  options: ["link", "unlink"],
-                  defaultTargetOption: "_blank",
-                },
+                // inline: {
+                //   options: ["bold", "italic", "underline", "strikethrough"],
+                // },
+                // image: {
+                //   uploadEnabled: true,
+                //   // uploadCallback: (file) =>
+                //   //   new Promise((resolve, reject) => {
+                //   //     const reader = new FileReader();
+                //   //     reader.onload = () =>
+                //   //       resolve({ data: { link: reader.result as string } });
+                //   //     reader.onerror = reject;
+                //   //     reader.readAsDataURL(file);
+                //   //   }),
+                //   previewImage: true,
+                // },
+                // link: {
+                //   options: ["link", "unlink"],
+                //   defaultTargetOption: "_blank",
+                // },
               }}
             />
           </div>
