@@ -10,7 +10,7 @@ import type { EditorProps } from "react-draft-wysiwyg";
 import { getData, postData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
 import Image from "next/image";
-import { toast } from "react-hot-toast";
+// import { toast } from "react-hot-toast";
 
 const Editor = dynamic(() =>
   import("react-draft-wysiwyg").then((mod) => mod.Editor as ComponentType<EditorProps>),
@@ -100,7 +100,7 @@ export default function EditBlogPage() {
     if (storedToken) {
       setToken(storedToken);
     } else {
-      toast.error('Authentication token not found');
+      // toast.error('Authentication token not found');
       router.push('/login');
     }
   }, [router]);
@@ -154,7 +154,7 @@ export default function EditBlogPage() {
 
     } catch (error) {
       console.error('Failed to fetch blog:', error);
-      toast.error('Failed to load blog data');
+      // toast.error('Failed to load blog data');
     } finally {
       setLoading(false);
     }
@@ -162,7 +162,7 @@ export default function EditBlogPage() {
 
   const onSubmit = async (data: FormDataState) => {
     if (!token || !id) {
-      toast.error('Missing authentication or blog ID');
+      // toast.error('Missing authentication or blog ID');
       return;
     }
 
@@ -202,11 +202,11 @@ export default function EditBlogPage() {
         Authorization: `Bearer ${token}`,
       }));
       
-      toast.success('Blog updated successfully!');
+      // toast.success('Blog updated successfully!');
       router.push('/ar/blog');
     } catch (error) {
       console.error('Failed to update blog:', error);
-      toast.error('Failed to update blog. Please try again.');
+      // toast.error('Failed to update blog. Please try again.');
     }
   };
 

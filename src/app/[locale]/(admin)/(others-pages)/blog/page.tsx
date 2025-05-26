@@ -6,7 +6,8 @@ import ModalForm from '@/components/tables/ModalTableForm';
 import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import Image from 'next/image';
-// import Toast from '@/components/Toast';
+import Toast from '@/components/Toast';
+
 type Blog = {
   id: number;
   title: string;
@@ -16,15 +17,35 @@ type Blog = {
   cover: string;
 };
 
+type ToastState = {
+  message: string;
+  type: 'success' | 'error' | 'info';
+  show: boolean;
+};
+
 export default function BlogsPage() {
   const [items, setItems] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState>({
+    message: '',
+    type: 'info',
+    show: false
+  });
 
   const [modalState, setModalState] = useState<{
     type: 'create' | 'edit' | 'view' | 'quick' | null;
     item?: Blog;
   }>({ type: null });
+
+  // Toast helper function
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type, show: true });
+    // Hide toast after duration
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, show: false }));
+    }, 3000);
+  };
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -32,12 +53,13 @@ export default function BlogsPage() {
       setToken(storedToken);
     } else {
       console.error('Token not found in localStorage');
+      showToast('Authentication token not found', 'error');
     }
   }, []);
 
   useEffect(() => {
     if (token) fetchItems(token);
-  }, [token]);
+  },);
 
   const fetchItems = async (authToken: string) => {
     try {
@@ -47,25 +69,65 @@ export default function BlogsPage() {
       setItems(res.data ?? []);
     } catch (error) {
       console.error('Failed to fetch blogs', error);
+      showToast('Failed to fetch blogs', 'error');
     } finally {
       setLoading(false);
     }
   };
-// add toast if delete success
+
   const handleDelete = async (item: Blog) => {
-    if (!token) return;
+    if (!token) {
+      showToast('Authentication token not found', 'error');
+      return;
+    }
+    
     try {
       await deleteData(`owner/blogs/${item.id}`, new AxiosHeaders({
         Authorization: `Bearer ${token}`,
       }));
-      fetchItems(token);
-    } catch (error) {
-      console.error('Delete failed', error);
+      
+      // Refresh the list
+      await fetchItems(token);
+      showToast('Blog deleted successfully', 'success');
+    } catch {
+      console.error('Delete failed');
+      const errorMessage = 'Failed to delete blog';
+      showToast(errorMessage, 'error');
+    }
+  };
+
+  const handleView = async (item: Blog) => {
+    try {
+      setModalState({ type: 'view', item });
+      showToast('Blog loaded successfully', 'success');
+    } catch  {
+      showToast('Failed to load blog details', 'error');
+    }
+  };
+
+  const handleQuickView = async (item: Blog) => {
+    try {
+      setModalState({ type: 'quick', item });
+      showToast('Opening quick view', 'info');
+    } catch  {
+      showToast('Failed to open quick view', 'error');
+    }
+  };
+
+  const handleCreate = async () => {
+    try {
+      setModalState({ type: 'create' });
+      showToast('Create form opened', 'info');
+    } catch  {
+      showToast('Failed to open create form', 'error');
     }
   };
 
   const handleSubmit = async (formData: FormData) => {
-    if (!token) return;
+    if (!token) {
+      showToast('Authentication token not found', 'error');
+      return;
+    }
 
     const payload = new FormData();
     payload.append('title', formData.get('title') as string);
@@ -84,21 +146,34 @@ export default function BlogsPage() {
         await postData('owner/blogs', payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
+        showToast('Blog created successfully', 'success');
       } else if (modalState.type === 'edit' && modalState.item) {
         await patchData(`owner/blogs/${modalState.item.id}`, payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
+        showToast('Blog updated successfully', 'success');
       }
 
-      fetchItems(token);
+      await fetchItems(token);
       setModalState({ type: null });
-    } catch (error) {
-      console.error('Save failed', error);
+    } catch  {
+      console.error('Save failed');
+      const errorMessage = 'Failed to save blog';
+      showToast(errorMessage, 'error');
     }
   };
 
   return (
     <div className="p-6">
+      {/* Toast Notification */}
+      {toast.show && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          duration={3000}
+        />
+      )}
+
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -124,12 +199,10 @@ export default function BlogsPage() {
             },
             { key: 'slug', label: 'Slug' },
           ]}
-          // onCreate={() => setModalState({ type: 'create' })}
-          onCreatePage={() => setModalState({ type: 'create' })}
-          // onEdit={(item) => setModalState({ type: 'edit', item })}
+          onCreatePage={handleCreate}
           onDelete={handleDelete}
-          onView={(item) => setModalState({ type: 'view', item })}
-          onQuickView={(item) => setModalState({ type: 'quick', item })}
+          onView={handleView}
+          onQuickView={handleQuickView}
         />
       )}
 
