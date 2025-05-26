@@ -106,6 +106,7 @@ export default function TypesPage() {
 
   return (
     <div className="p-6">
+      
       {loading ? (
         <p>Loading...</p>
       ) : (
