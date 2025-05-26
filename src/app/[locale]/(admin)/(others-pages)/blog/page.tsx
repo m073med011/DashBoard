@@ -6,7 +6,7 @@ import ModalForm from '@/components/tables/ModalTableForm';
 import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import Image from 'next/image';
-import Toast from '@/components/Toast';
+// import Toast from '@/components/Toast';
 type Blog = {
   id: number;
   title: string;
