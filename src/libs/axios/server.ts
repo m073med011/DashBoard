@@ -2,7 +2,8 @@ import axios, { AxiosHeaders } from "axios";
 
 // Create an Axios instance
 const backendServer = axios.create({
-  baseURL: "https://lemonchiffon-octopus-104052.hostingersite.com/api/v1/dashboard/",
+  // baseurl from env
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
     "Content-Type": "multipart/form-data",
   },

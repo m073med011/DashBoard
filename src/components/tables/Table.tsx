@@ -20,7 +20,8 @@ type TableProps<T> = {
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
   onView?: (item: T) => void;
-  onQuickView?: (item: T) => void;
+  onEditPage?: (item: T) => void;
+  onViewPage?: (item: T) => void;
 };
 
 export default function Table<T extends { id: number }>({
@@ -31,7 +32,8 @@ export default function Table<T extends { id: number }>({
   onEdit,
   onDelete,
   onView,
-  onQuickView,
+  onEditPage,
+  onViewPage,
 }: TableProps<T>) {
   const t = useTranslations('Tables');
   const router = useRouter();
@@ -98,6 +100,16 @@ export default function Table<T extends { id: number }>({
                 ))}
                 <td className=" p-4 border border-gray-200 dark:border-gray-700 ">
                   <div className="flex gap-2 justify-center w-full items-center">
+                    {onViewPage && (
+                      <button
+                        onClick={() => router.push(`${pathname}/view/${item.id}`)}
+                        className="inline-flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+                      >
+                        <Eye className="w-4 h-4" />
+                        {t('View Page')}
+                      </button>
+                    )}
+                    
                     {onView && (
                       <button
                         onClick={() => onView(item)}
@@ -107,7 +119,8 @@ export default function Table<T extends { id: number }>({
                         {t('View')}
                       </button>
                     )}
-                    {onQuickView && (
+
+                    {onEditPage && (
                       <button
                       // on click route to page id 
                       onClick={() => router.push(`${pathname}/edit/${item.id}`)}

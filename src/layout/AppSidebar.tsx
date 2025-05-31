@@ -7,8 +7,8 @@ import { useSidebar } from "../context/SidebarContext";
 import { useTranslations, useLocale } from "next-intl";
 import {
   LayoutDashboard, Newspaper, Shapes, Map,
-  Building2, FileText, Sparkles, Star, MapPin,
-  GalleryHorizontal, Layers, Heart
+  Building2,
+  GalleryHorizontal,
 } from "lucide-react";
 import { ChevronDownIcon, HorizontaLDots } from "../icons/index";
 import Image from "next/image";
@@ -37,15 +37,7 @@ const NAV_ITEMS: NavItem[] = [
   { icon: <Shapes />, name: "types", path: "/types" },
   { icon: <Map />, name: "areas", path: "/areas" },
   {
-    icon: <Building2 />, name: "properties", path: "/properties", subItems: [
-      { icon: <FileText />, name: "Property Details", path: "/property-details" },
-      { icon: <Sparkles />, name: "Amenities", path: "/amenities" },
-      { icon: <Star />, name: "Features", path: "/features" },
-      { icon: <MapPin />, name: "Location", path: "/location" },
-      { icon: <GalleryHorizontal />, name: "Images", path: "/images" },
-      { icon: <Layers />, name: "Floor Plans", path: "/floor-plans" },
-      { icon: <Heart />, name: "Favourites", path: "/favourites" },
-    ],
+    icon: <Building2 />, name: "properties", path: "/properties"
   },
 ];
 

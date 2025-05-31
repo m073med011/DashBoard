@@ -1,0 +1,164 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import Table from "@/components/tables/Table";
+import Toast from "@/components/Toast";
+import Image from "next/image";
+import { getData, deleteData } from "@/libs/axios/server";
+import { AxiosHeaders } from "axios";
+import { useRouter } from "next/navigation";
+
+type User = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  avatar: string | null;
+  subscription: string;
+  role: string;
+};
+
+type PropertyType = {
+  id: number;
+  title: string;
+  image: string | null;
+};
+
+type ImageItem = {
+  id: number;
+  image: string;
+};
+
+type Location = {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+};
+
+type PropertyListing = {
+  id: number;
+  user: User;
+  type: PropertyType;
+  price: number;
+  kitchen: number;
+  title: string;
+  description: string;
+  slug: string;
+  property_listing_images: ImageItem[];
+  property_locations: Location[];
+};
+
+type ToastState = {
+  message: string;
+  type: "success" | "error" | "info";
+  show: boolean;
+};
+
+export default function PropertyListingsPage() {
+  const [items, setItems] = useState<PropertyListing[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<ToastState>({ message: "", type: "info", show: false });
+  const [token, setToken] = useState<string | null>(null);
+
+  const router = useRouter();
+
+  // Toast helper
+  const showToast = useCallback((message: string, type: ToastState["type"] = "info") => {
+    setToast({ message, type, show: true });
+    setTimeout(() => setToast(t => ({ ...t, show: false })), 3000);
+  }, []);
+
+  // Load token
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) setToken(storedToken);
+    else showToast("Authentication token not found", "error");
+  }, [showToast]);
+
+  // Fetch property listings
+  const fetchItems = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const res = await getData("owner/property_listings", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
+      setItems(res.data ?? []);
+    } catch (error) {
+      console.error(error);
+      showToast("Failed to fetch property listings", "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [token, showToast]);
+
+  useEffect(() => {
+    if (token) fetchItems();
+  }, [token, fetchItems]);
+
+  // Delete item handler
+  const handleDelete = useCallback(
+    async (item: PropertyListing) => {
+      if (!token) return showToast("No auth token", "error");
+
+      if (!confirm(`هل أنت متأكد من حذف "${item.title}"؟`)) return;
+
+      try {
+        await deleteData(`owner/property_listings/${item.id}`, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
+        showToast("تم حذف العقار بنجاح", "success");
+        await fetchItems();
+      } catch (error) {
+        console.error(error);
+        showToast("فشل حذف العقار", "error");
+      }
+    },
+    [token, fetchItems, showToast]
+  );
+
+  // Navigate handlers
+  const handleView = (item: PropertyListing) => router.push(`/properties/view/${item.id}`);
+  const handleEdit = (item: PropertyListing) => router.push(`/properties/edit/${item.id}`);
+
+  return (
+    <div className="p-6">
+      {toast.show && <Toast message={toast.message} type={toast.type} duration={3000} />}
+
+
+      {loading ? (
+        <div className="flex justify-center items-center min-h-[200px]">جاري التحميل...</div>
+      ) : (
+        <Table<PropertyListing>
+          data={items}
+          columns={[
+            { key: "title", label: "العنوان" },
+            {
+              key: "user",
+              label: "المالك",
+              render: (item) => item.user?.name ?? "غير معروف",
+            },
+            { key: "price", label: "السعر" },
+            {
+              key: "property_listing_images",
+              label: "صور",
+              render: (item) =>
+                item.property_listing_images?.[0] ? (
+                  <Image
+                    src={item.property_listing_images[0].image}
+                    alt={item.title}
+                    width={100}
+                    height={75}
+                    className="rounded object-cover"
+                  />
+                ) : (
+                  "لا توجد صورة"
+                ),
+            },
+          ]}
+          onCreatePage={()=>{}}
+          onViewPage={handleView}
+          onEditPage={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
+    </div>
+  );
+}

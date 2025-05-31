@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Table from '@/components/tables/Table';
-import ModalForm from '@/components/tables/ModalTableForm';
-import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
-import { AxiosHeaders } from 'axios';
-import Image from 'next/image';
-import Toast from '@/components/Toast';
+import { useEffect, useState, useCallback } from "react";
+import Table from "@/components/tables/Table";
+import ModalForm from "@/components/tables/ModalTableForm";
+import { getData, postData, patchData, deleteData } from "@/libs/axios/server";
+import { AxiosHeaders } from "axios";
+import Image from "next/image";
+import Toast from "@/components/Toast";
 
 type Blog = {
   id: number;
@@ -15,11 +15,12 @@ type Blog = {
   slug: string;
   image: string;
   cover: string;
+  user: string;
 };
 
 type ToastState = {
   message: string;
-  type: 'success' | 'error' | 'info';
+  type: "success" | "error" | "info";
   show: boolean;
 };
 
@@ -28,205 +29,201 @@ export default function BlogsPage() {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>({
-    message: '',
-    type: 'info',
-    show: false
+    message: "",
+    type: "info",
+    show: false,
   });
-
   const [modalState, setModalState] = useState<{
-    type: 'create' | 'edit' | 'view' | 'quick' | null;
+    type: "create" | "edit" | "view" | "quick" | null;
     item?: Blog;
   }>({ type: null });
 
-  // Toast helper function
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const showToast = useCallback((message: string, type: "success" | "error" | "info" = "info") => {
     setToast({ message, type, show: true });
-    // Hide toast after duration
     setTimeout(() => {
-      setToast(prev => ({ ...prev, show: false }));
+      setToast((prev) => ({ ...prev, show: false }));
     }, 3000);
-  };
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken);
-    } else {
-      console.error('Token not found in localStorage');
-      showToast('Authentication token not found', 'error');
-    }
   }, []);
 
   useEffect(() => {
-    if (token) fetchItems(token);
-  }, [token]);
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    } else {
+      console.error("Token not found in localStorage");
+      showToast("Authentication token not found", "error");
+    }
+  }, [showToast]);
 
-  const fetchItems = async (authToken: string) => {
+  useEffect(() => {
+    if (token) fetchItems(token);
+  }, [token]);  
+
+  const fetchItems = useCallback(async (authToken: string) => {
+    setLoading(true);
     try {
-      const res = await getData('owner/blogs', {}, new AxiosHeaders({
+      const res = await getData("owner/blogs", {}, new AxiosHeaders({
         Authorization: `Bearer ${authToken}`,
       }));
-      setItems(res.data ?? []);
+
+      const rawData = res.data ?? [];
+      const normalized: Blog[] = rawData.map((entry: { blog: Blog }) => {
+        const blog = entry.blog;
+        return {
+          id: blog.id,
+          title: blog.title,
+          description: blog.description,  
+          slug: blog.slug,
+          image: blog.image,
+          cover: blog.cover,
+          user: blog.user,
+        };
+      });
+
+      setItems(normalized);
     } catch (error) {
-      console.error('Failed to fetch blogs', error);
-      showToast('Failed to fetch blogs', 'error');
+      console.error("Failed to fetch blogs", error);
+      showToast("Failed to fetch blogs", "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
 
-  const handleDelete = async (item: Blog) => {
+  const handleDelete = useCallback(async (item: Blog) => {
     if (!token) {
-      showToast('Authentication token not found', 'error');
+      showToast("Authentication token not found", "error");
       return;
     }
-    
+
     try {
       await deleteData(`owner/blogs/${item.id}`, new AxiosHeaders({
         Authorization: `Bearer ${token}`,
       }));
-      
-      // Refresh the list
       await fetchItems(token);
-      showToast('Blog deleted successfully', 'success');
+      showToast("Blog deleted successfully", "success");
     } catch {
-      console.error('Delete failed');
-      const errorMessage = 'Failed to delete blog';
-      showToast(errorMessage, 'error');
+      console.error("Delete failed");
+      showToast("Failed to delete blog", "error");
     }
-  };
+  }, [token, fetchItems, showToast]);
 
-  const handleView = async (item: Blog) => {
-    try {
-      setModalState({ type: 'view', item });
-      showToast('Blog loaded successfully', 'success');
-    } catch  {
-      showToast('Failed to load blog details', 'error');
-    }
-  };
+  const handleView = useCallback((item: Blog) => {
+    setModalState({ type: "view", item });
+    showToast("Blog loaded successfully", "success");
+  }, [showToast]);
 
-  const handleQuickView = async (item: Blog) => {
-    try {
-      setModalState({ type: 'quick', item });
-      showToast('Opening quick view', 'info');
-    } catch  {
-      showToast('Failed to open quick view', 'error');
-    }
-  };
+  const handleQuickView = useCallback((item: Blog) => {
+    setModalState({ type: "quick", item });
+    showToast("Opening quick view", "info");
+  }, [showToast]);
 
-  const handleCreate = async () => {
-    try {
-      setModalState({ type: 'create' });
-      showToast('Create form opened', 'info');
-    } catch  {
-      showToast('Failed to open create form', 'error');
-    }
-  };
+  const handleCreate = useCallback(() => {
+    setModalState({ type: "create" });
+    showToast("Create form opened", "info");
+  }, [showToast]);
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = useCallback(async (formData: FormData) => {
     if (!token) {
-      showToast('Authentication token not found', 'error');
+      showToast("Authentication token not found", "error");
       return;
     }
 
     const payload = new FormData();
-    payload.append('title', formData.get('title') as string);
-    payload.append('description', formData.get('description') as string);
-    payload.append('slug', formData.get('slug') as string);
+    payload.append("title", formData.get("title") as string);
+    payload.append("description", formData.get("description") as string);
+    payload.append("slug", formData.get("slug") as string);
+    payload.append("user", formData.get("user") as string);
 
-    if (formData.get('image')) {
-      payload.append('image', formData.get('image') as File);
+    if (formData.get("image")) {
+      payload.append("image", formData.get("image") as File);
     }
-    if (formData.get('cover')) {
-      payload.append('cover', formData.get('cover') as File);
+    if (formData.get("cover")) {
+      payload.append("cover", formData.get("cover") as File);
     }
 
     try {
-      if (modalState.type === 'create') {
-        await postData('owner/blogs', payload, new AxiosHeaders({
+      if (modalState.type === "create") {
+        await postData("owner/blogs", payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
-        showToast('Blog created successfully', 'success');
-      } else if (modalState.type === 'edit' && modalState.item) {
+        showToast("Blog created successfully", "success");
+      } else if (modalState.type === "edit" && modalState.item) {
         await patchData(`owner/blogs/${modalState.item.id}`, payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
-        showToast('Blog updated successfully', 'success');
+        showToast("Blog updated successfully", "success");
       }
 
       await fetchItems(token);
       setModalState({ type: null });
-    } catch  {
-      console.error('Save failed');
-      const errorMessage = 'Failed to save blog';
-      showToast(errorMessage, 'error');
+    } catch {
+      console.error("Save failed");
+      showToast("Failed to save blog", "error");
     }
-  };
+  }, [token, modalState, fetchItems, showToast]);
 
   return (
     <div className="p-6">
-      {/* Toast Notification */}
       {toast.show && (
-        <Toast 
-          message={toast.message} 
-          type={toast.type} 
-          duration={3000}
-        />
+        <Toast message={toast.message} type={toast.type} duration={3000} />
       )}
 
       {loading ? (
-        <p>Loading...</p>
+        <div className="flex justify-center items-center min-h-[200px]">
+          <div className="loader">Loading...</div>
+        </div>
       ) : (
         <Table<Blog>
           data={items}
           columns={[
-            { key: 'title', label: 'Title' },
+            { key: "title", label: "Title" },
+            { key: "user", label: "User" },
             {
-              key: 'image',
-              label: 'Image',
+              key: "image",
+              label: "Image",
               render: (item) =>
                 item.image && (
                   <Image src={item.image} alt="image" width={100} height={100} className="rounded object-cover" />
                 ),
             },
             {
-              key: 'cover',
-              label: 'Cover',
+              key: "cover",
+              label: "Cover",
               render: (item) =>
                 item.cover && (
                   <Image src={item.cover} alt="cover" width={100} height={100} className="rounded object-cover" />
                 ),
             },
-            { key: 'slug', label: 'Slug' },
+            { key: "slug", label: "Slug" },
           ]}
           onCreatePage={handleCreate}
           onDelete={handleDelete}
-          onView={handleView}
-          onQuickView={handleQuickView}
+          onViewPage={handleView}
+          onEditPage={handleQuickView}
         />
       )}
 
       <ModalForm
         open={!!modalState.type}
         title={
-          modalState.type === 'create'
-            ? 'Create Blog'
-            : modalState.type === 'edit'
-            ? 'Edit Blog'
-            : 'View Blog'
+          modalState.type === "create"
+            ? "Create Blog"
+            : modalState.type === "edit"
+            ? "Edit Blog"
+            : "View Blog"
         }
         onClose={() => setModalState({ type: null })}
       >
-        {modalState.type === 'view' || modalState.type === 'quick' ? (
+        {modalState.type === "view" || modalState.type === "quick" ? (
           <div className="space-y-2">
             <p><strong>Title:</strong> {modalState.item?.title}</p>
             <div>
-  <strong>Description:</strong>
-  <div
-    className="prose prose-sm max-w-none"
-    dangerouslySetInnerHTML={{ __html: modalState.item?.description ?? '' }}
-  />
-</div>
+              <strong>Description:</strong>
+              <div
+                className="prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: modalState.item?.description ?? "" }}
+              />
+            </div>
             <p><strong>Slug:</strong> {modalState.item?.slug}</p>
             {modalState.item?.image && (
               <Image src={modalState.item.image} alt="Blog image" width={200} height={120} />
@@ -248,14 +245,14 @@ export default function BlogsPage() {
               type="text"
               name="title"
               placeholder="Title"
-              defaultValue={modalState.item?.title ?? ''}
+              defaultValue={modalState.item?.title ?? ""}
               className="w-full border p-2 rounded"
               required
             />
             <textarea
               name="description"
               placeholder="Description"
-              defaultValue={modalState.item?.description ?? ''}
+              defaultValue={modalState.item?.description ?? ""}
               className="w-full border p-2 rounded"
               required
             />
@@ -263,7 +260,7 @@ export default function BlogsPage() {
               type="text"
               name="slug"
               placeholder="Slug"
-              defaultValue={modalState.item?.slug ?? ''}
+              defaultValue={modalState.item?.slug ?? ""}
               className="w-full border p-2 rounded"
               required
             />

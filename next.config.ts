@@ -17,6 +17,18 @@ const nextConfig: NextConfig = {
       {
         hostname: "lemonchiffon-octopus-104052.hostingersite.com",
       },
+      // https://darkgrey-chough-759221.hostingersite.com/api/v1/dashboard/
+      {
+        hostname: "darkgrey-chough-759221.hostingersite.com",
+      },
+      // "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiqrkHU7rL47iHmsuHIWt62VRqLNQi2vSMof35TytFW55JHO1L3afgc3nVfkXrKbR0UKA&usqp=CAU"
+      {
+        hostname: "encrypted-tbn0.gstatic.com",
+      },
+      // "https://fantasticegypt.com/images/mapofcairoegypt.jpg",
+      {
+        hostname: "fantasticegypt.com",
+      },
     ],
   },
 };
