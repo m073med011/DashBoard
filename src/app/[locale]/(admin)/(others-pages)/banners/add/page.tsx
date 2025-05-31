@@ -7,6 +7,7 @@ import { AxiosHeaders } from "axios";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Toast from "@/components/Toast";
+import Image from "next/image";
 
 type FormInputs = {
   link: string;
@@ -261,7 +262,9 @@ const CreateBannerPage = () => {
                       {imageEn && (
                         <div>
                           <label className="block mb-2 font-medium text-sm">{t("English Image")}</label>
-                          <img
+                          <Image
+                            width={100}
+                            height={100}
                             src={URL.createObjectURL(imageEn)}
                             alt="English preview"
                             className="w-full h-48 object-cover rounded-lg border"
@@ -271,7 +274,9 @@ const CreateBannerPage = () => {
                       {imageAr && (
                         <div>
                           <label className="block mb-2 font-medium text-sm">{t("Arabic Image")}</label>
-                          <img
+                          <Image
+                            width={100}
+                            height={100}
                             src={URL.createObjectURL(imageAr)}
                             alt="Arabic preview"
                             className="w-full h-48 object-cover rounded-lg border"

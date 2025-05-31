@@ -8,6 +8,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Toast from "@/components/Toast";
 import RichTextEditor from "@/components/RichTextEditor";
+import Image from "next/image";
 
 type FormInputs = {
   link: string;
@@ -265,7 +266,9 @@ const EditBannerPage = () => {
                   {currentImageAr && !imageAr && (
                     <div className="mb-4">
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t("Current Image:")}</p>
-                      <img
+                      <Image
+                        width={100}
+                        height={100}
                         src={currentImageAr}
                         alt="Current Arabic image"
                         className="w-32 h-24 object-cover rounded-lg border"
@@ -316,7 +319,9 @@ const EditBannerPage = () => {
                   {currentImageEn && !imageEn && (
                     <div className="mb-4">
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t("Current Image:")}</p>
-                      <img
+                      <Image
+                        width={100}
+                        height={100}
                         src={currentImageEn}
                         alt="Current English image"
                         className="w-32 h-24 object-cover rounded-lg border"
@@ -361,13 +366,17 @@ const EditBannerPage = () => {
                     <div>
                       <label className="block mb-2 font-medium text-sm">{t("English Image")}</label>
                       {imageEn ? (
-                        <img
+                        <Image
+                          width={100}
+                          height={100}
                           src={URL.createObjectURL(imageEn)}
                           alt="New English preview"
                           className="w-full h-48 object-cover rounded-lg border"
                         />
                       ) : currentImageEn ? (
-                        <img
+                        <Image
+                          width={100}
+                          height={100}
                           src={currentImageEn}
                           alt="Current English image"
                           className="w-full h-48 object-cover rounded-lg border"
@@ -383,13 +392,17 @@ const EditBannerPage = () => {
                     <div>
                       <label className="block mb-2 font-medium text-sm">{t("Arabic Image")}</label>
                       {imageAr ? (
-                        <img
+                        <Image
+                          width={100}
+                          height={100}
                           src={URL.createObjectURL(imageAr)}
                           alt="New Arabic preview"
                           className="w-full h-48 object-cover rounded-lg border"
                         />
                       ) : currentImageAr ? (
-                        <img
+                        <Image
+                          width={100}
+                          height={100}
                           src={currentImageAr}
                           alt="Current Arabic image"
                           className="w-full h-48 object-cover rounded-lg border"

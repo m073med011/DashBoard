@@ -45,20 +45,6 @@ export default function BlogsPage() {
     }, 3000);
   }, []);
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
-    } else {
-      console.error("Token not found in localStorage");
-      showToast("Authentication token not found", "error");
-    }
-  }, [showToast]);
-
-  useEffect(() => {
-    if (token) fetchItems(token);
-  }, [token]);  
-
   const fetchItems = useCallback(async (authToken: string) => {
     setLoading(true);
     try {
@@ -72,7 +58,7 @@ export default function BlogsPage() {
         return {
           id: blog.id,
           title: blog.title,
-          description: blog.description,  
+          description: blog.description,
           slug: blog.slug,
           image: blog.image,
           cover: blog.cover,
@@ -88,6 +74,20 @@ export default function BlogsPage() {
       setLoading(false);
     }
   }, [showToast]);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    } else {
+      console.error("Token not found in localStorage");
+      showToast("Authentication token not found", "error");
+    }
+  }, [showToast]);
+
+  useEffect(() => {
+    if (token) fetchItems(token);
+  }, [token, fetchItems]);
 
   const handleDelete = useCallback(async (item: Blog) => {
     if (!token) {
@@ -113,8 +113,8 @@ export default function BlogsPage() {
   }, [showToast]);
 
   const handleQuickView = useCallback((item: Blog) => {
-    setModalState({ type: "quick", item });
-    showToast("Opening quick view", "info");
+    setModalState({ type: "edit", item });
+    showToast("Opening edit form", "info");
   }, [showToast]);
 
   const handleCreate = useCallback(() => {
@@ -214,7 +214,7 @@ export default function BlogsPage() {
         }
         onClose={() => setModalState({ type: null })}
       >
-        {modalState.type === "view" || modalState.type === "quick" ? (
+        {modalState.type === "view" ? (
           <div className="space-y-2">
             <p><strong>Title:</strong> {modalState.item?.title}</p>
             <div>
@@ -261,6 +261,14 @@ export default function BlogsPage() {
               name="slug"
               placeholder="Slug"
               defaultValue={modalState.item?.slug ?? ""}
+              className="w-full border p-2 rounded"
+              required
+            />
+            <input
+              type="text"
+              name="user"
+              placeholder="User"
+              defaultValue={modalState.item?.user ?? ""}
               className="w-full border p-2 rounded"
               required
             />

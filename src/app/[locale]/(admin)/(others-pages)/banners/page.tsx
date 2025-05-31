@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
 import Table from '@/components/tables/Table';
 import { getData, deleteData } from '@/libs/axios/server';
@@ -14,6 +14,7 @@ type Banner = {
   name: string;
   image: string;
 };
+
 type RawBanner = {
   id: number;
   link: string;
@@ -27,7 +28,6 @@ type RawBanner = {
     image?: string;
   };
 };
-
 
 type ToastState = {
   message: string;
@@ -43,15 +43,42 @@ export default function Page() {
   const [toast, setToast] = useState<ToastState>({
     message: '',
     type: 'info',
-    show: false
+    show: false,
   });
 
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToast({ message, type, show: true });
-    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
-  };
+    setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
+  }, []);
 
-  // View-only handlers for create/edit, but keep delete functionality
+  const fetchItems = useCallback(
+    async (authToken: string) => {
+      try {
+        const res = await getData('owner/banners', {}, new AxiosHeaders({
+          Authorization: `Bearer ${authToken}`,
+        }));
+
+        const rawData = res.data ?? [];
+
+        const localizedData: Banner[] = (rawData as RawBanner[]).map((item) => ({
+          id: item.id,
+          link: item.link,
+          type: item.type,
+          name: item[locale as 'en' | 'ar']?.name || '',
+          image: item[locale as 'en' | 'ar']?.image || '',
+        }));
+
+        setItems(localizedData);
+      } catch (error) {
+        console.error('Failed to fetch banners', error);
+        showToast('Failed to fetch banners', 'error');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [locale, showToast]
+  );
+
   const handleView = (item: Banner) => {
     showToast(`Viewing banner: ${item.name}`, 'info');
   };
@@ -89,37 +116,11 @@ export default function Page() {
       console.error('Token not found in localStorage');
       showToast('Authentication token not found', 'error');
     }
-  }, []);
+  }, [showToast]);
 
   useEffect(() => {
     if (token) fetchItems(token);
-  }, [token]);
-
-  const fetchItems = async (authToken: string) => {
-    try {
-      const res = await getData('owner/banners', {}, new AxiosHeaders({
-        Authorization: `Bearer ${authToken}`,
-      }));
-
-      const rawData = res.data ?? [];
-
-      const localizedData: Banner[] = (rawData as RawBanner[]).map((item) => ({
-        id: item.id,
-        link: item.link,
-        type: item.type,
-        name: item[locale as 'en' | 'ar']?.name || '',
-        image: item[locale as 'en' | 'ar']?.image || '',
-      }));
-      
-
-      setItems(localizedData);
-    } catch (error) {
-      console.error('Failed to fetch banners', error);
-      showToast('Failed to fetch banners', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [token, fetchItems]);
 
   return (
     <div className="p-6">
