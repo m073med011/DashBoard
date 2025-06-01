@@ -5,6 +5,7 @@ import { PropertyData } from '@/types/PropertyTypes';
 import { deleteData, postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import ModalForm from '@/components/tables/ModalTableForm';
+// import { PropertyFeature } from '@/types/PropertyTypes';
 
 interface PropertyFeature {
   id: number;
@@ -375,7 +376,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleEditClick(feature)}
+                    onClick={() => handleEditClick(feature as unknown as PropertyFeature)}
                     className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg transition duration-200"
                     title="Edit feature"
                   >
