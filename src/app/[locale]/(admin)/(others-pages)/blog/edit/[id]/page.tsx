@@ -41,14 +41,15 @@ type TypeOption = {
 
 type BlogData = {
   id: number;
-  type: { id: number; title: string };
+  type: { id: number; title: string } | null; // Allow null type
   image: string;
   cover: string;
+  keywords: string; // Add this field from the API response
   descriptions: {
     en: {
       title: string;
       description: string;
-      keywords: string;
+      keywords?: string; // Make optional since it might be null in response
       slug: string;
       meta_title: string;
       meta_description: string;
@@ -58,7 +59,7 @@ type BlogData = {
     ar: {
       title: string;
       description: string;
-      keywords: string;
+      keywords?: string; // Make optional since it might be null in response
       slug: string;
       meta_title: string;
       meta_description: string;
@@ -145,23 +146,23 @@ const EditContentPage = () => {
           if (response.status && response.data?.blog) {
             const blog: BlogData = response.data.blog;
             
-            // Set form values
+            // Set form values with null safety
             reset({
-              type_id: blog.type.id.toString(),
+              type_id: blog.type?.id?.toString() || "", // Handle null type
               title_en: blog.descriptions.en.title,
               slug_en: blog.descriptions.en.slug,
               meta_title_en: blog.descriptions.en.meta_title,
               meta_description_en: blog.descriptions.en.meta_description,
               meta_keywords_en: blog.descriptions.en.meta_keywords,
               user_en: blog.descriptions.en.user,
-              keywords_en: blog.descriptions.en.keywords,
+              keywords_en: blog.descriptions.en.keywords || blog.keywords || "", // Use keywords from descriptions or main keywords
               title_ar: blog.descriptions.ar.title,
               slug_ar: blog.descriptions.ar.slug,
               meta_title_ar: blog.descriptions.ar.meta_title,
               meta_description_ar: blog.descriptions.ar.meta_description,
               meta_keywords_ar: blog.descriptions.ar.meta_keywords,
               user_ar: blog.descriptions.ar.user,
-              keywords_ar: blog.descriptions.ar.keywords,
+              keywords_ar: blog.descriptions.ar.keywords || blog.keywords || "", // Use keywords from descriptions or main keywords
             });
             
             // Set rich text editor values
@@ -199,23 +200,23 @@ const EditContentPage = () => {
     formData.append("type_id", data.type_id);
     
     // English fields
-    formData.append("title[en]", data.title_en);
-    formData.append("slug[en]", data.slug_en);
-    formData.append("meta_title[en]", data.meta_title_en);
-    formData.append("meta_description[en]", data.meta_description_en);
-    formData.append("meta_keywords[en]", data.meta_keywords_en);
-    formData.append("user[en]", data.user_en);
-    formData.append("keywords[en]", data.keywords_en);
+    formData.append("title[en]", data?.title_en);
+    formData.append("slug[en]", data?.slug_en);
+    formData.append("meta_title[en]", data?.meta_title_en);
+    formData.append("meta_description[en]", data?.meta_description_en);
+    formData.append("meta_keywords[en]", data?.meta_keywords_en);
+    formData.append("user[en]", data?.user_en);
+    formData.append("keywords[en]", data?.keywords_en);
     formData.append("description[en]", descriptionEn);
     
     // Arabic fields
-    formData.append("title[ar]", data.title_ar);
-    formData.append("slug[ar]", data.slug_ar);
-    formData.append("meta_title[ar]", data.meta_title_ar);
-    formData.append("meta_description[ar]", data.meta_description_ar);
-    formData.append("meta_keywords[ar]", data.meta_keywords_ar);
-    formData.append("user[ar]", data.user_ar);
-    formData.append("keywords[ar]", data.keywords_ar);
+    formData.append("title[ar]", data?.title_ar);
+    formData.append("slug[ar]", data?.slug_ar);
+    formData.append("meta_title[ar]", data?.meta_title_ar);
+    formData.append("meta_description[ar]", data?.meta_description_ar);
+    formData.append("meta_keywords[ar]", data?.meta_keywords_ar);
+    formData.append("user[ar]", data?.user_ar);
+    formData.append("keywords[ar]", data?.keywords_ar);
     formData.append("description[ar]", descriptionAr);
 
     if (cover) formData.append("cover", cover);

@@ -98,12 +98,12 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
   const handleEditClick = (feature: PropertyFeature) => {
     setFormData({
       property_listing_id: propertyId || '',
-      'descriptions[en]': feature.description?.en?.description || '',
-      'descriptions[ar]': feature.description?.ar?.description || '',
-      type: feature.type || 'property_feature',
-      'key[en]': feature.key || '',
-      'key[ar]': feature.key || '', // Assuming key is the same for both languages based on JSON structure
-      'value[en]': feature.value || '',
+      'descriptions[en]': feature?.description?.en?.description || '',
+      'descriptions[ar]': feature?.description?.ar?.description || '',
+      type: feature?.type || 'property_feature',
+      'key[en]': feature?.key || '',
+      'key[ar]': feature?.key || '', // Assuming key is the same for both languages based on JSON structure
+      'value[en]': feature?.value || '',
       'value[ar]': feature.value || '' // Assuming value is the same for both languages based on JSON structure
     });
     setSelectedFeatureId(feature.id.toString());
@@ -358,19 +358,19 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
         </button>
       </div>
 
-      {property.features.length > 0 ? (
+      {property?.features?.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {property.features.map((feature) => (
+          {property?.features?.map((feature) => (
             <div key={feature.id} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-500">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1">
                   <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                   <div>
                     <span className="text-gray-800 dark:text-gray-200 font-medium">
-                      {feature.key}:
+                      {feature?.key}:
                     </span>
                     <span className="text-gray-600 dark:text-gray-300 ml-2">
-                      {feature.value}
+                      {feature?.value}
                     </span>
                   </div>
                 </div>
@@ -383,7 +383,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
                     <Edit size={16} />
                   </button>
                   <button
-                    onClick={() => handleDeleteClick(feature.id.toString())}
+                    onClick={() => handleDeleteClick(feature?.id?.toString())}
                     className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition duration-200"
                     title="Delete feature"
                   >

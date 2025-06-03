@@ -58,7 +58,7 @@ export default function PropertyDetailsPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-6">
       {toast.show && (
-        <Toast message={toast.message} type={toast.type} duration={3000} />
+        <Toast message={toast?.message} type={toast?.type} duration={3000} />
       )}
       
       <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
@@ -67,10 +67,10 @@ export default function PropertyDetailsPage() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-3xl font-bold">
-                {property.descriptions.en.title}
+                {property?.descriptions?.en?.title}
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
-                Property ID: {property.id} • {property.type.descriptions.en.title}
+                Property ID: {property?.id} • {property?.type?.descriptions?.en?.title}
               </p>
             </div>
             <div className="flex space-x-3">

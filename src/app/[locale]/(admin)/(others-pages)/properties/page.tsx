@@ -7,6 +7,7 @@ import Image from "next/image";
 import { getData, deleteData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
 import { useRouter } from "next/navigation";
+import {useLocale } from "next-intl";
 
 type User = {
   id: number;
@@ -56,6 +57,7 @@ type ToastState = {
 };
 
 export default function PropertyListingsPage() {
+  const locale = useLocale();
   const [items, setItems] = useState<PropertyListing[]>([]);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<ToastState>({ message: "", type: "info", show: false });
@@ -81,7 +83,7 @@ export default function PropertyListingsPage() {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await getData("owner/property_listings", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
+      const res = await getData("owner/property_listings", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` , "lang": locale }));
       setItems(res.data ?? []);
     } catch (error) {
       console.error(error);
@@ -89,7 +91,7 @@ export default function PropertyListingsPage() {
     } finally {
       setLoading(false);
     }
-  }, [token, showToast]);
+  }, [token, locale, showToast]);
 
   useEffect(() => {
     if (token) fetchItems();
@@ -129,16 +131,16 @@ export default function PropertyListingsPage() {
         <Table<PropertyListing>
           data={items}
           columns={[
-            { key: "title", label: "العنوان" },
+            { key: "title", label: "title" },
             {
               key: "user",
-              label: "المالك",
-              render: (item) => item.user?.name ?? "غير معروف",
+              label: "user",
+              render: (item) => item.user?.name ?? "Unknown",
             },
-            { key: "price", label: "السعر" },
+            { key: "price", label: "price" },
             {
               key: "property_listing_images",
-              label: "صور",
+              label: "images", 
               render: (item) =>
                 item.property_listing_images?.[0] ? (
                   <Image
@@ -149,7 +151,7 @@ export default function PropertyListingsPage() {
                     className="rounded object-cover"
                   />
                 ) : (
-                  "لا توجد صورة"
+                  "No image"
                 ),
             },
           ]}

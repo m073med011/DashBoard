@@ -199,13 +199,13 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Property Images</h3>
         <div className="flex items-center gap-2">
-          {property.property_listing_images.length > 0 && (
+          {property?.property_listing_images?.length > 0 && (
             <>
               <button
                 onClick={handleSelectAll}
                 className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 text-sm"
               >
-                {selectedImageIds.length === property.property_listing_images.length ? 'Deselect All' : 'Select All'}
+                {selectedImageIds.length === property?.property_listing_images?.length ? 'Deselect All' : 'Select All'}
               </button>
               {selectedImageIds.length > 0 && (
                 <button
@@ -213,7 +213,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
                   className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2 text-sm"
                 >
                   <Trash2 size={16} />
-                  Delete Selected ({selectedImageIds.length})
+                  Delete Selected ({selectedImageIds?.length})
                 </button>
               )}
             </>
@@ -228,16 +228,16 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
         </div>
       </div>
 
-      {property.property_listing_images.length > 0 ? (
+      {property?.property_listing_images?.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {property.property_listing_images.map((image, index) => (
+          {property?.property_listing_images?.map((image, index) => (
             <div key={image.id} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-500 relative">
               {/* Selection Checkbox */}
               <div className="absolute top-2 left-2 z-10">
                 <input
                   type="checkbox"
-                  checked={selectedImageIds.includes(image.id.toString())}
-                  onChange={(e) => handleImageSelect(image.id.toString(), e.target.checked)}
+                  checked={selectedImageIds.includes(image?.id?.toString())}
+                  onChange={(e) => handleImageSelect(image?.id?.toString(), e.target.checked)}
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                 />
               </div>
@@ -245,7 +245,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
               {/* Delete Button */}
               <div className="absolute top-2 right-2 z-10">
                 <button
-                  onClick={() => handleDeleteClick(image.id.toString())}
+                  onClick={() => handleDeleteClick(image?.id?.toString())}
                   className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition duration-200 shadow-md"
                   title="Delete image"
                 >
@@ -255,14 +255,14 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
 
               <div className="aspect-video relative rounded overflow-hidden mb-2">
                 <Image
-                  src={image.image}
+                  src={image?.image}
                   alt={`Property image ${index + 1}`}
                   fill
                   className="object-cover"
                 />
               </div>
               <a
-                href={image.image}
+                href={image?.image}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block text-blue-600 hover:text-blue-800 text-sm"
@@ -300,7 +300,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
         }}
       >
         <p className="text-gray-600 mb-6">
-          Are you sure you want to delete {selectedImageIds.length === 1 ? 'this image' : `these ${selectedImageIds.length} images`}? This action cannot be undone.
+          Are you sure you want to delete {selectedImageIds?.length === 1 ? 'this image' : `these ${selectedImageIds?.length} images`}? This action cannot be undone.
         </p>
         <div className="flex justify-end space-x-3">
           <button
@@ -318,7 +318,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition duration-200 disabled:opacity-50"
             disabled={loading}
           >
-            {loading ? 'Deleting...' : `Delete ${selectedImageIds.length === 1 ? 'Image' : 'Images'}`}
+            {loading ? 'Deleting...' : `Delete ${selectedImageIds?.length === 1 ? 'Image' : 'Images'}`}
           </button>
         </div>
       </ModalForm>

@@ -49,10 +49,10 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
   const handleEditClick = (amenity: PropertyAmenity) => {
     setFormData({
       property_listing_id: propertyId || '',
-      'title[en]': amenity.descriptions.en.title,
-      'title[ar]': amenity.descriptions.ar.title
+      'title[en]': amenity?.descriptions?.en?.title,
+      'title[ar]': amenity?.descriptions?.ar?.title
     });
-    setSelectedAmenityId(amenity.id.toString());
+    setSelectedAmenityId(amenity?.id?.toString());
     setShowEditModal(true);
   };
 
@@ -232,14 +232,14 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
         </button>
       </div>
 
-      {property.amenities.length > 0 ? (
+      {property?.amenities?.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {property.amenities.map((amenity) => (
+          {property?.amenities?.map((amenity) => (
             <div key={amenity.id} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-500">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="font-medium text-gray-800 dark:text-gray-200">
-                    {amenity.descriptions.en.title}
+                    {amenity?.descriptions?.en?.title}
                   </div>
                   <div className="text-sm text-green-600">Available</div>
                 </div>
@@ -252,7 +252,7 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
                     <Edit size={16} />
                   </button>
                   <button
-                    onClick={() => handleDeleteClick(amenity.id.toString())}
+                    onClick={() => handleDeleteClick(amenity?.id?.toString())}
                     className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition duration-200"
                     title="Delete amenity"
                   >

@@ -6,6 +6,7 @@ import { deleteData, postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import ModalForm from '@/components/tables/ModalTableForm';
 import { PropertyLocation } from '@/types/PropertyTypes';
+import mapboxgl from 'mapbox-gl'; // Import Mapbox GL JS types
 
 interface LocationsTabProps {
   property: PropertyData;
@@ -30,14 +31,13 @@ interface MapboxMapProps {
 
 const MapboxMap: React.FC<MapboxMapProps> = ({ 
   locations, 
-  onMapClick, 
   onMarkerClick,
   center = [30.0444, 31.2357], // Default to Cairo, Egypt
   zoom = 10
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<any>(null);
-  const markers = useRef<any[]>([]);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const markers = useRef<mapboxgl.Marker[]>([]);
 
   useEffect(() => {
     // Load Mapbox GL JS
@@ -60,20 +60,20 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
         map.current.remove();
       }
     };
-  }, []);
+  },);
 
   useEffect(() => {
     if (map.current) {
       updateMarkers();
     }
-  }, [locations]);
+  },);
 
   const initializeMap = () => {
     if (!mapContainer.current || map.current) return;
 
     // You need to set your Mapbox access token here
     // Get it from https://account.mapbox.com/access-tokens/
-    window.mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    // window.mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
 
     map.current = new window.mapboxgl.Map({
       container: mapContainer.current,
@@ -86,12 +86,12 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
       updateMarkers();
       
       // Add click handler for adding new locations
-      if (onMapClick) {
-        map.current.on('click', (e: any) => {
-          const { lat, lng } = e.lngLat;
-          onMapClick(lat, lng);
-        });
-      }
+      // if (onMapClick) {
+      //     map.current.on('click', (e: any) => {
+      //     const { lat, lng } = e.lngLat;
+      //     onMapClick(lat, lng);
+      //   });
+      // }
     });
   };
 
@@ -120,7 +120,7 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
               </div>
             `)
         )
-        .addTo(map.current);
+        .addTo(map.current as mapboxgl.Map);
 
       if (onMarkerClick) {
         marker.getElement().addEventListener('click', () => {

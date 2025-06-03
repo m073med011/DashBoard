@@ -9,6 +9,7 @@ import {
   LayoutDashboard, Newspaper, Shapes, Map,
   Building2,
   GalleryHorizontal,
+  Users
 } from "lucide-react";
 import { ChevronDownIcon, HorizontaLDots } from "../icons/index";
 import Image from "next/image";
@@ -32,6 +33,12 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { icon: <LayoutDashboard />, name: "dashboard", path: "/" },
+  {
+    icon: <Users />, name: "agents", path: "/agent"
+  },
+  {
+    icon: <Users />, name: "owners", path: "/owner"
+  },
   { icon: <Newspaper />, name: "blogs", path: "/blog" },
   { icon: <GalleryHorizontal />, name: "banners", path: "/banners" },
   { icon: <Shapes />, name: "types", path: "/types" },
@@ -39,6 +46,8 @@ const NAV_ITEMS: NavItem[] = [
   {
     icon: <Building2 />, name: "properties", path: "/properties"
   },
+  
+  
 ];
 
 const AppSidebar: React.FC = () => {

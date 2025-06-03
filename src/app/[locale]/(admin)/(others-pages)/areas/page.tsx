@@ -63,7 +63,7 @@ type ToastState = {
 
   useEffect(() => {
     if (token) fetchAreas(token);
-  }, [token, t]);
+  },);
 
   const fetchAreas = async (authToken: string) => {
     try {

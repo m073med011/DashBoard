@@ -29,6 +29,9 @@ const nextConfig: NextConfig = {
       {
         hostname: "fantasticegypt.com",
       },
+      {
+        hostname: "fantasticegypt.com",
+      },
     ],
   },
 };

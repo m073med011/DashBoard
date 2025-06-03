@@ -86,7 +86,7 @@ export default function TypesPage() {
     } finally {
       setLoading(false);
     }
-  }, [locale]); // Include locale as dependency since it's used inside
+  }, [locale, t]); // Include locale as dependency since it's used inside
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -95,7 +95,7 @@ export default function TypesPage() {
     } else {
       showToast(t("Token not found in localStorage"), "error");
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (token) fetchTypes(token);
