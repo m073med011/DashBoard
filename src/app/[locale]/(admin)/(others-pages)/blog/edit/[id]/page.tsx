@@ -118,16 +118,16 @@ const EditContentPage = () => {
         if (response.status) {
           setTypes(response.data);
         } else {
-          showToast("Failed to fetch types", "error");
+          showToast(t("Failed to fetch types") , "error");
         }
       } catch (error) {
-        console.error("Error fetching types:", error);
-        showToast("Error fetching types", "error");
+        // console.error("Error fetching types:", error);
+        showToast(t("Error fetching types") + error, "error");
       }
     };
 
     fetchTypes();
-  }, []);
+  }, [t]);
 
   // Fetch blog data for editing
   useEffect(() => {
@@ -173,11 +173,11 @@ const EditContentPage = () => {
             setCurrentImageUrl(blog.image || "");
             
           } else {
-            showToast("Failed to fetch blog data", "error");
+            showToast(t("Failed to fetch blog data"), "error");
           }
         } catch (error) {
-          console.error("Error fetching blog data:", error);
-          showToast("Error fetching blog data", "error");
+          // console.error("Error fetching blog data:", error);
+          showToast(t("Error fetching blog data") + error, "error");
         } finally {
           setLoading(false);
         }
@@ -185,7 +185,7 @@ const EditContentPage = () => {
 
       fetchBlogData();
     }
-  }, [isEditing, id, reset]);
+  }, [isEditing, id, reset, t]);
 
   const onSubmit = async (data: FormInputs) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
@@ -229,11 +229,11 @@ const EditContentPage = () => {
     try {
       const endpoint = isEditing ? `owner/blogs/${id}` : "owner/blogs";
       await postData(endpoint, formData, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
-      showToast(t(isEditing ? "Blog updated successfully" : "Blog added successfully"), "success");
       router.back();
+      showToast(t(isEditing ? t("Blog updated successfully") : t("Blog added successfully")), "success");
     } catch (error) {
-      console.error(`Failed to ${isEditing ? 'update' : 'create'} blog:`, error);
-      showToast(t(isEditing ? "Failed to update blog" : "Failed to add blog"), "error");
+      // console.error(`Failed to ${isEditing ? 'update' : 'create'} blog:`, error);
+      showToast(t(isEditing ? t("Failed to update blog") : t("Failed to add blog")) + error, "error");
     }
   };
 

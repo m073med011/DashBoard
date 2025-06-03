@@ -128,6 +128,12 @@
     "welcome": "Welcome"
   },
   "blogs": {
+    "Error fetching blog data": "Error fetching blog data",
+    "Failed to fetch blog data": "Failed to fetch blog data",
+    "Error fetching types": "Error fetching types",
+    "Failed to fetch types": "Failed to fetch types",
+    "Blog added successfully": "Blog added successfully",
+    "Failed to add blog": "Failed to add blog",
     "Cancel": "Cancel",
     "View Full Size": "View Full Size",
     "Update": "Update",

@@ -45,6 +45,13 @@ const CreateBannerPage = () => {
     show: false,
   });
 
+  // Banner type options
+  const bannerTypes = [
+    { value: "", label: "Select banner type" },
+    { value: "banner", label: "Banner" },
+   
+  ];
+
   const showToast = (message: string, type: "success" | "error" | "info" = "info") => {
     setToast({ message, type, show: true });
     setTimeout(() => {
@@ -97,12 +104,6 @@ const CreateBannerPage = () => {
   const arabicFields: { name: keyof FormInputs; label: string }[] = [
     { name: "name_ar", label: "Name (AR)" },
     { name: "description_ar", label: "Description (AR)" },
-  ];
-
-  // General fields
-  const generalFields: { name: keyof FormInputs; label: string }[] = [
-    { name: "link", label: "Link" },
-    { name: "type", label: "Type" },
   ];
 
   const TabButton = ({ label, isActive, onClick }: {
@@ -239,19 +240,36 @@ const CreateBannerPage = () => {
             {activeTab === "general" && (
               <div className="mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {generalFields.map(({ name, label }) => (
-                    <div key={name}>
-                      <label className="block mb-1 font-medium">{t(label)}</label>
-                      <input
-                        {...register(name, { required: true })}
-                        className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring focus:ring-blue-400"
-                        placeholder={name === "link" ? "https://example.com" : "Enter banner type"}
-                      />
-                      {errors[name] && (
-                        <p className="text-red-500 text-sm mt-1">{t("This field is required")}</p>
-                      )}
-                    </div>
-                  ))}
+                  {/* Link Field */}
+                  <div>
+                    <label className="block mb-1 font-medium">{t("Link")}</label>
+                    <input
+                      {...register("link", { required: true })}
+                      className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring focus:ring-blue-400"
+                      placeholder="https://example.com"
+                    />
+                    {errors.link && (
+                      <p className="text-red-500 text-sm mt-1">{t("This field is required")}</p>
+                    )}
+                  </div>
+
+                  {/* Type Select Field */}
+                  <div>
+                    <label className="block mb-1 font-medium">{t("Type")}</label>
+                    <select
+                      {...register("type", { required: true })}
+                      className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring focus:ring-blue-400"
+                    >
+                      {bannerTypes.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {t(option.label)}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.type && (
+                      <p className="text-red-500 text-sm mt-1">{t("This field is required")}</p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Preview Section */}

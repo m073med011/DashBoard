@@ -1,23 +1,34 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Table from '@/components/tables/Table';
 import ModalForm from '@/components/tables/ModalTableForm';
 import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import Image from 'next/image';
 import Toast from '@/components/Toast';
+import { useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 
-
-type TitleObject = {
-  en: string;
-  ar: string;
-};
 
 type TypeItem = {
   id: number;
-  title: TitleObject;
-  image: string;
+  title: string;
+  image: string | null;
+  descriptions: {
+    en: {
+      title: string;
+      image: string | null;
+    };
+    ar: {
+      title: string;
+      image: string | null;
+    };
+  };
+  titleObj: {
+    en: string;
+    ar: string;
+  };
 };
 
 type ToastState = {
@@ -26,8 +37,9 @@ type ToastState = {
   show: boolean;
 };
 
-
 export default function TypesPage() {
+  const locale = useLocale();
+  const t = useTranslations();
   const [items, setItems] = useState<TypeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
@@ -36,6 +48,7 @@ export default function TypesPage() {
     type: 'info',
     show: false
   }); 
+  
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToast({ message, type, show: true });
     setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
@@ -46,39 +59,47 @@ export default function TypesPage() {
     item?: TypeItem;
   }>({ type: null });
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken);
-    } else {
-      console.error('Token not found in localStorage');
-    }
-  }, []);
-
-  useEffect(() => {
-    if (token) fetchTypes(token);
-  }, [token]);
-
-  const fetchTypes = async (authToken: string) => {
+  // Use useCallback to memoize fetchTypes function
+  const fetchTypes = useCallback(async (authToken: string) => {
     try {
       const res = await getData('owner/types', {}, new AxiosHeaders({
+        lang: locale, 
         Authorization: `Bearer ${authToken}`,
       }));
 
       const normalized = (res.data ?? []).map((item: TypeItem) => ({
-        ...item,
-        title: typeof item.title === 'string'
-          ? { en: item.title, ar: '' }
-          : item.title,
+        id: item.id,
+        title: item.title,
+        image: item.image,
+        descriptions: item.descriptions,
+        // Create a computed title object for easier access
+        titleObj: {
+          en: item.descriptions?.en?.title || item.title || '',
+          ar: item.descriptions?.ar?.title || ''
+        }
       }));
 
       setItems(normalized);
     } catch (error) {
       console.error('Failed to fetch types', error);
+      showToast(t("Failed to fetch types"), "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [locale]); // Include locale as dependency since it's used inside
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+    } else {
+      showToast(t("Token not found in localStorage"), "error");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (token) fetchTypes(token);
+  }, [token, fetchTypes]); // Now include fetchTypes in dependency array
 
   const handleDelete = async (item: TypeItem) => {
     if (!token) return;
@@ -87,10 +108,10 @@ export default function TypesPage() {
         Authorization: `Bearer ${token}`,
       }));
       fetchTypes(token);
-      showToast('Type deleted successfully', 'success');
+      showToast(t("Type deleted successfully"), 'success');
     } catch (error) {
       console.error('Delete failed', error);
-      showToast('Delete failed', 'error');
+      showToast(t("Delete failed"), 'error');
     }
   };
 
@@ -119,10 +140,10 @@ export default function TypesPage() {
 
       fetchTypes(token);
       setModalState({ type: null });
-      showToast('Type saved successfully', 'success');
+      showToast(t("Type saved successfully"), 'success');
     } catch (error) {
       console.error('Save failed', error);
-      showToast('Save failed', 'error');
+      showToast(t("Save failed"), 'error');
     }
   };
 
@@ -141,19 +162,25 @@ export default function TypesPage() {
             {
               key: 'title',
               label: 'Title',
-              render: (item) => item.title.en ?? '-',
+              render: (item) => item.titleObj?.en || item.title || '-',
             },
             {
               key: 'image',
               label: 'Image',
               render: (item) => (
-                <Image
-                  width={50}
-                  height={50}
-                  src={item.image}
-                  alt="type"
-                  className="h-12 w-12 object-cover rounded"
-                />
+                item.image ? (
+                  <Image
+                    width={50}
+                    height={50}
+                    src={item.image}
+                    alt="type"
+                    className="h-12 w-12 object-cover rounded"
+                  />
+                ) : (
+                  <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center text-xs">
+                    No Image
+                  </div>
+                )
               ),
             },
           ]}
@@ -177,8 +204,8 @@ export default function TypesPage() {
       >
         {modalState.type === 'view' || modalState.type === 'quick' ? (
           <div className="space-y-2">
-            <p><strong>Title (EN):</strong> {modalState.item?.title.en}</p>
-            <p><strong>Title (AR):</strong> {modalState.item?.title.ar}</p>
+            <p><strong>Title (EN):</strong> {modalState.item?.titleObj?.en || modalState.item?.descriptions?.en?.title}</p>
+            <p><strong>Title (AR):</strong> {modalState.item?.titleObj?.ar || modalState.item?.descriptions?.ar?.title}</p>
             {modalState.item?.image && (
               <Image
                 width={300}
@@ -202,7 +229,7 @@ export default function TypesPage() {
               type="text"
               name="title[en]"
               placeholder="Title (EN)"
-              defaultValue={modalState.item?.title.en}
+              defaultValue={modalState.item?.titleObj?.en || modalState.item?.descriptions?.en?.title || ''}
               className="w-full border p-2 rounded"
               required
             />
@@ -210,7 +237,7 @@ export default function TypesPage() {
               type="text"
               name="title[ar]"
               placeholder="Title (AR)"
-              defaultValue={modalState.item?.title.ar ?? ''}
+              defaultValue={modalState.item?.titleObj?.ar || modalState.item?.descriptions?.ar?.title || ''}
               className="w-full border p-2 rounded"
               required
             />

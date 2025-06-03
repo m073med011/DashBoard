@@ -130,11 +130,11 @@ const CreateContentPage = () => {
 
     try {
       await postData("owner/blogs", formData, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
-      showToast(t("Blog added successfully"), "success");
       router.back();
+      showToast(t("Blog added successfully"), "success");
     } catch (error) {
-      console.error("Failed to create blog:", error);
-      showToast(t("Failed to add blog"), "error");
+      // console.error("Failed to create blog:", error);
+      showToast(t("Failed to add blog") + error, "error");
     }
   };
 

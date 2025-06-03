@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { MapPin, Plus, Trash2, Edit } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { MapPin, Plus, Trash2, Edit, Map } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { PropertyData } from '@/types/PropertyTypes';
 import { deleteData, postData } from '@/libs/axios/server';
@@ -9,7 +9,7 @@ import { PropertyLocation } from '@/types/PropertyTypes';
 
 interface LocationsTabProps {
   property: PropertyData;
-  onUpdate?: () => void; // Callback to refresh property data
+  onUpdate?: () => void;
 }
 
 interface LocationFormData {
@@ -18,6 +18,143 @@ interface LocationFormData {
   latitude: string;
   longitude: string;
 }
+
+// Mapbox component
+interface MapboxMapProps {
+  locations: PropertyLocation[];
+  onMapClick?: (lat: number, lng: number) => void;
+  onMarkerClick?: (location: PropertyLocation) => void;
+  center?: [number, number];
+  zoom?: number;
+}
+
+const MapboxMap: React.FC<MapboxMapProps> = ({ 
+  locations, 
+  onMapClick, 
+  onMarkerClick,
+  center = [30.0444, 31.2357], // Default to Cairo, Egypt
+  zoom = 10
+}) => {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<any>(null);
+  const markers = useRef<any[]>([]);
+
+  useEffect(() => {
+    // Load Mapbox GL JS
+    if (!window.mapboxgl) {
+      const script = document.createElement('script');
+      script.src = 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js';
+      script.onload = initializeMap;
+      document.head.appendChild(script);
+
+      const link = document.createElement('link');
+      link.href = 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css';
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    } else {
+      initializeMap();
+    }
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (map.current) {
+      updateMarkers();
+    }
+  }, [locations]);
+
+  const initializeMap = () => {
+    if (!mapContainer.current || map.current) return;
+
+    // You need to set your Mapbox access token here
+    // Get it from https://account.mapbox.com/access-tokens/
+    window.mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+
+    map.current = new window.mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: center,
+      zoom: zoom
+    });
+
+    map.current.on('load', () => {
+      updateMarkers();
+      
+      // Add click handler for adding new locations
+      if (onMapClick) {
+        map.current.on('click', (e: any) => {
+          const { lat, lng } = e.lngLat;
+          onMapClick(lat, lng);
+        });
+      }
+    });
+  };
+
+  const updateMarkers = () => {
+    if (!map.current) return;
+
+    // Clear existing markers
+    markers.current.forEach(marker => marker.remove());
+    markers.current = [];
+
+    // Add markers for each location
+    locations.forEach(location => {
+      const marker = new window.mapboxgl.Marker({
+        color: '#3B82F6'
+      })
+        .setLngLat([location.longitude, location.latitude])
+        .setPopup(
+          new window.mapboxgl.Popup({ offset: 25 })
+            .setHTML(`
+              <div class="p-2">
+                <h3 class="font-semibold">${location.name}</h3>
+                <p class="text-sm text-gray-600">
+                  Lat: ${location.latitude}<br>
+                  Lng: ${location.longitude}
+                </p>
+              </div>
+            `)
+        )
+        .addTo(map.current);
+
+      if (onMarkerClick) {
+        marker.getElement().addEventListener('click', () => {
+          onMarkerClick(location);
+        });
+      }
+
+      markers.current.push(marker);
+    });
+
+    // Fit map to show all markers if there are any
+    if (locations.length > 0) {
+      const bounds = new window.mapboxgl.LngLatBounds();
+      locations.forEach(location => {
+        bounds.extend([location.longitude, location.latitude]);
+      });
+      
+      if (locations.length === 1) {
+        map.current.setCenter([locations[0].longitude, locations[0].latitude]);
+        map.current.setZoom(15);
+      } else {
+        map.current.fitBounds(bounds, { padding: 50 });
+      }
+    }
+  };
+
+  return (
+    <div 
+      ref={mapContainer} 
+      className="w-full h-96 rounded-lg border border-gray-300 dark:border-gray-600"
+      style={{ minHeight: '400px' }}
+    />
+  );
+};
 
 export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }) => {
   const params = useParams();
@@ -28,6 +165,7 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showMap, setShowMap] = useState(true);
   const [formData, setFormData] = useState<LocationFormData>({
     property_listing_id: propertyId || '',
     name: '',
@@ -47,6 +185,19 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
   const handleAddClick = () => {
     resetFormData();
     setShowAddModal(true);
+  };
+
+  const handleMapClick = (lat: number, lng: number) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude: lat.toFixed(6),
+      longitude: lng.toFixed(6)
+    }));
+    setShowAddModal(true);
+  };
+
+  const handleMarkerClick = (location: PropertyLocation) => {
+    handleEditClick(location);
   };
 
   const handleEditClick = (location: PropertyLocation) => {
@@ -79,13 +230,11 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
       setShowDeleteModal(false);
       setSelectedLocationId(null);
       
-      // Call the update callback to refresh the property data
       if (onUpdate) {
         onUpdate();
       }
     } catch (error) {
       console.error('Failed to delete location:', error);
-      // You might want to show a toast notification here
     } finally {
       setLoading(false);
     }
@@ -98,7 +247,6 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      // Create FormData object
       const formDataToSend = new FormData();
       formDataToSend.append('property_listing_id', formData.property_listing_id);
       formDataToSend.append('name', formData.name);
@@ -113,13 +261,11 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
       setShowAddModal(false);
       resetFormData();
       
-      // Call the update callback to refresh the property data
       if (onUpdate) {
         onUpdate();
       }
     } catch (error) {
       console.error('Failed to add location:', error);
-      // You might want to show a toast notification here
     } finally {
       setLoading(false);
     }
@@ -134,13 +280,12 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      // Create FormData object
       const formDataToSend = new FormData();
       formDataToSend.append('property_listing_id', formData.property_listing_id);
       formDataToSend.append('name', formData.name);
       formDataToSend.append('latitude', formData.latitude);
       formDataToSend.append('longitude', formData.longitude);
-      formDataToSend.append('_method', 'PUT'); // Laravel method spoofing for FormData
+      formDataToSend.append('_method', 'PUT');
       
       await postData(`owner/locations/${selectedLocationId}`, formDataToSend, new AxiosHeaders({
         Authorization: `Bearer ${token}`,
@@ -151,13 +296,11 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
       setSelectedLocationId(null);
       resetFormData();
       
-      // Call the update callback to refresh the property data
       if (onUpdate) {
         onUpdate();
       }
     } catch (error) {
       console.error('Failed to update location:', error);
-      // You might want to show a toast notification here
     } finally {
       setLoading(false);
     }
@@ -236,6 +379,14 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
           <p className="text-red-500 text-sm mt-1">Longitude must be between -180 and 180</p>
         )}
       </div>
+
+      {!isEdit && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <p className="text-sm text-blue-700">
+            💡 Tip: You can click on the map to automatically fill the coordinates!
+          </p>
+        </div>
+      )}
       
       <div className="flex justify-end space-x-3">
         <button
@@ -256,7 +407,6 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 disabled:opacity-50"
-          // disabled={loading || (formData.latitude && !validateCoordinate(formData.latitude, 'latitude')) || (formData.longitude && !validateCoordinate(formData.longitude, 'longitude'))}
         >
           {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Location' : 'Add Location')}
         </button>
@@ -268,15 +418,45 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Property Locations</h3>
-        <button
-          onClick={handleAddClick}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
-        >
-          <Plus size={20} />
-          Add New Location
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowMap(!showMap)}
+            className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
+          >
+            <Map size={20} />
+            {showMap ? 'Hide Map' : 'Show Map'}
+          </button>
+          <button
+            onClick={handleAddClick}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
+          >
+            <Plus size={20} />
+            Add New Location
+          </button>
+        </div>
       </div>
 
+      {/* Map Section */}
+      {showMap && (
+        <div className="mb-6">
+          <div className="mb-2">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Click on the map to add a new location, or click on existing markers to edit them.
+            </p>
+          </div>
+          <MapboxMap
+            locations={property.property_locations}
+            onMapClick={handleMapClick}
+            onMarkerClick={handleMarkerClick}
+            center={property.property_locations.length > 0 
+              ? [property.property_locations[0].longitude, property.property_locations[0].latitude]
+              : [30.0444, 31.2357]
+            }
+          />
+        </div>
+      )}
+
+      {/* Locations List */}
       {property.property_locations.length > 0 ? (
         <div className="space-y-4 mb-6">
           {property.property_locations.map((location) => (
@@ -317,7 +497,9 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
         </div>
       ) : (
         <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-          No specific locations marked for this property
+          <MapPin size={48} className="mx-auto mb-4 opacity-50" />
+          <p className="text-lg font-medium mb-2">No locations marked yet</p>
+          <p className="text-sm">Click on the map above or use the &quot;Add New Location&quot; button to mark your first location.</p>
         </div>
       )}
 
