@@ -102,15 +102,15 @@ export default function PropertyListingsPage() {
     async (item: PropertyListing) => {
       if (!token) return showToast("No auth token", "error");
 
-      if (!confirm(`هل أنت متأكد من حذف "${item.title}"؟`)) return;
+      if (!confirm(`Are you sure you want to delete "${item.title}"?`)) return;
 
       try {
         await deleteData(`owner/property_listings/${item.id}`, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
-        showToast("تم حذف العقار بنجاح", "success");
+        showToast("Property deleted successfully", "success");
         await fetchItems();
       } catch (error) {
         console.error(error);
-        showToast("فشل حذف العقار", "error");
+        showToast("Failed to delete property", "error");
       }
     },
     [token, fetchItems, showToast]

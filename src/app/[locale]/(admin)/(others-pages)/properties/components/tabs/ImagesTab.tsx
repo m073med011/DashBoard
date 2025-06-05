@@ -6,6 +6,7 @@ import { PropertyData } from '@/types/PropertyTypes';
 import { deleteData, postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import ModalForm from '@/components/tables/ModalTableForm';
+import { useTranslations } from 'next-intl';
 
 interface ImagesTabProps {
   property: PropertyData;
@@ -20,7 +21,7 @@ interface ImageFormData {
 export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
   const params = useParams();
   const propertyId = params?.id as string;
-  
+  const t = useTranslations("Images");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
@@ -151,7 +152,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
     <form onSubmit={handleAddSubmit}>
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Select Images
+          {t("Select Images")}
         </label>
         <input
           type="file"
@@ -161,12 +162,9 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
           className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
-        <p className="text-sm text-gray-500 mt-1">
-          You can select multiple images at once. Supported formats: JPG, PNG, GIF, WebP
-        </p>
         {formData.images && formData.images.length > 0 && (
           <p className="text-sm text-green-600 mt-1">
-            {formData.images.length} image(s) selected
+            {formData.images.length} {t("image(s) selected")}
           </p>
         )}
       </div>
@@ -181,14 +179,14 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
           className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
           disabled={loading}
         >
-          Cancel
+          {t("Cancel")}
         </button>
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? 'Uploading...' : 'Upload Images'}
+          {loading ? t("Uploading...") : t("Upload Images")}
         </button>
       </div>
     </form>
@@ -197,7 +195,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Property Images</h3>
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">{t("Property Images")}</h3>
         <div className="flex items-center gap-2">
           {property?.property_listing_images?.length > 0 && (
             <>
@@ -205,7 +203,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
                 onClick={handleSelectAll}
                 className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 text-sm"
               >
-                {selectedImageIds.length === property?.property_listing_images?.length ? 'Deselect All' : 'Select All'}
+                {selectedImageIds.length === property?.property_listing_images?.length ? t('Deselect All') : t('Select All')}
               </button>
               {selectedImageIds.length > 0 && (
                 <button
@@ -213,7 +211,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
                   className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2 text-sm"
                 >
                   <Trash2 size={16} />
-                  Delete Selected ({selectedImageIds?.length})
+                  {t("Delete Selected")} ({selectedImageIds?.length})
                 </button>
               )}
             </>
@@ -223,7 +221,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
           >
             <Plus size={20} />
-            Add New Images
+            {t("Add New Images")}
           </button>
         </div>
       </div>
@@ -281,7 +279,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
       {/* Add Images Modal */}
       <ModalForm
         open={showAddModal}
-        title="Add New Images"
+        title={t("Add New Images")}
         onClose={() => {
           setShowAddModal(false);
           resetFormData();

@@ -6,6 +6,7 @@ import { deleteData, postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import ModalForm from '@/components/tables/ModalTableForm';
 import { PropertyAmenity } from '@/types/PropertyTypes';
+import { useTranslations } from 'next-intl';
 
 interface AmenitiesTabProps {
   property: PropertyData;
@@ -21,7 +22,8 @@ interface AmenityFormData {
 export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }) => {
   const params = useParams();
   const propertyId = params?.id as string;
-  
+  const t = useTranslations("Amenities");
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -168,27 +170,27 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
     <form onSubmit={isEdit ? handleEditSubmit : handleAddSubmit}>
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Title (English)
+          {t("title(EN)")} 
         </label>
         <input
           type="text"
           value={formData['title[en]']}
           onChange={(e) => handleInputChange('title[en]', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="e.g., Swimming Pool, Gym"
+          placeholder={t("e.g., Swimming Pool, Gym")}
           required
         />
       </div>
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Title (Arabic)
+          {t("title(AR)")} 
         </label>
         <input
           type="text"
           value={formData['title[ar]']}
           onChange={(e) => handleInputChange('title[ar]', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="e.g., حمام سباحة، صالة رياضية"
+          placeholder={t("e.g., Swimming Pool, Gym")}
           required
         />
       </div>
@@ -206,14 +208,14 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
           className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
           disabled={loading}
         >
-          Cancel
+          {t("Cancel")}  
         </button>
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Amenity' : 'Add Amenity')}
+          {loading ? (isEdit ? t("Updating") : t("Adding")) : (isEdit ? t("Update Amenity") : t("Add Amenity"))}  
         </button>
       </div>
     </form>
@@ -222,13 +224,13 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Amenities</h3>
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">{t("Amenities")}</h3> 
         <button
           onClick={handleAddClick}
           className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
         >
           <Plus size={20} />
-          Add New Amenity
+          {t("Add New Amenity")}
         </button>
       </div>
 
@@ -239,9 +241,11 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="font-medium text-gray-800 dark:text-gray-200">
-                    {amenity?.descriptions?.en?.title}
+                    {amenity?.title}
                   </div>
-                  <div className="text-sm text-green-600">Available</div>
+                  <div className="font-medium text-gray-800 dark:text-gray-200">
+                   
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -265,14 +269,14 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
         </div>
       ) : (
         <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-          No amenities listed for this property
+          {t("No amenities listed for this property")}
         </div>
       )}
 
       {/* Add Amenity Modal */}
       <ModalForm
         open={showAddModal}
-        title="Add New Amenity"
+        title={t("Add New Amenity")} 
         onClose={() => {
           setShowAddModal(false);
           resetFormData();
@@ -284,7 +288,7 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
       {/* Edit Amenity Modal */}
       <ModalForm
         open={showEditModal}
-        title="Edit Amenity"
+        title={t("Edit Amenity")} 
         onClose={() => {
           setShowEditModal(false);
           setSelectedAmenityId(null);
@@ -297,14 +301,14 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
       {/* Delete Confirmation Modal */}
       <ModalForm
         open={showDeleteModal}
-        title="Confirm Delete"
+        title={t("Confirm Delete")} 
         onClose={() => {
           setShowDeleteModal(false);
           setSelectedAmenityId(null);
         }}
       >
         <p className="text-gray-600 mb-6">
-          Are you sure you want to delete this amenity? This action cannot be undone.
+          {t("Are you sure you want to delete this amenity? This action cannot be undone")}
         </p>
         <div className="flex justify-end space-x-3">
           <button
@@ -315,14 +319,14 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
             disabled={loading}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             onClick={handleDeleteConfirm}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition duration-200 disabled:opacity-50"
             disabled={loading}
           >
-            {loading ? 'Deleting...' : 'Delete'}
+            {loading ? t("Deleting") : t("Delete")}
           </button>
         </div>
       </ModalForm>

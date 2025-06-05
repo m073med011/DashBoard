@@ -6,6 +6,7 @@ import { PropertyData } from '@/types/PropertyTypes';
 import { deleteData, postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import ModalForm from '@/components/tables/ModalTableForm';
+import { useTranslations } from 'next-intl';
 
 interface FloorPlanTabProps {
   property: PropertyData;
@@ -20,7 +21,7 @@ interface FloorPlanFormData {
 export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }) => {
   const params = useParams();
   const propertyId = params?.id as string;
-  
+  const t = useTranslations("floorplan");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedPlanIds, setSelectedPlanIds] = useState<string[]>([]);
@@ -91,8 +92,8 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
       if (onUpdate) {
         onUpdate();
       }
-    } catch (error) {
-      console.error('Failed to delete floor plans:', error);
+    } catch {
+      // console.error(t("Failed to delete floor plans"), error);
       // You might want to show a toast notification here
     } finally {
       setLoading(false);
@@ -151,7 +152,7 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
     <form onSubmit={handleAddSubmit}>
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Select Floor Plans
+          {t("Select Floor Plans")}
         </label>
         <input
           type="file"
@@ -161,12 +162,9 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
           className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
-        <p className="text-sm text-gray-500 mt-1">
-          You can select multiple floor plans at once. Supported formats: JPG, PNG, GIF, WebP, PDF
-        </p>
         {formData.floor_plans && formData.floor_plans.length > 0 && (
           <p className="text-sm text-green-600 mt-1">
-            {formData.floor_plans.length} floor plan(s) selected
+            {formData.floor_plans.length} {t("floor plan(s) selected")}
           </p>
         )}
       </div>
@@ -181,14 +179,14 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
           className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
           disabled={loading}
         >
-          Cancel
+          {t("Cancel")}
         </button>
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? 'Uploading...' : 'Upload Floor Plans'}
+          {loading ? t("Uploading...") : t("Upload Floor Plans")}
         </button>
       </div>
     </form>
@@ -197,7 +195,7 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Floor Plans</h3>
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">{t("Floor Plans")}</h3>
         <div className="flex items-center gap-2">
           {property.property_floor_plans.length > 0 && (
             <>
@@ -205,7 +203,7 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
                 onClick={handleSelectAll}
                 className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 text-sm"
               >
-                {selectedPlanIds.length === property.property_floor_plans.length ? 'Deselect All' : 'Select All'}
+                {selectedPlanIds.length === property.property_floor_plans.length ? t('Deselect All') : t('Select All')}
               </button>
               {selectedPlanIds.length > 0 && (
                 <button
@@ -213,7 +211,7 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
                   className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2 text-sm"
                 >
                   <Trash2 size={16} />
-                  Delete Selected ({selectedPlanIds.length})
+                  {/* {t("Delete Selected")} ({selectedPlanIds.length}) */}
                 </button>
               )}
             </>
@@ -223,7 +221,7 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
           >
             <Plus size={20} />
-            Add New Floor Plans
+            {t("Add New Floor Plans")}
           </button>
         </div>
       </div>
@@ -247,7 +245,7 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
                 <button
                   onClick={() => handleDeleteClick(plan.id.toString())}
                   className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition duration-200 shadow-md"
-                  title="Delete floor plan"
+                  title={t("Delete floor plan")}
                 >
                   <Trash2 size={16} />
                 </button>
@@ -270,21 +268,21 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
                 rel="noopener noreferrer"
                 className="inline-block text-blue-600 hover:text-blue-800 text-sm"
               >
-                Download Floor Plan
+                {t("Download Floor Plan")}
               </a>
             </div>
           ))}
         </div>
       ) : (
         <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-          No floor plans available for this property
+          {t("No floor plans available for this property")}
         </div>
       )}
 
       {/* Add Floor Plans Modal */}
       <ModalForm
         open={showAddModal}
-        title="Add New Floor Plans"
+        title={t("Add New Floor Plans")} 
         onClose={() => {
           setShowAddModal(false);
           resetFormData();
@@ -296,14 +294,14 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
       {/* Delete Confirmation Modal */}
       <ModalForm
         open={showDeleteModal}
-        title="Confirm Delete"
+        title={t("confirm_delete")}
         onClose={() => {
           setShowDeleteModal(false);
           setSelectedPlanIds([]);
         }}
       >
         <p className="text-gray-600 mb-6">
-          Are you sure you want to delete {selectedPlanIds.length === 1 ? 'this floor plan' : `these ${selectedPlanIds.length} floor plans`}? This action cannot be undone.
+          {t("Are you sure you want to delete")} {selectedPlanIds.length === 1 ? t("this floor plan") : `these ${selectedPlanIds.length} floor plans`}? {t("This action cannot be undone")}
         </p>
         <div className="flex justify-end space-x-3">
           <button
@@ -314,7 +312,7 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
             disabled={loading}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             onClick={handleDeleteConfirm}

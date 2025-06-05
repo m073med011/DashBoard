@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Heart } from 'lucide-react';
+// import { Heart } from 'lucide-react';
 import Toast from '@/components/Toast';
 import { TabType } from '@/types/PropertyTypes';
 import { useProperty } from '@/app/[locale]/(admin)/(others-pages)/properties/useProperty';
@@ -14,7 +14,7 @@ import {
 import { MainTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/MainTab';
 import { AmenitiesTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/AmenitiesTab';
 import { FeaturesTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/FeaturesTab';
-import { LocationsTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/LocationsTab';
+import { LocationTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/LocationsTab'; 
 import { ImagesTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/ImagesTab';
 import { FloorPlanTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/FloorPlanTab';
 
@@ -24,7 +24,7 @@ export default function PropertyDetailsPage() {
  
   const { property, loading, toast } = useProperty(propertyId);
   const [activeTab, setActiveTab] = useState<TabType>('main');
-  const [isFavorite, setIsFavorite] = useState(false);
+  // const [isFavorite, setIsFavorite] = useState(false);
 
   const renderTabContent = () => {
     if (!property) return null;
@@ -37,7 +37,7 @@ export default function PropertyDetailsPage() {
       case 'features':
         return <FeaturesTab property={property} />;
       case 'locations':
-        return <LocationsTab property={property} />;
+        return <LocationTab property={property} />;
       case 'images':
         return <ImagesTab property={property} />;
       case 'floorplan':
@@ -73,7 +73,7 @@ export default function PropertyDetailsPage() {
                 Property ID: {property?.id} • {property?.type?.descriptions?.en?.title}
               </p>
             </div>
-            <div className="flex space-x-3">
+            {/* <div className="flex space-x-3">
               <button
                 onClick={() => setIsFavorite(!isFavorite)}
                 className={`font-medium px-6 py-2 rounded-lg shadow-md transition duration-200 ${
@@ -88,7 +88,7 @@ export default function PropertyDetailsPage() {
                 />
                 {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
               </button>
-            </div>
+            </div> */}
           </div>
          
           {/* Tab Navigation */}

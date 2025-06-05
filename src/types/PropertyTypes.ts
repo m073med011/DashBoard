@@ -1,6 +1,7 @@
 export type TabType = 'main' | 'amenities' | 'features' | 'locations' | 'images' | 'floorplan';
 
 export type PropertyUser = {
+  modules: PropertyModule[];
   id: number;
   name: string;
   email: string;
@@ -69,14 +70,25 @@ export type PropertyFloorPlan = {
   image: string;
 };
 
+export type LocationPoint = {
+  latitude: number;
+  longitude: number;
+};
+
 export type PropertyLocation = {
   id: number;
   name: string;
   latitude: number;
   longitude: number;
+  location_points: LocationPoint[];
 };
-
+export type PropertyModule = {
+  module: string;
+};
 export type PropertyData = {
+  locations: PropertyLocation[];
+  approval_status: string;
+  title: string;
   id: number;
   user: PropertyUser;
   type: PropertyType;

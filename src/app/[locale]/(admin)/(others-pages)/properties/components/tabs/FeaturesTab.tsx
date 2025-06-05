@@ -5,6 +5,7 @@ import { PropertyData } from '@/types/PropertyTypes';
 import { deleteData, postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import ModalForm from '@/components/tables/ModalTableForm';
+import { useTranslations } from 'next-intl';
 // import { PropertyFeature } from '@/types/PropertyTypes';
 
 interface PropertyFeature {
@@ -41,8 +42,7 @@ interface FeaturesTabProps {
 
 interface FeatureFormData {
   property_listing_id: string;
-  'descriptions[en]': string;
-  'descriptions[ar]': string;
+  
   type: string;
   'key[en]': string;
   'key[ar]': string;
@@ -60,7 +60,7 @@ const FEATURE_TYPES = [
 export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) => {
   const params = useParams();
   const propertyId = params?.id as string;
-  
+  const  t  = useTranslations("features");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -68,8 +68,6 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FeatureFormData>({
     property_listing_id: propertyId || '',
-    'descriptions[en]': '',
-    'descriptions[ar]': '',
     type: 'property_feature',
     'key[en]': '',
     'key[ar]': '',
@@ -80,8 +78,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
   const resetFormData = () => {
     setFormData({
       property_listing_id: propertyId || '',
-      'descriptions[en]': '',
-      'descriptions[ar]': '',
+     
       type: 'property_feature',
       'key[en]': '',
       'key[ar]': '',
@@ -98,8 +95,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
   const handleEditClick = (feature: PropertyFeature) => {
     setFormData({
       property_listing_id: propertyId || '',
-      'descriptions[en]': feature?.description?.en?.description || '',
-      'descriptions[ar]': feature?.description?.ar?.description || '',
+      
       type: feature?.type || 'property_feature',
       'key[en]': feature?.key || '',
       'key[ar]': feature?.key || '', // Assuming key is the same for both languages based on JSON structure
@@ -223,7 +219,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Feature Type
+            {t("Feature Type")}
           </label>
           <select
             value={formData.type}
@@ -233,7 +229,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
           >
             {FEATURE_TYPES.map((type) => (
               <option key={type.value} value={type.value}>
-                {type.label}
+                {t(type.label)}
               </option>
             ))}
           </select>
@@ -241,33 +237,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description (English)
-          </label>
-          <input
-            type="text"
-            value={formData['descriptions[en]']}
-            onChange={(e) => handleInputChange('descriptions[en]', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description (Arabic)
-          </label>
-          <input
-            type="text"
-            value={formData['descriptions[ar]']}
-            onChange={(e) => handleInputChange('descriptions[ar]', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Key (English)
+            {t("Key (English)")}
           </label>
           <input
             type="text"
@@ -280,7 +250,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Key (Arabic)
+            {t("Key (Arabic)")}
           </label>
           <input
             type="text"
@@ -293,7 +263,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Value (English)
+            {t("Value (English)")}
           </label>
           <input
             type="text"
@@ -306,7 +276,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Value (Arabic)
+            {t("Value (Arabic)")}
           </label>
           <input
             type="text"
@@ -332,14 +302,14 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
           className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
           disabled={loading}
         >
-          Cancel
+          {t("Cancel")}
         </button>
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Feature' : 'Add Feature')}
+          {loading ? (isEdit ? t('Updating') : t('Adding')) : (isEdit ? t('Update Feature') : t('Add Feature'))}
         </button>
       </div>
     </form>
@@ -348,13 +318,13 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Property Features</h3>
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">{t("Property Features")}</h3>
         <button
           onClick={handleAddClick}
           className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
         >
           <Plus size={20} />
-          Add New Feature
+          {t("Add New Feature")}
         </button>
       </div>
 
@@ -396,14 +366,14 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
         </div>
       ) : (
         <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-          No features listed for this property
+          {t("No features listed for this property")}
         </div>
       )}
 
       {/* Add Feature Modal */}
       <ModalForm
         open={showAddModal}
-        title="Add New Feature"
+        title={t("Add New Feature")}
         onClose={() => {
           setShowAddModal(false);
           resetFormData();
@@ -415,7 +385,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
       {/* Edit Feature Modal */}
       <ModalForm
         open={showEditModal}
-        title="Edit Feature"
+        title={t("Edit Feature")}
         onClose={() => {
           setShowEditModal(false);
           setSelectedFeatureId(null);
@@ -428,14 +398,14 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
       {/* Delete Confirmation Modal */}
       <ModalForm
         open={showDeleteModal}
-        title="Confirm Delete"
+        title={t("Confirm Delete")}
         onClose={() => {
           setShowDeleteModal(false);
           setSelectedFeatureId(null);
         }}
       >
         <p className="text-gray-600 mb-6">
-          Are you sure you want to delete this feature? This action cannot be undone.
+          {t("Are you sure you want to delete this feature? This action cannot be undone")}
         </p>
         <div className="flex justify-end space-x-3">
           <button
@@ -446,14 +416,14 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
             disabled={loading}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             onClick={handleDeleteConfirm}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition duration-200 disabled:opacity-50"
             disabled={loading}
           >
-            {loading ? 'Deleting...' : 'Delete'}
+            {loading ? t('Deleting') : t('Delete')}
           </button>
         </div>
       </ModalForm>

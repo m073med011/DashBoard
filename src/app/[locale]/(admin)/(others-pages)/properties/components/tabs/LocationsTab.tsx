@@ -1,240 +1,368 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Plus, Trash2, Edit, Map } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { Plus, Trash2, MapPin, Edit, Save, X } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
 import { PropertyData } from '@/types/PropertyTypes';
 import { deleteData, postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import ModalForm from '@/components/tables/ModalTableForm';
-import { PropertyLocation } from '@/types/PropertyTypes';
-import mapboxgl from 'mapbox-gl'; // Import Mapbox GL JS types
+import { useTranslations } from 'next-intl';
 
-interface LocationsTabProps {
+// Mapbox GL JS imports
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
+// Set your Mapbox access token
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'your-mapbox-token-here';
+
+interface LocationTabProps {
   property: PropertyData;
   onUpdate?: () => void;
+}
+
+// Updated to match your PropertyLocation type from PropertyTypes
+interface LocationPoint {
+  id: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+  location_points?: { latitude: number; longitude: number }[]; // Optional polygon points
 }
 
 interface LocationFormData {
   property_listing_id: string;
   name: string;
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
+  polygon_points: number; // Number of polygon points to generate
+  polygon_radius: number; // Radius for generating polygon points
 }
 
-// Mapbox component
-interface MapboxMapProps {
-  locations: PropertyLocation[];
-  onMapClick?: (lat: number, lng: number) => void;
-  onMarkerClick?: (location: PropertyLocation) => void;
-  center?: [number, number];
-  zoom?: number;
+interface TempLocationPoint {
+  id: string;
+  latitude: number;
+  longitude: number;
+  polygon_points: number;
+  polygon_radius: number;
+  marker: mapboxgl.Marker;
 }
 
-const MapboxMap: React.FC<MapboxMapProps> = ({ 
-  locations, 
-  onMarkerClick,
-  center = [30.0444, 31.2357], // Default to Cairo, Egypt
-  zoom = 10
-}) => {
+export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) => {
+  const router = useRouter();
+  const params = useParams();
+  const propertyId = params?.id as string;
+  const t = useTranslations("Location");
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
 
-  useEffect(() => {
-    // Load Mapbox GL JS
-    if (!window.mapboxgl) {
-      const script = document.createElement('script');
-      script.src = 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js';
-      script.onload = initializeMap;
-      document.head.appendChild(script);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedLocationIds, setSelectedLocationIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [locations, setLocations] = useState<LocationPoint[]>([]);
+  const [editingLocation, setEditingLocation] = useState<LocationPoint | null>(null);
 
-      const link = document.createElement('link');
-      link.href = 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css';
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    } else {
-      initializeMap();
+  // Multi-point addition states
+  const [isMultiAddMode, setIsMultiAddMode] = useState(false);
+  const [tempLocations, setTempLocations] = useState<TempLocationPoint[]>([]);
+  const [showMultiAddModal, setShowMultiAddModal] = useState(false);
+  const [multiName, setMultiName] = useState(''); // single name for all points
+
+  const [formData, setFormData] = useState<LocationFormData>({
+    property_listing_id: propertyId || '',
+    name: '',
+    latitude: 0,
+    longitude: 0,
+    polygon_points: 1,
+    polygon_radius: 0.0001
+  });
+
+  // Generate polygon points around a center coordinate
+  const generatePolygonPoints = (centerLat: number, centerLng: number, numPoints: number, radius: number): number[][] => {
+    const points: number[][] = [];
+
+    if (numPoints === 1) {
+      points.push([centerLng, centerLat]);
+      return points;
     }
+
+    const angleStep = (2 * Math.PI) / numPoints;
+
+    for (let i = 0; i < numPoints; i++) {
+      const angle = i * angleStep;
+      const lat = centerLat + radius * Math.cos(angle);
+      const lng = centerLng + radius * Math.sin(angle);
+      points.push([lng, lat]);
+    }
+
+    return points;
+  };
+
+  // Convert locations to FormData format for multi-point submission
+  const createMultiPointFormData = (locations: TempLocationPoint[]): FormData => {
+    const formData = new FormData();
+
+    formData.append('property_listing_id', propertyId);
+    formData.append('name', multiName.trim() || 'Bulk Location Upload');
+
+    locations.forEach((location, index) => {
+      const polygonPoints = generatePolygonPoints(
+        location.latitude,
+        location.longitude,
+        location.polygon_points,
+        location.polygon_radius
+      );
+
+      polygonPoints.forEach((point, pointIndex) => {
+        const locationPolygonIndex = index * polygonPoints.length + pointIndex;
+        formData.append(`polygon[${locationPolygonIndex}][0]`, point[0].toString());
+        formData.append(`polygon[${locationPolygonIndex}][1]`, point[1].toString());
+      });
+    });
+
+    return formData;
+  };
+
+  // Convert single location to FormData format
+  const createSingleLocationFormData = (locationData: {
+    property_listing_id: string;
+    name: string;
+    latitude: number;
+    longitude: number;
+    polygon: number[][];
+  }): FormData => {
+    const formData = new FormData();
+
+    formData.append('property_listing_id', locationData.property_listing_id);
+    formData.append('name', locationData.name);
+    formData.append('latitude', locationData.latitude.toString());
+    formData.append('longitude', locationData.longitude.toString());
+
+    locationData.polygon.forEach((point, index) => {
+      formData.append(`polygon[${index}][0]`, point[0].toString());
+      formData.append(`polygon[${index}][1]`, point[1].toString());
+    });
+
+    return formData;
+  };
+
+  // Initialize map
+  useEffect(() => {
+    if (!mapContainer.current || map.current) return;
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [31.2357, 30.0444], // Default to Cairo, Egypt
+      zoom: 10
+    });
+
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+    map.current.on('click', (e) => {
+      if (showAddModal || showEditModal) return;
+
+      const { lng, lat } = e.lngLat;
+
+      if (isMultiAddMode) {
+        handleMultiPointClick(lng, lat);
+      } else {
+        handleSinglePointClick(lng, lat);
+      }
+    });
 
     return () => {
       if (map.current) {
         map.current.remove();
+        map.current = null;
       }
     };
-  },);
+  }, [isMultiAddMode]);
 
+  // Load existing locations and add markers
   useEffect(() => {
-    if (map.current) {
-      updateMarkers();
+    if (property?.property_locations) {
+      // Convert PropertyLocation[] to LocationPoint[]
+      const convertedLocations: LocationPoint[] = property.property_locations.map(loc => ({
+        id: loc.id,
+        name: loc.name,
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+        location_points: loc.location_points
+      }));
+      setLocations(convertedLocations);
+      addMarkersToMap(convertedLocations);
     }
-  },);
+  }, [property]);
 
-  const initializeMap = () => {
-    if (!mapContainer.current || map.current) return;
-
-    // You need to set your Mapbox access token here
-    // Get it from https://account.mapbox.com/access-tokens/
-    // window.mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
-
-    map.current = new window.mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: center,
-      zoom: zoom
-    });
-
-    map.current.on('load', () => {
-      updateMarkers();
-      
-      // Add click handler for adding new locations
-      // if (onMapClick) {
-      //     map.current.on('click', (e: any) => {
-      //     const { lat, lng } = e.lngLat;
-      //     onMapClick(lat, lng);
-      //   });
-      // }
-    });
-  };
-
-  const updateMarkers = () => {
-    if (!map.current) return;
-
-    // Clear existing markers
+  const addMarkersToMap = (locationPoints: LocationPoint[]) => {
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
 
-    // Add markers for each location
-    locations.forEach(location => {
-      const marker = new window.mapboxgl.Marker({
-        color: '#3B82F6'
-      })
+    locationPoints.forEach((location) => {
+      const marker = new mapboxgl.Marker({ color: '#3B82F6' })
         .setLngLat([location.longitude, location.latitude])
         .setPopup(
-          new window.mapboxgl.Popup({ offset: 25 })
-            .setHTML(`
-              <div class="p-2">
-                <h3 class="font-semibold">${location.name}</h3>
-                <p class="text-sm text-gray-600">
-                  Lat: ${location.latitude}<br>
-                  Lng: ${location.longitude}
-                </p>
-              </div>
-            `)
+          new mapboxgl.Popup({ offset: 25 }).setHTML(`
+            <h3>${location.name}</h3>
+            <p>Lat: ${location.latitude.toFixed(6)}<br>Lng: ${location.longitude.toFixed(6)}</p>
+            ${location.location_points ? `<p>Polygon Points: ${location.location_points.length}</p>` : ''}
+          `)
         )
-        .addTo(map.current as mapboxgl.Map);
-
-      if (onMarkerClick) {
-        marker.getElement().addEventListener('click', () => {
-          onMarkerClick(location);
-        });
-      }
+        .addTo(map.current!);
 
       markers.current.push(marker);
     });
 
-    // Fit map to show all markers if there are any
-    if (locations.length > 0) {
-      const bounds = new window.mapboxgl.LngLatBounds();
-      locations.forEach(location => {
+    if (locationPoints.length > 0 && map.current) {
+      const bounds = new mapboxgl.LngLatBounds();
+      locationPoints.forEach(location => {
         bounds.extend([location.longitude, location.latitude]);
       });
-      
-      if (locations.length === 1) {
-        map.current.setCenter([locations[0].longitude, locations[0].latitude]);
-        map.current.setZoom(15);
-      } else {
-        map.current.fitBounds(bounds, { padding: 50 });
-      }
+      map.current.fitBounds(bounds, { padding: 50 });
     }
   };
 
-  return (
-    <div 
-      ref={mapContainer} 
-      className="w-full h-96 rounded-lg border border-gray-300 dark:border-gray-600"
-      style={{ minHeight: '400px' }}
-    />
-  );
-};
+  const handleSinglePointClick = (lng: number, lat: number) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng
+    }));
+    setShowAddModal(true);
+  };
 
-export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }) => {
-  const params = useParams();
-  const propertyId = params?.id as string;
-  
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [showMap, setShowMap] = useState(true);
-  const [formData, setFormData] = useState<LocationFormData>({
-    property_listing_id: propertyId || '',
-    name: '',
-    latitude: '',
-    longitude: ''
-  });
+  const handleMultiPointClick = (lng: number, lat: number) => {
+    const tempId = `temp_${Date.now()}_${Math.random()}`;
+
+    const marker = new mapboxgl.Marker({ color: '#EF4444', draggable: true })
+      .setLngLat([lng, lat])
+      .addTo(map.current!);
+
+    const tempLocation: TempLocationPoint = {
+      id: tempId,
+      latitude: lat,
+      longitude: lng,
+      polygon_points: 1,
+      polygon_radius: 0.0001,
+      marker: marker
+    };
+
+    marker.on('drag', () => {
+      const lngLat = marker.getLngLat();
+      setTempLocations(prev =>
+        prev.map(loc =>
+          loc.id === tempId
+            ? { ...loc, latitude: lngLat.lat, longitude: lngLat.lng }
+            : loc
+        )
+      );
+    });
+
+    setTempLocations(prev => [...prev, tempLocation]);
+  };
 
   const resetFormData = () => {
     setFormData({
       property_listing_id: propertyId || '',
       name: '',
-      latitude: '',
-      longitude: ''
+      latitude: 0,
+      longitude: 0,
+      polygon_points: 1,
+      polygon_radius: 0.0001
     });
   };
 
-  const handleAddClick = () => {
+  const resetMultiAddMode = () => {
+    tempLocations.forEach(tempLoc => tempLoc.marker.remove());
+    setTempLocations([]);
+    setMultiName('');
+    setIsMultiAddMode(false);
+    setShowMultiAddModal(false);
+  };
+
+  const handleAddSingleClick = () => {
     resetFormData();
-    setShowAddModal(true);
+    setIsMultiAddMode(false);
+    alert(t("Click on the map to select a location"));
   };
 
-  const handleMapClick = (lat: number, lng: number) => {
-    setFormData(prev => ({
-      ...prev,
-      latitude: lat.toFixed(6),
-      longitude: lng.toFixed(6)
-    }));
-    setShowAddModal(true);
+  const handleAddMultipleClick = () => {
+    resetMultiAddMode();
+    setIsMultiAddMode(true);
+    alert(t("Multi-add mode enabled. Click on the map to add multiple points, then click 'Save All Points' when done."));
   };
 
-  const handleMarkerClick = (location: PropertyLocation) => {
-    handleEditClick(location);
+  const handleSaveAllPoints = () => {
+    if (tempLocations.length === 0) {
+      alert(t("No points added yet. Click on the map to add points."));
+      return;
+    }
+    setShowMultiAddModal(true);
   };
 
-  const handleEditClick = (location: PropertyLocation) => {
+  const handleCancelMultiAdd = () => {
+    resetMultiAddMode();
+  };
+
+  const handleEditClick = (location: LocationPoint) => {
+    setEditingLocation(location);
     setFormData({
       property_listing_id: propertyId || '',
       name: location.name,
-      latitude: location.latitude.toString(),
-      longitude: location.longitude.toString()
+      latitude: location.latitude,
+      longitude: location.longitude,
+      polygon_points: location.location_points ? location.location_points.length : 1,
+      polygon_radius: 0.0001
     });
-    setSelectedLocationId(location.id.toString());
     setShowEditModal(true);
   };
 
   const handleDeleteClick = (locationId: string) => {
-    setSelectedLocationId(locationId);
+    setSelectedLocationIds([locationId]);
     setShowDeleteModal(true);
   };
 
+  const handleBulkDeleteClick = () => {
+    if (selectedLocationIds.length === 0) return;
+    setShowDeleteModal(true);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedLocationIds.length === locations.length) {
+      setSelectedLocationIds([]);
+    } else {
+      setSelectedLocationIds(locations.map(loc => loc.id.toString()));
+    }
+  };
+
+  const removeTempLocation = (tempId: string) => {
+    setTempLocations(prev => {
+      const locToRemove = prev.find(loc => loc.id === tempId);
+      if (locToRemove) locToRemove.marker.remove();
+      return prev.filter(loc => loc.id !== tempId);
+    });
+  };
+
   const handleDeleteConfirm = async () => {
-    if (!selectedLocationId) return;
-    
+    if (selectedLocationIds.length === 0) return;
+
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
-      await deleteData(`owner/locations/${selectedLocationId}`, new AxiosHeaders({
+      const queryParams = selectedLocationIds.join('&');
+
+      await deleteData(`owner/locations/${queryParams}`, new AxiosHeaders({
         Authorization: `Bearer ${token}`,
       }));
-      
+
       setShowDeleteModal(false);
-      setSelectedLocationId(null);
-      
-      if (onUpdate) {
-        onUpdate();
-      }
+      setSelectedLocationIds([]);
+      router.refresh();
+      if (onUpdate) onUpdate();
     } catch (error) {
-      console.error('Failed to delete location:', error);
+      console.error('Failed to delete locations:', error);
     } finally {
       setLoading(false);
     }
@@ -242,28 +370,40 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (!formData.name.trim()) {
+      alert('Please enter a location name');
+      return;
+    }
+
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
-      const formDataToSend = new FormData();
-      formDataToSend.append('property_listing_id', formData.property_listing_id);
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('latitude', formData.latitude);
-      formDataToSend.append('longitude', formData.longitude);
-      
+
+      const polygonPoints = generatePolygonPoints(
+        formData.latitude,
+        formData.longitude,
+        formData.polygon_points,
+        formData.polygon_radius
+      );
+
+      const locationData = {
+        property_listing_id: formData.property_listing_id,
+        name: formData.name,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        polygon: polygonPoints
+      };
+
+      const formDataToSend = createSingleLocationFormData(locationData);
+
       await postData('owner/locations', formDataToSend, new AxiosHeaders({
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
       }));
-      
+
       setShowAddModal(false);
       resetFormData();
-      
-      if (onUpdate) {
-        onUpdate();
-      }
+      if (onUpdate) onUpdate();
     } catch (error) {
       console.error('Failed to add location:', error);
     } finally {
@@ -273,32 +413,43 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!selectedLocationId) return;
-    
+    if (!editingLocation || !formData.name.trim()) return;
+
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
-      const formDataToSend = new FormData();
-      formDataToSend.append('property_listing_id', formData.property_listing_id);
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('latitude', formData.latitude);
-      formDataToSend.append('longitude', formData.longitude);
-      formDataToSend.append('_method', 'PUT');
-      
-      await postData(`owner/locations/${selectedLocationId}`, formDataToSend, new AxiosHeaders({
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      }));
-      
+
+      const polygonPoints = generatePolygonPoints(
+        formData.latitude,
+        formData.longitude,
+        formData.polygon_points,
+        formData.polygon_radius
+      );
+
+      const requestBody = {
+        _method: 'PUT',
+        property_listing_id: formData.property_listing_id,
+        name: formData.name,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        polygon: polygonPoints
+          .map((point, idx) => ({ [`${idx}`]: { 0: point[0], 1: point[1] } }))
+          .reduce((acc, curr) => ({ ...acc, ...curr }), {})
+      };
+
+      await postData(
+        `owner/locations/${editingLocation.id}`,
+        requestBody,
+        new AxiosHeaders({
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        })
+      );
+
       setShowEditModal(false);
-      setSelectedLocationId(null);
+      setEditingLocation(null);
       resetFormData();
-      
-      if (onUpdate) {
-        onUpdate();
-      }
+      if (onUpdate) onUpdate();
     } catch (error) {
       console.error('Failed to update location:', error);
     } finally {
@@ -306,94 +457,109 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
     }
   };
 
-  const handleInputChange = (field: keyof LocationFormData, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  const handleMultiAddSubmit = async () => {
+    if (!multiName.trim()) {
+      alert(t("Please enter a name for all locations."));
+      return;
+    }
+    if (tempLocations.length === 0) return;
 
-  const validateCoordinate = (value: string, type: 'latitude' | 'longitude') => {
-    const num = parseFloat(value);
-    if (isNaN(num)) return false;
-    
-    if (type === 'latitude') {
-      return num >= -90 && num <= 90;
-    } else {
-      return num >= -180 && num <= 180;
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const formDataToSend = createMultiPointFormData(tempLocations);
+
+      await postData('owner/locations', formDataToSend, new AxiosHeaders({
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      }));
+
+      resetMultiAddMode();
+      if (onUpdate) onUpdate();
+    } catch (error) {
+      console.error('Failed to add locations:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const renderLocationForm = (isEdit: boolean = false) => (
-    <form onSubmit={isEdit ? handleEditSubmit : handleAddSubmit}>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Location Name
-        </label>
-        <input
-          type="text"
-          value={formData.name}
-          onChange={(e) => handleInputChange('name', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="e.g., Main Entrance, Parking Area"
-          required
-        />
-      </div>
-      
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Latitude
-        </label>
-        <input
-          type="number"
-          step="any"
-          value={formData.latitude}
-          onChange={(e) => handleInputChange('latitude', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="e.g., 31.2001"
-          min="-90"
-          max="90"
-          required
-        />
-        {formData.latitude && !validateCoordinate(formData.latitude, 'latitude') && (
-          <p className="text-red-500 text-sm mt-1">Latitude must be between -90 and 90</p>
-        )}
-      </div>
-      
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Longitude
-        </label>
-        <input
-          type="number"
-          step="any"
-          value={formData.longitude}
-          onChange={(e) => handleInputChange('longitude', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="e.g., 29.9187"
-          min="-180"
-          max="180"
-          required
-        />
-        {formData.longitude && !validateCoordinate(formData.longitude, 'longitude') && (
-          <p className="text-red-500 text-sm mt-1">Longitude must be between -180 and 180</p>
-        )}
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'latitude' || name === 'longitude' || name === 'polygon_radius'
+        ? parseFloat(value) || 0
+        : name === 'polygon_points'
+        ? parseInt(value) || 1
+        : value
+    }));
+  };
+
+  // Enhanced single location form with better styling similar to multi-add
+  const renderLocationForm = (isEdit = false) => (
+    <form onSubmit={isEdit ? handleEditSubmit : handleAddSubmit} className="space-y-6">
+      {/* Location Name Section */}
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <h4 className="font-medium text-gray-700 mb-3">{t("Location Information")}</h4>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t("Location Name")} *
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+            placeholder={t("Enter location name")}
+          />
+        </div>
       </div>
 
-      {!isEdit && (
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-          <p className="text-sm text-blue-700">
-            💡 Tip: You can click on the map to automatically fill the coordinates!
-          </p>
+      {/* Coordinates Section */}
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <h4 className="font-medium text-gray-700 mb-3">{t("Coordinates")}</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t("Latitude")} *
+            </label>
+            <input
+              type="number"
+              name="latitude"
+              value={formData.latitude}
+              onChange={handleInputChange}
+              step="any"
+              className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t("Longitude")} *
+            </label>
+            <input
+              type="number"
+              name="longitude"
+              value={formData.longitude}
+              onChange={handleInputChange}
+              step="any"
+              className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
         </div>
-      )}
-      
-      <div className="flex justify-end space-x-3">
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex justify-end space-x-3 pt-4 border-t">
         <button
           type="button"
           onClick={() => {
             if (isEdit) {
               setShowEditModal(false);
+              setEditingLocation(null);
             } else {
               setShowAddModal(false);
             }
@@ -402,13 +568,24 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
           className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
           disabled={loading}
         >
-          Cancel
+          {t("Cancel")}
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 disabled:opacity-50"
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 disabled:opacity-50 flex items-center gap-2"
+          disabled={loading}
         >
-          {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Location' : 'Add Location')}
+          {loading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              {t("Saving...")}
+            </>
+          ) : (
+            <>
+              <Save size={16} />
+              {isEdit ? t("Update Location") : t("Add Location")}
+            </>
+          )}
         </button>
       </div>
     </form>
@@ -417,42 +594,125 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Property Locations</h3>
-        <div className="flex gap-2">
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+          {t("Property Locations")}
+        </h3>
+        <div className="flex items-center gap-2">
+          {locations.length > 0 && (
+            <>
+              <button
+                onClick={handleSelectAll}
+                className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 text-sm"
+              >
+                {selectedLocationIds.length === locations.length ? t('Deselect All') : t('Select All')}
+              </button>
+              {selectedLocationIds.length > 0 && (
+                <button
+                  onClick={handleBulkDeleteClick}
+                  className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2 text-sm"
+                >
+                  <Trash2 size={16} />
+                  {t("Delete Selected")} ({selectedLocationIds.length})
+                </button>
+              )}
+            </>
+          )}
           <button
-            onClick={() => setShowMap(!showMap)}
-            className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
+            onClick={handleAddSingleClick}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2 text-sm"
           >
-            <Map size={20} />
-            {showMap ? 'Hide Map' : 'Show Map'}
+            <Plus size={16} />
+            {t("Add Single")}
           </button>
           <button
-            onClick={handleAddClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
+            onClick={handleAddMultipleClick}
+            className="bg-green-600 hover:bg-green-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2 text-sm"
           >
-            <Plus size={20} />
-            Add New Location
+            <Plus size={16} />
+            {t("Add Multiple")}
           </button>
         </div>
       </div>
 
-      {/* Map Section */}
-      {showMap && (
-        <div className="mb-6">
-          <div className="mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Click on the map to add a new location, or click on existing markers to edit them.
-            </p>
+      {/* Multi-add mode controls */}
+      {isMultiAddMode && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+          <div className="flex justify-between items-center mb-3">
+            <div>
+              <h4 className="font-medium text-yellow-800">{t("Multi-Add Mode Active")}</h4>
+              <p className="text-sm text-yellow-700">
+                {t("Click on the map to add multiple points. Points added:")} {tempLocations.length}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleSaveAllPoints}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2 text-sm"
+                disabled={tempLocations.length === 0}
+              >
+                <Save size={16} />
+                {t("Save All Points")}
+              </button>
+              <button
+                onClick={handleCancelMultiAdd}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center gap-2 text-sm"
+              >
+                <X size={16} />
+                {t("Cancel")}
+              </button>
+            </div>
           </div>
-          <MapboxMap
-            locations={property.property_locations}
-            onMapClick={handleMapClick}
-            onMarkerClick={handleMarkerClick}
-            center={property.property_locations.length > 0 
-              ? [property.property_locations[0].longitude, property.property_locations[0].latitude]
-              : [30.0444, 31.2357]
-            }
-          />
+        </div>
+      )}
+
+      {/* Map Container */}
+      <div className="mb-6">
+        <div
+          ref={mapContainer}
+          className="w-full h-96 rounded-lg border border-gray-300 dark:border-gray-600"
+        />
+        <p className="text-sm text-gray-600 mt-2">
+          {isMultiAddMode
+            ? t("Multi-add mode: Click on the map to add multiple location points")
+            : t("Click on the map to add a new location point")
+          }
+        </p>
+      </div>
+
+      {/* Temporary locations list (when in multi-add mode) */}
+      {isMultiAddMode && tempLocations.length > 0 && (
+        <div className="mb-6">
+          <h4 className="font-medium text-gray-700 mb-3">{t("Points to be added")}:</h4>
+          {/* Single input for name of all points */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t("Location Name for All")} *
+            </label>
+            <input
+              type="text"
+              value={multiName}
+              onChange={(e) => setMultiName(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder={t("Enter name for all locations")}
+              required
+            />
+          </div>
+          <div className="space-y-3">
+            {tempLocations.map((tempLoc, index) => (
+              <div key={tempLoc.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm font-medium text-gray-600">#{index + 1}</span>
+                <span className="text-xs text-gray-500">
+                  {tempLoc.latitude.toFixed(6)}, {tempLoc.longitude.toFixed(6)}
+                </span>
+                <button
+                  onClick={() => removeTempLocation(tempLoc.id)}
+                  className="bg-red-500 hover:bg-red-600 text-white p-1 rounded"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -463,6 +723,18 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
             <div key={location.id} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-500">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
+                  <input
+                    type="checkbox"
+                    checked={selectedLocationIds.includes(location.id.toString())}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedLocationIds(prev => [...prev, location.id.toString()]);
+                      } else {
+                        setSelectedLocationIds(prev => prev.filter(id => id !== location.id.toString()));
+                      }
+                    }}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
                   <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
                     <MapPin size={20} className="text-blue-600" />
                   </div>
@@ -473,6 +745,11 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       Lat: {location.latitude}, Lng: {location.longitude}
                     </div>
+                    {location.location_points && location.location_points.length > 0 && (
+                      <div className="text-xs text-gray-400">
+                        Polygon points: {location.location_points.length}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -503,10 +780,10 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
         </div>
       )}
 
-      {/* Add Location Modal */}
+      {/* Add Single Location Modal */}
       <ModalForm
         open={showAddModal}
-        title="Add New Location"
+        title={t("Add New Location")}
         onClose={() => {
           setShowAddModal(false);
           resetFormData();
@@ -515,13 +792,54 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
         {renderLocationForm(false)}
       </ModalForm>
 
+      {/* Multi-Add Modal */}
+      <ModalForm
+        open={showMultiAddModal}
+        title={t("Save Multiple Locations")}
+        onClose={() => {
+          setShowMultiAddModal(false);
+        }}
+      >
+        <div className="mb-4">
+          <p className="text-gray-600 mb-4">
+            {t("You are about to save")} {tempLocations.length} {t("location(s).")}
+          </p>
+          <div className="max-h-60 overflow-y-auto space-y-2">
+            {tempLocations.map((tempLoc, index) => (
+              <div key={tempLoc.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded">
+                <span className="text-sm font-medium text-gray-600">#{index + 1}</span>
+                <span className="text-xs text-gray-500">
+                  {tempLoc.latitude.toFixed(4)}, {tempLoc.longitude.toFixed(4)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={() => setShowMultiAddModal(false)}
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
+            disabled={loading}
+          >
+            {t("Cancel")}
+          </button>
+          <button
+            onClick={handleMultiAddSubmit}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition duration-200 disabled:opacity-50"
+            disabled={loading}
+          >
+            {loading ? t("Saving...") : t("Save All Locations")}
+          </button>
+        </div>
+      </ModalForm>
+
       {/* Edit Location Modal */}
       <ModalForm
         open={showEditModal}
-        title="Edit Location"
+        title={t("Edit Location")}
         onClose={() => {
           setShowEditModal(false);
-          setSelectedLocationId(null);
+          setEditingLocation(null);
           resetFormData();
         }}
       >
@@ -531,32 +849,32 @@ export const LocationsTab: React.FC<LocationsTabProps> = ({ property, onUpdate }
       {/* Delete Confirmation Modal */}
       <ModalForm
         open={showDeleteModal}
-        title="Confirm Delete"
+        title={t("Confirm Delete")}
         onClose={() => {
           setShowDeleteModal(false);
-          setSelectedLocationId(null);
+          setSelectedLocationIds([]);
         }}
       >
         <p className="text-gray-600 mb-6">
-          Are you sure you want to delete this location? This action cannot be undone.
+          {t("Are you sure you want to delete")} {selectedLocationIds.length === 1 ? t('this location') : `${t('these')} ${selectedLocationIds.length} ${t('locations')}`}? {t("This action cannot be undone.")}
         </p>
         <div className="flex justify-end space-x-3">
           <button
             onClick={() => {
               setShowDeleteModal(false);
-              setSelectedLocationId(null);
+              setSelectedLocationIds([]);
             }}
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
             disabled={loading}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             onClick={handleDeleteConfirm}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition duration-200 disabled:opacity-50"
             disabled={loading}
           >
-            {loading ? 'Deleting...' : 'Delete'}
+            {loading ? t('Deleting...') : `${t('Delete')} ${selectedLocationIds.length === 1 ? t('Location') : t('Locations')}`}
           </button>
         </div>
       </ModalForm>
