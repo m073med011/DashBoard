@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 // import { Heart } from 'lucide-react';
 import Toast from '@/components/Toast';
 import { TabType } from '@/types/PropertyTypes';
@@ -19,6 +20,7 @@ import { ImagesTab } from '@/app/[locale]/(admin)/(others-pages)/properties/comp
 import { FloorPlanTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/FloorPlanTab';
 
 export default function PropertyDetailsPage() {
+  const t = useTranslations("properties");
   const params = useParams();
   const propertyId = params?.id as string;
  
@@ -70,7 +72,7 @@ export default function PropertyDetailsPage() {
                 {property?.descriptions?.en?.title}
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
-                Property ID: {property?.id} • {property?.type?.descriptions?.en?.title}
+                {t("property_id")}: {property?.id} • {property?.type?.descriptions?.en?.title}
               </p>
             </div>
             {/* <div className="flex space-x-3">
@@ -96,7 +98,7 @@ export default function PropertyDetailsPage() {
             {PROPERTY_TABS.map((tab) => (
               <TabButton
                 key={tab.id}
-                label={tab.label}
+                label={t(tab.label)}
                 isActive={activeTab === tab.id}
                 onClick={() => setActiveTab(tab.id)}
               />

@@ -6,6 +6,7 @@ import { deleteData, postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import ModalForm from '@/components/tables/ModalTableForm';
 import { useTranslations } from 'next-intl';
+import Toast from '@/components/Toast';
 
 // Mapbox GL JS imports
 import mapboxgl from 'mapbox-gl';
@@ -27,6 +28,13 @@ interface LocationPoint {
   longitude: number;
   location_points?: { latitude: number; longitude: number }[]; // Optional polygon points
 }
+
+
+type ToastState = {
+  message: string;
+  type: 'success' | 'error' | 'info';
+  show: boolean;
+};
 
 interface LocationFormData {
   property_listing_id: string;
@@ -62,6 +70,15 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
   const [loading, setLoading] = useState(false);
   const [locations, setLocations] = useState<LocationPoint[]>([]);
   const [editingLocation, setEditingLocation] = useState<LocationPoint | null>(null);
+  const [toast, setToast] = useState<ToastState>({
+    message: '',
+    type: 'info',
+    show: false,
+  });
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type, show: true });
+    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
+  };
 
   // Multi-point addition states
   const [isMultiAddMode, setIsMultiAddMode] = useState(false);
@@ -285,18 +302,18 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
   const handleAddSingleClick = () => {
     resetFormData();
     setIsMultiAddMode(false);
-    alert(t("Click on the map to select a location"));
+    showToast(t("Click on the map to select a location"), "info");
   };
 
   const handleAddMultipleClick = () => {
     resetMultiAddMode();
     setIsMultiAddMode(true);
-    alert(t("Multi-add mode enabled. Click on the map to add multiple points, then click 'Save All Points' when done."));
+    showToast(t("Multi-add"), "info");
   };
 
   const handleSaveAllPoints = () => {
     if (tempLocations.length === 0) {
-      alert(t("No points added yet. Click on the map to add points."));
+      showToast(t("No points added yet. Click on the map to add points."), "info");
       return;
     }
     setShowMultiAddModal(true);
@@ -371,7 +388,7 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      alert('Please enter a location name');
+      showToast(t("Please enter a location name"), "error");
       return;
     }
 
@@ -459,7 +476,7 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
 
   const handleMultiAddSubmit = async () => {
     if (!multiName.trim()) {
-      alert(t("Please enter a name for all locations."));
+      showToast(t("Please enter a name for all locations."), "error");
       return;
     }
     if (tempLocations.length === 0) return;
@@ -498,6 +515,7 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
   // Enhanced single location form with better styling similar to multi-add
   const renderLocationForm = (isEdit = false) => (
     <form onSubmit={isEdit ? handleEditSubmit : handleAddSubmit} className="space-y-6">
+
       {/* Location Name Section */}
       <div className="bg-gray-50 p-4 rounded-lg">
         <h4 className="font-medium text-gray-700 mb-3">{t("Location Information")}</h4>
@@ -593,6 +611,7 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
 
   return (
     <div className="mb-8">
+                  {toast.show && <Toast message={toast.message} type={toast.type} duration={3000} />}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
           {t("Property Locations")}
@@ -641,7 +660,7 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
             <div>
               <h4 className="font-medium text-yellow-800">{t("Multi-Add Mode Active")}</h4>
               <p className="text-sm text-yellow-700">
-                {t("Click on the map to add multiple points. Points added:")} {tempLocations.length}
+                {t("Points added")}: {tempLocations.length}
               </p>
             </div>
             <div className="flex gap-2">
@@ -658,7 +677,7 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center gap-2 text-sm"
               >
                 <X size={16} />
-                {t("Cancel")}
+                {t("cancel")}
               </button>
             </div>
           </div>

@@ -1,11 +1,12 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
-import { User, Mail, Phone, Edit, Save } from 'lucide-react';
+import { User, Mail, Phone, Edit, Save, Lock } from 'lucide-react';
 import { getData, postData } from '@/libs/axios/server'; // Import your API functions
 import ModalForm from '@/components/tables/ModalTableForm';
 import Image from 'next/image';
 import { AxiosHeaders } from 'axios';
 import Toast from "@/components/Toast";
+
 // Type definitions
 interface ProfileData {
   id: number;
@@ -30,20 +31,30 @@ interface FormData {
   avatar: File | null;
 }
 
+interface PasswordFormData {
+  current_password: string;
+  new_password: string;
+  new_password_confirmation: string;
+}
+
 interface ApiResponse {
   data: ProfileData;
 }
+
 type ToastState = {
   message: string;
   type: "success" | "error" | "info";
   show: boolean;
 };
+
 const OwnerProfilePage: React.FC = () => {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState<boolean>(false);
   const [updating, setUpdating] = useState<boolean>(false);
+  const [updatingPassword, setUpdatingPassword] = useState<boolean>(false);
   const [toast, setToast] = useState<ToastState>({ message: "", type: "info", show: false });
 
   const showToast = useCallback((message: string, type: ToastState["type"] = "info") => {
@@ -58,6 +69,13 @@ const OwnerProfilePage: React.FC = () => {
     phone: '',
     second_phone: '',
     avatar: null
+  });
+
+  // Password form state
+  const [passwordFormData, setPasswordFormData] = useState<PasswordFormData>({
+    current_password: '',
+    new_password: '',
+    new_password_confirmation: ''
   });
 
   // Fetch profile data on component mount
@@ -104,6 +122,14 @@ const OwnerProfilePage: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handlePasswordInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordFormData(prev => ({
       ...prev,
       [name]: value
     }));
@@ -158,6 +184,60 @@ const OwnerProfilePage: React.FC = () => {
     }
   };
 
+  const handleUpdatePassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    // Validate password confirmation
+    if (passwordFormData.new_password !== passwordFormData.new_password_confirmation) {
+      showToast('New password and confirmation do not match.', 'error');
+      return;
+    }
+
+    // Validate password length (optional)
+    if (passwordFormData.new_password.length < 8) {
+      showToast('New password must be at least 8 characters long.', 'error');
+      return;
+    }
+
+    try {
+      setUpdatingPassword(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      // Create FormData for password update
+      const passwordUpdateFormData = new FormData();
+      passwordUpdateFormData.append('current_password', passwordFormData.current_password);
+      passwordUpdateFormData.append('new_password', passwordFormData.new_password);
+      passwordUpdateFormData.append('new_password_confirmation', passwordFormData.new_password_confirmation);
+
+      const headers = new AxiosHeaders({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      });
+
+      await postData('owner/profile/update-password', passwordUpdateFormData, headers);
+      
+      setIsPasswordModalOpen(false);
+      showToast('Password updated successfully!', 'success');
+      
+      // Reset password form
+      setPasswordFormData({
+        current_password: '',
+        new_password: '',
+        new_password_confirmation: ''
+      });
+      
+    } catch (err) {
+      console.error('Error updating password:', err);
+      showToast('Failed to update password. Please try again.', 'error');
+    } finally {
+      setUpdatingPassword(false);
+    }
+  };
+
   const openUpdateModal = () => {
     setIsModalOpen(true);
   };
@@ -174,6 +254,20 @@ const OwnerProfilePage: React.FC = () => {
         avatar: null
       });
     }
+  };
+
+  const openPasswordModal = () => {
+    setIsPasswordModalOpen(true);
+  };
+
+  const closePasswordModal = () => {
+    setIsPasswordModalOpen(false);
+    // Reset password form data
+    setPasswordFormData({
+      current_password: '',
+      new_password: '',
+      new_password_confirmation: ''
+    });
   };
 
   if (loading) {
@@ -222,13 +316,22 @@ const OwnerProfilePage: React.FC = () => {
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold text-gray-900">Owner Profile</h1>
-              <button
-                onClick={openUpdateModal}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Edit Profile
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={openPasswordModal}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                  <Lock className="w-4 h-4 mr-2" />
+                  Change Password
+                </button>
+                <button
+                  onClick={openUpdateModal}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </button>
+              </div>
             </div>
           </div>
 
@@ -318,7 +421,7 @@ const OwnerProfilePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Update Modal */}
+        {/* Update Profile Modal */}
         <ModalForm
           open={isModalOpen}
           title="Update Profile"
@@ -414,6 +517,87 @@ const OwnerProfilePage: React.FC = () => {
                   <>
                     <Save className="w-4 h-4 mr-2" />
                     Update Profile
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </ModalForm>
+
+        {/* Change Password Modal */}
+        <ModalForm
+          open={isPasswordModalOpen}
+          title="Change Password"
+          onClose={closePasswordModal}
+        >
+          <form onSubmit={handleUpdatePassword} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Current Password
+              </label>
+              <input
+                type="password"
+                name="current_password"
+                value={passwordFormData.current_password}
+                onChange={handlePasswordInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                New Password
+              </label>
+              <input
+                type="password"
+                name="new_password"
+                value={passwordFormData.new_password}
+                onChange={handlePasswordInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
+                minLength={8}
+              />
+              <p className="text-xs text-gray-500 mt-1">Password must be at least 8 characters long</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Confirm New Password
+              </label>
+              <input
+                type="password"
+                name="new_password_confirmation"
+                value={passwordFormData.new_password_confirmation}
+                onChange={handlePasswordInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
+                minLength={8}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <button
+                type="button"
+                onClick={closePasswordModal}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={updatingPassword}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+              >
+                {updatingPassword ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4 mr-2" />
+                    Update Password
                   </>
                 )}
               </button>
