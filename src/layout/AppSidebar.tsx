@@ -39,7 +39,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     icon: <Users />, name: "owners", path: "/owner"
   },
-  { icon: <Newspaper />, name: "banners", path: "/blog" },
+  { icon: <Newspaper />, name: "blogs", path: "/blog" },
   { icon: <GalleryHorizontal />, name: "banners", path: "/banners" },
   { icon: <Shapes />, name: "types", path: "/types" },
   { icon: <Map />, name: "areas", path: "/areas" },
