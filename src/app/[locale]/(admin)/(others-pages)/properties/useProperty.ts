@@ -1,10 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import { getData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
-import { PropertyData, ToastState } from '@/types/PropertyTypes';
+import { PropertyData, ToastState,PropertyStatistics } from '@/types/PropertyTypes';
+
 
 export const useProperty = (propertyId: string) => {
   const [property, setProperty] = useState<PropertyData | null>(null);
+  const [propertystat, setPropertystat] = useState<PropertyStatistics | null>(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>({
@@ -37,6 +39,22 @@ export const useProperty = (propertyId: string) => {
     }
   }, []);
 
+  const fetchPropertyStatistics = useCallback(async (authToken: string, id: string) => {
+    try {
+      const res = await getData(`owner/property/${id}/statistics`, {}, new AxiosHeaders({
+        Authorization: `Bearer ${authToken}`,
+      }));
+      if (res.data) {
+        setPropertystat(res.data);
+      } else {
+        showToast('Property statistics not found', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to fetch property statistics', error);
+      showToast('Failed to load property statistics', 'error');
+    }
+  }, []);
+
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
@@ -50,14 +68,17 @@ export const useProperty = (propertyId: string) => {
   useEffect(() => {
     if (token && propertyId) {
       fetchProperty(token, propertyId);
+      fetchPropertyStatistics(token, propertyId);
     }
-  }, [token, propertyId, fetchProperty]);
+  }, [token, propertyId, fetchProperty, fetchPropertyStatistics]);
 
   return {
     property,
+    propertystat,
     loading,
     toast,
     showToast,
-    fetchProperty // Export fetchProperty for manual refetching
+    fetchProperty, // Export fetchProperty for manual refetching
+    fetchPropertyStatistics // Export fetchPropertyStatistics for manual refetching
   };
 };

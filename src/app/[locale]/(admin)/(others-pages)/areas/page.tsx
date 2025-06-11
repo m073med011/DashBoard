@@ -8,10 +8,10 @@ import { AxiosHeaders } from 'axios';
 import Image from 'next/image';
 import Toast from '@/components/Toast';
 import { useLocale, useTranslations } from 'next-intl';
-// Updated type to match API response structure
+
 type Area = {
   id: number;
-  name: string; // This is the single name field from API
+  name: string;
   description: {
     en: {
       name: string;
@@ -30,9 +30,9 @@ type ToastState = {
   show: boolean;
 };
 
-  export default function AreasPage() {
+export default function AreasPage() {
   const locale = useLocale();
-  const t = useTranslations();
+  const t = useTranslations("areas");
   const [items, setItems] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
@@ -57,13 +57,13 @@ type ToastState = {
     if (storedToken) {
       setToken(storedToken);
     } else {
-      showToast(t("Token not found in localStorage"), 'error');
+      showToast("Token not found in localStorage", 'error');
     }
   }, [t]);
 
   useEffect(() => {
     if (token) fetchAreas(token);
-  },);
+  }, [token, locale]);
 
   const fetchAreas = async (authToken: string) => {
     try {
@@ -74,7 +74,7 @@ type ToastState = {
       setItems(res.data ?? []);
     } catch (error) {
       console.error('Failed to fetch areas', error);
-      showToast(t("Failed to fetch areas"), 'error');
+      showToast("Failed to fetch areas", 'error');
     } finally {
       setLoading(false);
     }
@@ -87,10 +87,10 @@ type ToastState = {
         Authorization: `Bearer ${token}`,
       }));
       fetchAreas(token);
-      showToast(t("Area deleted successfully"), 'success');
+      showToast("Area deleted successfully", 'success');
     } catch (error) {
       console.error('Delete failed', error);
-      showToast(t("Delete failed"), 'error');
+      showToast("Delete failed", 'error');
     }
   };
 
@@ -98,7 +98,6 @@ type ToastState = {
     if (!token) return;
 
     const payload = new FormData();
-    // Updated to match the API structure based on your form data table
     payload.append('name[en]', formData.get('name[en]') as string);
     payload.append('name[ar]', formData.get('name[ar]') as string);
     payload.append('count_of_properties', formData.get('count_of_properties') as string);
@@ -113,21 +112,20 @@ type ToastState = {
         await postData('owner/areas', payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
-        showToast(t("Area created successfully"), 'success');
+        showToast("Area created successfully", 'success');
       } else if (modalState.type === 'edit' && modalState.item) {
-        // For updates, we need to add _method field for PATCH
         payload.append('_method', 'PATCH');
         await patchData(`owner/areas/${modalState.item.id}`, payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
-        showToast(t("Area updated successfully"), 'success');
+        showToast("Area updated successfully", 'success');
       }
 
       fetchAreas(token);
       setModalState({ type: null });
     } catch (error) {
       console.error('Save failed', error);
-      showToast(t("Save failed"), 'error');
+      showToast("Save failed", 'error');
     }
   };
 
@@ -139,7 +137,7 @@ type ToastState = {
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <p className="text-lg">Loading areas...</p>
+          <p className="text-lg">{t("Loading areas...")}</p>
         </div>
       ) : (
         <Table<Area>
@@ -147,16 +145,16 @@ type ToastState = {
           columns={[
             {
               key: 'name',
-              label: 'Name',
+              label: t('Name'),
               render: (item) => `${item.description.en.name} / ${item.description.ar.name}`,
             },
             {
               key: 'image',
-              label: 'Image',
+              label: t('Image'),
               render: (item: Area) => (
                 <Image
                   src={item.image}
-                  alt="area"
+                  alt={t("area")}
                   width={48}
                   height={48}
                   className="rounded object-cover"
@@ -165,7 +163,7 @@ type ToastState = {
             },
             {
               key: 'count_of_properties',
-              label: 'Properties',
+              label: t('Properties'),
               render: (item) => item.count_of_properties.toString(),
             },
           ]}
@@ -180,33 +178,33 @@ type ToastState = {
         open={!!modalState.type}
         title={
           modalState.type === 'create'
-            ? 'Create Area'
+            ? t('Create Area')
             : modalState.type === 'edit'
-            ? 'Edit Area'
-            : 'View Area'
+            ? t('Edit Area')
+            : t('View Area')
         }
         onClose={() => setModalState({ type: null })}
       >
         {modalState.type === 'view' || modalState.type === 'quick' ? (
           <div className="space-y-4">
             <div>
-              <strong className="block text-sm font-medium text-gray-700">Name (EN):</strong>
+              <strong className="block text-sm font-medium text-gray-700">{t('Name (EN)')}:</strong>
               <p className="mt-1">{modalState.item?.description.en.name}</p>
             </div>
             <div>
-              <strong className="block text-sm font-medium text-gray-700">Name (AR):</strong>
+              <strong className="block text-sm font-medium text-gray-700">{t('Name (AR)')}:</strong>
               <p className="mt-1">{modalState.item?.description.ar.name}</p>
             </div>
             <div>
-              <strong className="block text-sm font-medium text-gray-700">Properties:</strong>
+              <strong className="block text-sm font-medium text-gray-700">{t('Properties')}:</strong>
               <p className="mt-1">{modalState.item?.count_of_properties}</p>
             </div>
             {modalState.item?.image && (
               <div>
-                <strong className="block text-sm font-medium text-gray-700 mb-2">Image:</strong>
+                <strong className="block text-sm font-medium text-gray-700 mb-2">{t('Image')}:</strong>
                 <Image
                   src={modalState.item.image}
-                  alt="Area"
+                  alt={t("Area")}
                   width={200}
                   height={200}
                   className="w-full max-w-sm rounded-lg object-cover"
@@ -225,13 +223,13 @@ type ToastState = {
           >
             <div>
               <label htmlFor="name_en" className="block text-sm font-medium text-gray-700">
-                Area Name (English)
+                {t('Area Name (English)')}
               </label>
               <input
                 id="name_en"
                 type="text"
                 name="name[en]"
-                placeholder="Enter area name in English"
+                placeholder={t('Enter area name in English')}
                 defaultValue={modalState.item?.description.en.name ?? ''}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
@@ -240,13 +238,13 @@ type ToastState = {
             
             <div>
               <label htmlFor="name_ar" className="block text-sm font-medium text-gray-700">
-                Area Name (Arabic)
+                {t('Area Name (Arabic)')}
               </label>
               <input
                 id="name_ar"
                 type="text"
                 name="name[ar]"
-                placeholder="Enter area name in Arabic"
+                placeholder={t('Enter area name in Arabic')}
                 defaultValue={modalState.item?.description.ar.name ?? ''}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
@@ -255,13 +253,13 @@ type ToastState = {
             
             <div>
               <label htmlFor="count_properties" className="block text-sm font-medium text-gray-700">
-                Number of Properties
+                {t('Number of Properties')}
               </label>
               <input
                 id="count_properties"
                 type="number"
                 name="count_of_properties"
-                placeholder="Enter number of properties"
+                placeholder={t('Enter number of properties')}
                 defaultValue={modalState.item?.count_of_properties?.toString() ?? ''}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 min="0"
@@ -271,7 +269,7 @@ type ToastState = {
             
             <div>
               <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-                Area Image
+                {t('Area Image')}
               </label>
               <input
                 id="image"
@@ -281,7 +279,7 @@ type ToastState = {
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               {modalState.type === 'edit' && (
-                <p className="mt-1 text-sm text-gray-500">Leave empty to keep current image</p>
+                <p className="mt-1 text-sm text-gray-500">{t('Leave empty to keep current image')}</p>
               )}
             </div>
             
@@ -291,13 +289,13 @@ type ToastState = {
                 onClick={() => setModalState({ type: null })}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
-                Cancel
+                {t('Cancel')}
               </button>
               <button 
                 type="submit" 
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {modalState.type === 'create' ? 'Create' : 'Update'}
+                {modalState.type === 'create' ? t('Create') : t('Update')}
               </button>
             </div>
           </form>

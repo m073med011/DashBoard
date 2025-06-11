@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 export default function UserDropdown() {
     const t = useTranslations("Header");
   const [isOpen, setIsOpen] = useState(false);
-  const [User, setUser] = useState({ name: "", email: "",});
+  const [User, setUser] = useState({ name: "", email: "",avatar:""});
   const locale = useLocale();
   const router = useRouter();
   useEffect(() => {
@@ -23,7 +23,7 @@ export default function UserDropdown() {
         setUser(JSON.parse(userData)); // Parse JSON string to object
       } catch (error) {
         console.error("Failed to parse user data:", error);
-        setUser({ name: "", email: ""}); // fallback to empty object
+        setUser({ name: "", email: "",avatar:""}); // fallback to empty object
       }
     }
   }, []);
@@ -62,7 +62,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
           <Image
             width={44}
             height={44}
-            src="/images/user/owner.jpg"
+            src={User?.avatar || "/images/user.png"}
             alt="User"
           />
         </span>

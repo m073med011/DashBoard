@@ -53,6 +53,7 @@ export default function OwnersPage() {
     type: 'info',
     show: false,
   });
+  document.title =  `Proplex`;
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToast({ message, type, show: true });
@@ -183,6 +184,7 @@ export default function OwnersPage() {
         payload.append('_method', 'PUT');
         payload.append('name', formData.get('name') as string);
         payload.append('email', formData.get('email') as string);
+        payload.append('phone', formData.get('phone') as string);
         
         const password = formData.get('password') as string;
         if (password) {
@@ -371,6 +373,14 @@ export default function OwnersPage() {
               className="w-full border p-2 rounded"
               required
             />
+            <input
+              type="phone"
+              name="phone"
+              placeholder={t('phone')}
+              defaultValue={modalState.item?.phone || ''}
+              className="w-full border p-2 rounded"
+              required
+            />
             {modalState.type === 'create' && (
               <>
                 <input
@@ -405,6 +415,7 @@ export default function OwnersPage() {
                 className="w-full border p-2 rounded"
               />
             )}
+            
             
             {/* Modules Selection */}
             <div className="space-y-2">

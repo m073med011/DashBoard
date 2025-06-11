@@ -39,15 +39,13 @@ const NAV_ITEMS: NavItem[] = [
   {
     icon: <Users />, name: "owners", path: "/owner"
   },
-  { icon: <Newspaper />, name: "blogs", path: "/blog" },
+  { icon: <Newspaper />, name: "banners", path: "/blog" },
   { icon: <GalleryHorizontal />, name: "banners", path: "/banners" },
   { icon: <Shapes />, name: "types", path: "/types" },
   { icon: <Map />, name: "areas", path: "/areas" },
   {
-    icon: <Building2 />, name: "properties", path: "/properties"
+    icon: <Building2 />, name: "property_listings", path: "/properties"
   },
-  
-  
 ];
 
 const AppSidebar: React.FC = () => {
@@ -69,6 +67,14 @@ const AppSidebar: React.FC = () => {
       prev?.type === type && prev.index === index ? null : { type, index }
     );
   };
+
+  // Get modules from localStorage
+  const getAvailableModules = () => {
+    const storedModules = localStorage.getItem("modules");
+    return storedModules ? JSON.parse(storedModules) : [];
+  };
+
+  const availableModules = getAvailableModules();
 
   useEffect(() => {
     let matched = false;
@@ -146,6 +152,11 @@ const AppSidebar: React.FC = () => {
   const renderNavItems = (items: NavItem[], type: string) => (
     <ul className="flex flex-col gap-4">
       {items.map((nav, index) => {
+        // Skip rendering nav item if it's not in availableModules
+        if (!availableModules.includes(nav.name)) {
+          return null; // Skip this item
+        }
+
         const isOpen = openSubmenu?.type === type && openSubmenu.index === index;
 
         return (
@@ -188,43 +199,37 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-  className={`fixed top-0 z-50 px-5 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen flex flex-col transition-all duration-300 ease-in-out mt-16 lg:mt-0
-    ${isRtl ? "right-0 border-l border-gray-200" : "left-0 border-r border-gray-200"}
-    ${
-      isExpanded || isMobileOpen
-        ? "w-[290px]"
-        : isHovered
-        ? "w-[290px]"
-        : "w-[90px]"
-    }
-    ${
-      isMobileOpen
-        ? isRtl ? "-translate-x-0" : "translate-x-0"
-        : isRtl ? "translate-x-full" : "-translate-x-full"
-    }
-    lg:translate-x-0`}
-  onMouseEnter={() => !isExpanded && setIsHovered(true)}
-  onMouseLeave={() => setIsHovered(false)}
->
-
+      className={`fixed top-0 z-50 px-5 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen flex flex-col transition-all duration-300 ease-in-out mt-16 lg:mt-0
+      ${isRtl ? "right-0 border-l border-gray-200" : "left-0 border-r border-gray-200"}
+      ${
+        isExpanded || isMobileOpen
+          ? "w-[290px]"
+          : isHovered
+          ? "w-[290px]"
+          : "w-[90px]"
+      }
+      ${
+        isMobileOpen
+          ? isRtl ? "-translate-x-0" : "translate-x-0"
+          : isRtl ? "translate-x-full" : "-translate-x-full"
+      }
+      lg:translate-x-0`}
+      onMouseEnter={() => !isExpanded && setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div className={`py-8 flex ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}`}>
         <Link href="/">
           {isSidebarVisible ? (
             <>
-            <h1 className="text-4xl">Proplex</h1>
-              {/* <Image className="dark:hidden" src="/images/logo/logo.svg" alt="Logo" width={150} height={40} />   */}
-              {/* <Image className="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" width={150} height={40} /> */}
+              <h1 className="text-4xl">Proplex</h1>
             </>
           ) : (
-              <Image src="/images/logo/logo-icon.svg" alt="Logo" width={32} height={32} />
+            <Image src="/images/logo/logo-icon.svg" alt="Logo" width={32} height={32} />
           )}
         </Link>
       </div>
 
-      {/* <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
-       */}
-       <div className="flex-1 overflow-y-auto duration-300 ease-linear no-scrollbar">
-
+      <div className="flex-1 overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
             <div>

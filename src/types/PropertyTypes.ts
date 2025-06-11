@@ -11,6 +11,14 @@ export type PropertyUser = {
   role: string;
 };
 
+
+export type PropertyStatistics = {
+  data: {
+  count_call: number;
+  count_whatsapp: number;
+  }
+}
+
 export type PropertyType = {
   id: number;
   title: string;

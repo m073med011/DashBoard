@@ -118,7 +118,7 @@ export default function PropertyListingsPage() {
 
   // Navigate handlers
   const handleView = (item: PropertyListing) => router.push(`/properties/view/${item.id}`);
-  const handleEdit = (item: PropertyListing) => router.push(`/properties/edit/${item.id}`);
+  // const handleEdit = (item: PropertyListing) => router.push(`/properties/edit/${item.id}`);
 
   return (
     <div className="p-6">
@@ -157,7 +157,7 @@ export default function PropertyListingsPage() {
           ]}
           onCreatePage={()=>{}}
           onViewPage={handleView}
-          onEditPage={handleEdit}
+          // onEditPage={handleEdit}
           onDelete={handleDelete}
         />
       )}

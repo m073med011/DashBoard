@@ -1,20 +1,15 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-// import { Heart } from 'lucide-react';
 import Toast from '@/components/Toast';
 import { TabType } from '@/types/PropertyTypes';
 import { useProperty } from '@/app/[locale]/(admin)/(others-pages)/properties/useProperty';
 import { PROPERTY_TABS } from '@/app/[locale]/(admin)/(others-pages)/properties/constants/property';
-import {
-  TabButton,
-  LoadingSpinner,
-  NotFoundMessage
-} from '@/app/[locale]/(admin)/(others-pages)/properties/components/TabButton';
+import {TabButton,LoadingSpinner,NotFoundMessage} from '@/app/[locale]/(admin)/(others-pages)/properties/components/TabButton';
 import { MainTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/MainTab';
 import { AmenitiesTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/AmenitiesTab';
 import { FeaturesTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/FeaturesTab';
-import { LocationTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/LocationsTab'; 
+import { LocationTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/LocationsTab';
 import { ImagesTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/ImagesTab';
 import { FloorPlanTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/FloorPlanTab';
 import { useTranslations } from 'next-intl';
@@ -23,17 +18,27 @@ export default function PropertyDetailsPage() {
   const params = useParams();
   const propertyId = params?.id as string;
   const t = useTranslations("properties");
-
-  const { property, loading, toast } = useProperty(propertyId);
+  const { property, propertystat, loading, toast } = useProperty(propertyId);
   const [activeTab, setActiveTab] = useState<TabType>('main');
-  // const [isFavorite, setIsFavorite] = useState(false);
+
+  // Update page title when property loads
+  useEffect(() => {
+    if (property) {
+      const title = property.descriptions?.en?.title || 'Property Details';
+      const propertyType = property.type?.descriptions?.en?.title || '';
+      document.title = `${title} ${propertyType ? '- ' + propertyType : ''} | Real Estate`;
+    } else if (!loading) {
+      document.title = 'Property Not Found';
+    } else {
+      document.title = 'Loading Property...';
+    }
+  }, [property, loading]);
 
   const renderTabContent = () => {
     if (!property) return null;
-
     switch (activeTab) {
       case 'main':
-        return <MainTab property={property} />;
+        return propertystat ? <MainTab property={property} propertystat={propertystat} /> : null;
       case 'amenities':
         return <AmenitiesTab property={property} />;
       case 'features':
@@ -45,7 +50,7 @@ export default function PropertyDetailsPage() {
       case 'floorplan':
         return <FloorPlanTab property={property} />;
       default:
-        return <MainTab property={property} />;
+        return propertystat ? <MainTab property={property} propertystat={propertystat} /> : null;
     }
   };
 
@@ -62,51 +67,35 @@ export default function PropertyDetailsPage() {
       {toast?.show && (
         <Toast message={toast?.message} type={toast?.type} duration={3000} />
       )}
-      
+     
       <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
         <div className="p-8">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-3xl font-bold">
-                {property?.descriptions?.en?.title}
+               {t("Name")} : {property?.descriptions?.en?.title}
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              {/* <p className="text-gray-600 dark:text-gray-400 mt-1">
                 {t("property_id")}: {property?.id} • {property?.type?.descriptions?.en?.title}
-              </p>
+              </p> */}
             </div>
-            {/* <div className="flex space-x-3">
-              <button
-                onClick={() => setIsFavorite(!isFavorite)}
-                className={`font-medium px-6 py-2 rounded-lg shadow-md transition duration-200 ${
-                  isFavorite
-                    ? 'bg-red-600 hover:bg-red-700 text-white'
-                    : 'bg-gray-600 hover:bg-gray-700 text-white'
-                }`}
-              >
-                <Heart
-                  size={20}
-                  className={`inline mr-2 ${isFavorite ? 'fill-current' : ''}`}
-                />
-                {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-              </button>
-            </div> */}
           </div>
          
           {/* Tab Navigation */}
           <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
-  <div className="flex space-x-2 overflow-x-auto scrollbar-hide pb-2">
-    {PROPERTY_TABS.map((tab) => (
-      <TabButton
-        key={tab.id}
-        label={t(tab.label)}
-        isActive={activeTab === tab.id}
-        onClick={() => setActiveTab(tab.id)}
-      />
-    ))}
-  </div>
-</div>
-
+            <div className="flex space-x-2 overflow-x-auto scrollbar-hide pb-2">
+              {PROPERTY_TABS.map((tab) => (
+                <TabButton
+                  key={tab.id}
+                  label={t(tab.label)}
+                  isActive={activeTab === tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                />
+              ))}
+            </div>
+          </div>
+          
           {/* Tab Content */}
           <div className="tab-content">
             {renderTabContent()}

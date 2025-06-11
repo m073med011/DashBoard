@@ -18,6 +18,7 @@ export const login = async (data: LoginPayload) => {
   // Save token to localStorage
   localStorage.setItem('token', token);
   localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem('modules', JSON.stringify(user.modules));
 
   // Save to Zustand
   useAuthStore.getState().login(user, token);
