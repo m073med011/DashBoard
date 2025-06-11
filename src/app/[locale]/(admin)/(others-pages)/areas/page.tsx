@@ -145,16 +145,16 @@ export default function AreasPage() {
           columns={[
             {
               key: 'name',
-              label: t('Name'),
+              label: 'Name',
               render: (item) => `${item.description.en.name} / ${item.description.ar.name}`,
             },
             {
               key: 'image',
-              label: t('Image'),
+              label: 'Image',
               render: (item: Area) => (
                 <Image
                   src={item.image}
-                  alt={t("area")}
+                  alt={"area"}
                   width={48}
                   height={48}
                   className="rounded object-cover"
@@ -163,7 +163,7 @@ export default function AreasPage() {
             },
             {
               key: 'count_of_properties',
-              label: t('Properties'),
+              label: 'Properties',
               render: (item) => item.count_of_properties.toString(),
             },
           ]}

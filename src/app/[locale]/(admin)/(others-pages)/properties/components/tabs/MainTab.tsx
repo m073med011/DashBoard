@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
 import Image from 'next/image';
 import { Phone, Mail, MessageCircle, Home, Bed, Bath, ChefHat, Ruler, MapPin, User, CheckCircle, Clock } from 'lucide-react';
 import { PropertyData, PropertyStatistics } from '@/types/PropertyTypes';
 import { useTranslations } from 'next-intl';
-import { postData } from '@/libs/axios/server';
+// import { postData } from '@/libs/axios/server';
 // import axios from 'axios';
-import { AxiosHeaders } from 'axios'; // Import AxiosHeaders from axios
+// import { AxiosHeaders } from 'axios'; // Import AxiosHeaders from axios
 
 interface MainTabProps {
   propertystat: PropertyStatistics;
@@ -13,45 +13,45 @@ interface MainTabProps {
 }
 
 export const MainTab: React.FC<MainTabProps> = ({ property, propertystat }) => {
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<string | null>(null);
+  // const [loading, setLoading] = useState(false);
+  // const [status, setStatus] = useState<string | null>(null);
   const t = useTranslations("properties");
 
 
-  const handleApprovalStatusChange = async () => {
-    setLoading(true);
-    try {
-      // Retrieve the token from localStorage
-      const token = localStorage.getItem('token');  // Change 'auth_token' to whatever your key is
+// const handleApprovalStatusChange = async () => {
+//     setLoading(true);
+//     try {
+//       // Retrieve the token from localStorage
+//       const token = localStorage.getItem('token');  // Change 'auth_token' to whatever your key is
   
-      // Create an AxiosHeaders instance and add the Authorization header if token exists
-      let headers: AxiosHeaders = new AxiosHeaders();
+//       // Create an AxiosHeaders instance and add the Authorization header if token exists
+//       let headers: AxiosHeaders = new AxiosHeaders();
       
-      if (token) {
-        headers = headers.set('Authorization', `Bearer ${token}`);
-      }
+//       if (token) {
+//         headers = headers.set('Authorization', `Bearer ${token}`);
+//       }
   
-      // Assuming postData is your axios wrapper
-      const response = await postData(
-        `/owner/property_listings/${property.id}/change-status`,
-        {
-          approval_status: 'accepted',
-        },
-        headers  // Pass headers as AxiosHeaders
-      );
+//       // Assuming postData is your axios wrapper
+//       const response = await postData(
+//         `/owner/property_listings/${property.id}/change-status`,
+//         {
+//           approval_status: 'accepted',
+//         },
+//         headers  // Pass headers as AxiosHeaders
+//       );
   
-      if (response.status === 200) {
-        setStatus('Success');
-      } else {
-        setStatus('Failed');
-      }
-    } catch (error) {
-      console.error(error);  // For debugging purposes
-      setStatus('Error');
-    } finally {
-      setLoading(false);
-    }
-  };
+//       if (response.status === 200) {
+//         setStatus('Success');
+//       } else {
+//         setStatus('Failed');
+//       }
+//     } catch (error) {
+//       console.error(error);  // For debugging purposes
+//       setStatus('Error');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
   
   
   
@@ -212,7 +212,7 @@ export const MainTab: React.FC<MainTabProps> = ({ property, propertystat }) => {
           </div>
 
           {/* Change Approval Status Button */}
-          <div className="mt-6 flex justify-center">
+          {/* <div className="mt-6 flex justify-center">
             <button
               onClick={handleApprovalStatusChange}
               disabled={loading}
@@ -220,13 +220,13 @@ export const MainTab: React.FC<MainTabProps> = ({ property, propertystat }) => {
             >
               {loading ? 'Changing Status...' : 'Accept Property'}
             </button>
-          </div>
+          </div> */}
 
-          {status && (
+          {/* {status && (
             <div className={`mt-4 text-center ${status === 'Success' ? 'text-green-600' : 'text-red-600'}`}>
               {status === 'Success' ? 'Property Status Accepted!' : 'Failed to Change Status.'}
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

@@ -140,14 +140,14 @@ export default function SignInForm() {
           </form>
 
           {/* Footer */}
-          <div className="mt-8 text-center">
+          {/* <div className="mt-8 text-center">
             <p className="text-gray-400 text-sm">
               Do not have an account?
               <a href="#" className="text-sky-400 hover:text-sky-300 font-semibold ml-1 transition-colors">
                 Sign up here
               </a>
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
 

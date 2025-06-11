@@ -23,9 +23,9 @@ interface StatisticsData {
 }
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-EG', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'EGP',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
@@ -254,7 +254,7 @@ export default function DashBoard() {
             <div className="col-span-12 sm:col-span-6 lg:col-span-6">
               <StatCard
                 title={t('averagePrice')}
-                value={statistics ? formatCurrency(statistics.average_price) : "$0"}
+                value={statistics ? formatCurrency(statistics.average_price) : "EGP 0"}
                 icon={DollarSign}
                 gradient="bg-gradient-to-br from-orange-600 to-red-600"
                 isLoading={loading}
@@ -320,7 +320,7 @@ export default function DashBoard() {
         <div className="col-span-12 lg:col-span-4">
           <StatCard
             title={t('totalPortfolioValue')}
-            value={statistics ? formatCurrency(statistics.total_price_for_sale + statistics.total_price_for_rent) : "$0"}
+            value={statistics ? formatCurrency(statistics.total_price_for_sale + statistics.total_price_for_rent) : "EGP 0"}
             icon={DollarSign}
             gradient="bg-gradient-to-br from-green-600 to-emerald-600"
             isLoading={loading}
