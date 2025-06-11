@@ -24,7 +24,7 @@ export default function PropertyDetailsPage() {
   const params = useParams();
   const propertyId = params?.id as string;
  
-  const { property, loading, toast } = useProperty(propertyId);
+  const { property, propertystat, loading, toast } = useProperty(propertyId);
   const [activeTab, setActiveTab] = useState<TabType>('main');
   // const [isFavorite, setIsFavorite] = useState(false);
 
@@ -33,7 +33,7 @@ export default function PropertyDetailsPage() {
 
     switch (activeTab) {
       case 'main':
-        return <MainTab property={property} />;
+        return propertystat ? <MainTab property={property} propertystat={propertystat} /> : null;
       case 'amenities':
         return <AmenitiesTab property={property} />;
       case 'features':
@@ -45,7 +45,7 @@ export default function PropertyDetailsPage() {
       case 'floorplan':
         return <FloorPlanTab property={property} />;
       default:
-        return <MainTab property={property} />;
+        return propertystat ? <MainTab property={property} propertystat={propertystat} /> : null;
     }
   };
 
