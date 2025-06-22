@@ -1,18 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, MapPin, Edit, Save, X } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
-import { PropertyData } from '@/types/PropertyTypes';
-import { deleteData, postData } from '@/libs/axios/server';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { MapPin, Eye, EyeOff } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { PropertyData, PropertyLocation, LocationPoint } from '@/types/PropertyTypes';
+import { postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
-import ModalForm from '@/components/tables/ModalTableForm';
-import { useTranslations } from 'next-intl';
-import Toast from '@/components/Toast';
-
-// Mapbox GL JS imports
 import mapboxgl from 'mapbox-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import { useTranslations } from 'next-intl';
 
-// Set your Mapbox access token
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'your-mapbox-token-here';
 
 interface LocationTabProps {
@@ -20,151 +17,319 @@ interface LocationTabProps {
   onUpdate?: () => void;
 }
 
-// Updated to match your PropertyLocation type from PropertyTypes
-interface LocationPoint {
-  id: number;
-  name: string;
-  latitude: number;
-  longitude: number;
-  location_points?: { latitude: number; longitude: number }[]; // Optional polygon points
+interface LocationGroup {
+  [key: string]: PropertyLocation[];
 }
 
-
-type ToastState = {
-  message: string;
-  type: 'success' | 'error' | 'info';
-  show: boolean;
-};
-
-interface LocationFormData {
-  property_listing_id: string;
-  name: string;
-  latitude: number;
-  longitude: number;
-  polygon_points: number; // Number of polygon points to generate
-  polygon_radius: number; // Radius for generating polygon points
+interface PolygonGeoJSONFeature {
+  type: 'Feature';
+  properties: {
+    name: string;
+    color: string;
+    pointCount?: number;
+    locations?: PropertyLocation[];
+    id?: number;
+    location_points?: LocationPoint[];
+  };
+  geometry: {
+    type: 'Polygon';
+    coordinates: number[][][]; // Polygon coordinates (array of rings)
+  };
 }
 
-interface TempLocationPoint {
-  id: string;
-  latitude: number;
-  longitude: number;
-  polygon_points: number;
-  polygon_radius: number;
-  marker: mapboxgl.Marker;
+interface PointGeoJSONFeature {
+  type: 'Feature';
+  properties: {
+    name: string;
+    color: string;
+    pointCount?: number;
+    locations?: PropertyLocation[];
+    id?: number;
+    location_points?: LocationPoint[];
+  };
+  geometry: {
+    type: 'Point';
+    coordinates: number[]; // Point coordinates
+  };
+}
+
+// type GeoJSONFeature = PolygonGeoJSONFeature | PointGeoJSONFeature;
+
+interface DrawEvent {
+  features: Array<{
+    geometry: {
+      type: string;
+      coordinates: number[][][]; // For polygons
+    };
+  }>;
 }
 
 export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) => {
-  const router = useRouter();
   const params = useParams();
   const propertyId = params?.id as string;
-  const t = useTranslations("Location");
+  // console.log('Property Locations:', property.property_locations);
+  const t = useTranslations('properties');
+
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const markers = useRef<mapboxgl.Marker[]>([]);
+  const draw = useRef<MapboxDraw | null>(null);
+  const existingMarkers = useRef<mapboxgl.Marker[]>([]);
 
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedLocationIds, setSelectedLocationIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [locations, setLocations] = useState<LocationPoint[]>([]);
-  const [editingLocation, setEditingLocation] = useState<LocationPoint | null>(null);
-  const [toast, setToast] = useState<ToastState>({
-    message: '',
-    type: 'info',
-    show: false,
-  });
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-    setToast({ message, type, show: true });
-    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
-  };
+  const [showOldLocations, setShowOldLocations] = useState(true);
+  const [newSelectedPolygon, setNewSelectedPolygon] = useState<Array<{ lng: number; lat: number }>>([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupName, setPopupName] = useState('');
 
-  // Multi-point addition states
-  const [isMultiAddMode, setIsMultiAddMode] = useState(false);
-  const [tempLocations, setTempLocations] = useState<TempLocationPoint[]>([]);
-  const [showMultiAddModal, setShowMultiAddModal] = useState(false);
-  const [multiName, setMultiName] = useState(''); // single name for all points
+  const loadExistingLocations = useCallback(() => {
+    if (!map.current || !property?.property_locations) return;
 
-  const [formData, setFormData] = useState<LocationFormData>({
-    property_listing_id: propertyId || '',
-    name: '',
-    latitude: 0,
-    longitude: 0,
-    polygon_points: 1,
-    polygon_radius: 0.0001
-  });
+    // Clear existing markers and sources
+    existingMarkers.current.forEach(marker => marker.remove());
+    existingMarkers.current = [];
 
-  // Generate polygon points around a center coordinate
-  const generatePolygonPoints = (centerLat: number, centerLng: number, numPoints: number, radius: number): number[][] => {
-    const points: number[][] = [];
+    // Remove existing sources and layers
+    const existingSources = ['existing-areas', 'existing-points'];
+    existingSources.forEach(sourceId => {
+      if (map.current!.getSource(sourceId)) {
+        const layersToRemove = [`${sourceId}-fill`, `${sourceId}-stroke`, `${sourceId}-labels`, `${sourceId}-points`];
+        layersToRemove.forEach(layerId => {
+          if (map.current!.getLayer(layerId)) {
+            map.current!.removeLayer(layerId);
+          }
+        });
+        map.current!.removeSource(sourceId);
+      }
+    });
 
-    if (numPoints === 1) {
-      points.push([centerLng, centerLat]);
-      return points;
-    }
+    // Group locations by name with proper typing
+    const locationGroups: LocationGroup = property.property_locations.reduce((groups: LocationGroup, location: PropertyLocation) => {
+      if (!groups[location.name]) {
+        groups[location.name] = [];
+      }
+      groups[location.name].push(location);
+      return groups;
+    }, {});
 
-    const angleStep = (2 * Math.PI) / numPoints;
+    // Create areas for each group
+    const areaFeatures: PolygonGeoJSONFeature[] = [];
+    const pointFeatures: PointGeoJSONFeature[] = [];
+    const colors = ['#45B7D1', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
+    let colorIndex = 0;
 
-    for (let i = 0; i < numPoints; i++) {
-      const angle = i * angleStep;
-      const lat = centerLat + radius * Math.cos(angle);
-      const lng = centerLng + radius * Math.sin(angle);
-      points.push([lng, lat]);
-    }
+    Object.entries(locationGroups).forEach(([name, locations]) => {
+      const color = colors[colorIndex % colors.length];
+      colorIndex++;
 
-    return points;
-  };
+      if (locations.length >= 3) {
+        // Create polygon for 3+ points
+        const coordinates = locations.map(loc => [loc.longitude, loc.latitude]);
 
-  // Convert locations to FormData format for multi-point submission
-  const createMultiPointFormData = (locations: TempLocationPoint[]): FormData => {
-    const formData = new FormData();
+        // Close the polygon by adding the first point at the end
+        coordinates.push(coordinates[0]);
 
-    formData.append('property_listing_id', propertyId);
-    formData.append('name', multiName.trim() || 'Bulk Location Upload');
+        areaFeatures.push({
+          type: 'Feature',
+          properties: {
+            name: name,
+            color: color,
+            pointCount: locations.length,
+            locations: locations
+          },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [coordinates]
+          }
+        });
+      } else {
+        // Create points for 1-2 points
+        locations.forEach(location => {
+          pointFeatures.push({
+            type: 'Feature',
+            properties: {
+              name: name,
+              color: color,
+              id: location.id,
+              location_points: location.location_points
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [location.longitude, location.latitude]
+            }
+          });
+        });
+      }
+    });
 
-    locations.forEach((location, index) => {
-      const polygonPoints = generatePolygonPoints(
-        location.latitude,
-        location.longitude,
-        location.polygon_points,
-        location.polygon_radius
-      );
-
-      polygonPoints.forEach((point, pointIndex) => {
-        const locationPolygonIndex = index * polygonPoints.length + pointIndex;
-        formData.append(`polygon[${locationPolygonIndex}][0]`, point[0].toString());
-        formData.append(`polygon[${locationPolygonIndex}][1]`, point[1].toString());
+    // Add area source and layers
+    if (areaFeatures.length > 0) {
+      map.current!.addSource('existing-areas', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: areaFeatures
+        }
       });
-    });
 
-    return formData;
-  };
+      // Add fill layer
+      map.current!.addLayer({
+        id: 'existing-areas-fill',
+        type: 'fill',
+        source: 'existing-areas',
+        paint: {
+          'fill-color': ['get', 'color'],
+          'fill-opacity': 0.3
+        }
+      });
 
-  // Convert single location to FormData format
-  const createSingleLocationFormData = (locationData: {
-    property_listing_id: string;
-    name: string;
-    latitude: number;
-    longitude: number;
-    polygon: number[][];
-  }): FormData => {
-    const formData = new FormData();
+      // Add stroke layer
+      map.current!.addLayer({
+        id: 'existing-areas-stroke',
+        type: 'line',
+        source: 'existing-areas',
+        paint: {
+          'line-color': ['get', 'color'],
+          'line-width': 2,
+          'line-opacity': 0.8
+        }
+      });
 
-    formData.append('property_listing_id', locationData.property_listing_id);
-    formData.append('name', locationData.name);
-    formData.append('latitude', locationData.latitude.toString());
-    formData.append('longitude', locationData.longitude.toString());
+      // Add labels layer for area names
+      map.current!.addLayer({
+        id: 'existing-areas-labels',
+        type: 'symbol',
+        source: 'existing-areas',
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+          'text-size': 14,
+          'text-anchor': 'center',
+          'text-allow-overlap': false,
+          'text-ignore-placement': false
+        },
+        paint: {
+          'text-color': '#000000',
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 2,
+          'text-halo-blur': 1
+        }
+      });
 
-    locationData.polygon.forEach((point, index) => {
-      formData.append(`polygon[${index}][0]`, point[0].toString());
-      formData.append(`polygon[${index}][1]`, point[1].toString());
-    });
+      // Add click handler for areas
+      map.current!.on('click', 'existing-areas-fill', (e: mapboxgl.MapMouseEvent) => {
+        if (e.features && e.features[0] && e.features[0].properties) {
+      // const properties = e.features[0].properties;
 
-    return formData;
-  };
+          new mapboxgl.Popup()
+            .setLngLat(e.lngLat)
 
-  // Initialize map
+            .addTo(map.current!);
+        }
+      });
+
+      // Change cursor on hover
+      map.current!.on('mouseenter', 'existing-areas-fill', () => {
+        if (map.current) {
+          map.current.getCanvas().style.cursor = 'pointer';
+        }
+      });
+
+      map.current!.on('mouseleave', 'existing-areas-fill', () => {
+        if (map.current) {
+          map.current.getCanvas().style.cursor = '';
+        }
+      });
+    }
+
+    // Add point source and layers for single/double points
+    if (pointFeatures.length > 0) {
+      map.current!.addSource('existing-points', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: pointFeatures
+        }
+      });
+
+      map.current!.addLayer({
+        id: 'existing-points-points',
+        type: 'circle',
+        source: 'existing-points',
+        paint: {
+          'circle-color': ['get', 'color'],
+          'circle-radius': 8,
+          'circle-opacity': 0.8,
+          'circle-stroke-color': '#ffffff',
+          'circle-stroke-width': 2
+        }
+      });
+
+      // Add labels for individual points
+      map.current!.addLayer({
+        id: 'existing-points-labels',
+        type: 'symbol',
+        source: 'existing-points',
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+          'text-size': 12,
+          'text-anchor': 'top',
+          'text-offset': [0, 1.5],
+          'text-allow-overlap': false,
+          'text-ignore-placement': false
+        },
+        paint: {
+          'text-color': '#000000',
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 2,
+          'text-halo-blur': 1
+        }
+      });
+
+      // Add click handler for points
+      map.current!.on('click', 'existing-points-points', (e: mapboxgl.MapMouseEvent) => {
+        if (e.features && e.features[0] && e.features[0].properties) {
+          const properties = e.features[0].properties;
+
+          new mapboxgl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(`
+              <div>
+                <p><strong>Name:</strong> ${properties.name || 'N/A'}</p>
+                <p><strong>ID:</strong> ${properties.id || 'N/A'}</p>
+                ${properties.location_points && properties.location_points.length > 0 ?
+                `<p><strong>Location Points:</strong> ${properties.location_points.length}</p>` : ''}
+                <p><strong>Type:</strong> Point Location</p>
+              </div>
+            `)
+            .addTo(map.current!);
+        }
+      });
+
+      // Change cursor on hover
+      map.current!.on('mouseenter', 'existing-points-points', () => {
+        if (map.current) {
+          map.current.getCanvas().style.cursor = 'pointer';
+        }
+      });
+
+      map.current!.on('mouseleave', 'existing-points-points', () => {
+        if (map.current) {
+          map.current.getCanvas().style.cursor = '';
+        }
+      });
+    }
+
+    // Fit bounds to all locations
+    if (property.property_locations.length > 0) {
+      const bounds = new mapboxgl.LngLatBounds();
+      property.property_locations.forEach((location: PropertyLocation) => {
+        bounds.extend([location.longitude, location.latitude]);
+      });
+      map.current!.fitBounds(bounds, { padding: 50 });
+    }
+  }, [property?.property_locations]);
+
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
@@ -172,22 +337,31 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [31.2357, 30.0444], // Default to Cairo, Egypt
-      zoom: 10
+      zoom: 12
     });
 
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    draw.current = new MapboxDraw({
+      displayControlsDefault: false,
+      controls: {
+        polygon: true
+      },
+      defaultMode: 'draw_polygon'
+    });
 
-    map.current.on('click', (e) => {
-      if (showAddModal || showEditModal) return;
+    map.current.addControl(draw.current);
 
-      const { lng, lat } = e.lngLat;
-
-      if (isMultiAddMode) {
-        handleMultiPointClick(lng, lat);
-      } else {
-        handleSinglePointClick(lng, lat);
+    map.current.on('load', () => {
+      if (property?.property_locations?.length > 0) {
+        loadExistingLocations();
       }
     });
+
+    map.current.on('click', handleMapClick);
+
+    // Listen for draw events
+    map.current.on('draw.create', handleDrawCreate);
+    map.current.on('draw.update', handleDrawUpdate);
+    map.current.on('draw.delete', handleDrawDelete);
 
     return () => {
       if (map.current) {
@@ -195,708 +369,282 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
         map.current = null;
       }
     };
-  }, [isMultiAddMode]);
+  }, [mapContainer, property, loadExistingLocations]);
 
-  // Load existing locations and add markers
-  useEffect(() => {
-    if (property?.property_locations) {
-      // Convert PropertyLocation[] to LocationPoint[]
-      const convertedLocations: LocationPoint[] = property.property_locations.map(loc => ({
-        id: loc.id,
-        name: loc.name,
-        latitude: loc.latitude,
-        longitude: loc.longitude,
-        location_points: loc.location_points
-      }));
-      setLocations(convertedLocations);
-      addMarkersToMap(convertedLocations);
-    }
-  }, [property]);
+  const toggleOldLocations = () => {
+    setShowOldLocations(!showOldLocations);
 
-  const addMarkersToMap = (locationPoints: LocationPoint[]) => {
-    markers.current.forEach(marker => marker.remove());
-    markers.current = [];
+    // Toggle visibility of area and point layers
+    const layers = ['existing-areas-fill', 'existing-areas-stroke', 'existing-areas-labels', 'existing-points-points', 'existing-points-labels'];
 
-    locationPoints.forEach((location) => {
-      const marker = new mapboxgl.Marker({ color: '#3B82F6' })
-        .setLngLat([location.longitude, location.latitude])
-        .setPopup(
-          new mapboxgl.Popup({ offset: 25 }).setHTML(`
-            <h3>${location.name}</h3>
-            <p>Lat: ${location.latitude.toFixed(6)}<br>Lng: ${location.longitude.toFixed(6)}</p>
-            ${location.location_points ? `<p>Polygon Points: ${location.location_points.length}</p>` : ''}
-          `)
-        )
-        .addTo(map.current!);
-
-      markers.current.push(marker);
-    });
-
-    if (locationPoints.length > 0 && map.current) {
-      const bounds = new mapboxgl.LngLatBounds();
-      locationPoints.forEach(location => {
-        bounds.extend([location.longitude, location.latitude]);
-      });
-      map.current.fitBounds(bounds, { padding: 50 });
-    }
-  };
-
-  const handleSinglePointClick = (lng: number, lat: number) => {
-    setFormData(prev => ({
-      ...prev,
-      latitude: lat,
-      longitude: lng
-    }));
-    setShowAddModal(true);
-  };
-
-  const handleMultiPointClick = (lng: number, lat: number) => {
-    const tempId = `temp_${Date.now()}_${Math.random()}`;
-
-    const marker = new mapboxgl.Marker({ color: '#EF4444', draggable: true })
-      .setLngLat([lng, lat])
-      .addTo(map.current!);
-
-    const tempLocation: TempLocationPoint = {
-      id: tempId,
-      latitude: lat,
-      longitude: lng,
-      polygon_points: 1,
-      polygon_radius: 0.0001,
-      marker: marker
-    };
-
-    marker.on('drag', () => {
-      const lngLat = marker.getLngLat();
-      setTempLocations(prev =>
-        prev.map(loc =>
-          loc.id === tempId
-            ? { ...loc, latitude: lngLat.lat, longitude: lngLat.lng }
-            : loc
-        )
-      );
-    });
-
-    setTempLocations(prev => [...prev, tempLocation]);
-  };
-
-  const resetFormData = () => {
-    setFormData({
-      property_listing_id: propertyId || '',
-      name: '',
-      latitude: 0,
-      longitude: 0,
-      polygon_points: 1,
-      polygon_radius: 0.0001
+    layers.forEach(layerId => {
+      if (map.current && map.current.getLayer(layerId)) {
+        map.current.setLayoutProperty(
+          layerId,
+          'visibility',
+          showOldLocations ? 'none' : 'visible'
+        );
+      }
     });
   };
 
-  const resetMultiAddMode = () => {
-    tempLocations.forEach(tempLoc => tempLoc.marker.remove());
-    setTempLocations([]);
-    setMultiName('');
-    setIsMultiAddMode(false);
-    setShowMultiAddModal(false);
+  const handleMapClick = () => {
+  // Map click is now only used for polygon drawing via MapboxDraw
+  // No manual point selection needed
   };
 
-  const handleAddSingleClick = () => {
-    resetFormData();
-    setIsMultiAddMode(false);
-    showToast(t("Click on the map to select a location"), "info");
-  };
-
-  const handleAddMultipleClick = () => {
-    resetMultiAddMode();
-    setIsMultiAddMode(true);
-    showToast(t("Multi-add"), "info");
-  };
-
-  const handleSaveAllPoints = () => {
-    if (tempLocations.length === 0) {
-      showToast(t("No points added yet. Click on the map to add points."), "info");
-      return;
-    }
-    setShowMultiAddModal(true);
-  };
-
-  const handleCancelMultiAdd = () => {
-    resetMultiAddMode();
-  };
-
-  const handleEditClick = (location: LocationPoint) => {
-    setEditingLocation(location);
-    setFormData({
-      property_listing_id: propertyId || '',
-      name: location.name,
-      latitude: location.latitude,
-      longitude: location.longitude,
-      polygon_points: location.location_points ? location.location_points.length : 1,
-      polygon_radius: 0.0001
-    });
-    setShowEditModal(true);
-  };
-
-  const handleDeleteClick = (locationId: string) => {
-    setSelectedLocationIds([locationId]);
-    setShowDeleteModal(true);
-  };
-
-  const handleBulkDeleteClick = () => {
-    if (selectedLocationIds.length === 0) return;
-    setShowDeleteModal(true);
-  };
-
-  const handleSelectAll = () => {
-    if (selectedLocationIds.length === locations.length) {
-      setSelectedLocationIds([]);
-    } else {
-      setSelectedLocationIds(locations.map(loc => loc.id.toString()));
+  const handleDrawCreate = (e: DrawEvent) => {
+    // Handle polygon creation
+    if (e.features && e.features[0] && e.features[0].geometry.type === 'Polygon') {
+      const coordinates = e.features[0].geometry.coordinates[0];
+      setNewSelectedPolygon(coordinates.map((coord: number[]) => ({ lng: coord[0], lat: coord[1] })));
+      console.log('New polygon created:', coordinates);
     }
   };
 
-  const removeTempLocation = (tempId: string) => {
-    setTempLocations(prev => {
-      const locToRemove = prev.find(loc => loc.id === tempId);
-      if (locToRemove) locToRemove.marker.remove();
-      return prev.filter(loc => loc.id !== tempId);
-    });
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (selectedLocationIds.length === 0) return;
-
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      const queryParams = selectedLocationIds.join('&');
-
-      await deleteData(`owner/locations/${queryParams}`, new AxiosHeaders({
-        Authorization: `Bearer ${token}`,
-      }));
-
-      setShowDeleteModal(false);
-      setSelectedLocationIds([]);
-      router.refresh();
-      if (onUpdate) onUpdate();
-    } catch (error) {
-      console.error('Failed to delete locations:', error);
-    } finally {
-      setLoading(false);
+  const handleDrawUpdate = (e: DrawEvent) => {
+    // Handle polygon update
+    if (e.features && e.features[0] && e.features[0].geometry.type === 'Polygon') {
+      const coordinates = e.features[0].geometry.coordinates[0];
+      setNewSelectedPolygon(coordinates.map((coord: number[]) => ({ lng: coord[0], lat: coord[1] })));
+      console.log('Polygon updated:', coordinates);
     }
   };
 
-  const handleAddSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name.trim()) {
-      showToast(t("Please enter a location name"), "error");
+  const handleDrawDelete = () => {
+    // Handle polygon deletion
+    setNewSelectedPolygon([]);
+    console.log('Polygon deleted');
+  };
+
+  const getCurrentCoordinates = (): number[][] => {
+    if (!draw.current) return [];
+
+    // Check if there are drawn features (polygons)
+    const data = draw.current.getAll();
+    if (data.features.length > 0) {
+      const feature = data.features[0];
+      if (feature.geometry.type === 'Polygon') {
+        return feature.geometry.coordinates[0] as number[][];
+      }
+    }
+
+    return [];
+  };
+
+  const clearNewPolygon = () => {
+    setNewSelectedPolygon([]);
+
+    // Clear any drawn features
+    if (draw.current) {
+      draw.current.deleteAll();
+    }
+  };
+
+  const handleLogCoordinates = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('You are not authenticated');
       return;
     }
 
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
+    const currentCoordinates = getCurrentCoordinates();
 
-      const polygonPoints = generatePolygonPoints(
-        formData.latitude,
-        formData.longitude,
-        formData.polygon_points,
-        formData.polygon_radius
-      );
-
-      const locationData = {
-        property_listing_id: formData.property_listing_id,
-        name: formData.name,
-        latitude: formData.latitude,
-        longitude: formData.longitude,
-        polygon: polygonPoints
-      };
-
-      const formDataToSend = createSingleLocationFormData(locationData);
-
-      await postData('owner/locations', formDataToSend, new AxiosHeaders({
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      }));
-
-      setShowAddModal(false);
-      resetFormData();
-      if (onUpdate) onUpdate();
-    } catch (error) {
-      console.error('Failed to add location:', error);
-    } finally {
-      setLoading(false);
+    if (currentCoordinates.length === 0) {
+      alert('Please draw a polygon area first');
+      return;
     }
-  };
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingLocation || !formData.name.trim()) return;
+    if (!popupName.trim()) {
+      alert('Please enter a name for the coordinates');
+      return;
+    }
+
+    console.log('Logging Coordinates:', {
+      propertyId,
+      name: popupName,
+      coordinates: currentCoordinates,
+      totalPoints: currentCoordinates.length
+    });
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-
-      const polygonPoints = generatePolygonPoints(
-        formData.latitude,
-        formData.longitude,
-        formData.polygon_points,
-        formData.polygon_radius
-      );
-
-      const requestBody = {
-        _method: 'PUT',
-        property_listing_id: formData.property_listing_id,
-        name: formData.name,
-        latitude: formData.latitude,
-        longitude: formData.longitude,
-        polygon: polygonPoints
-          .map((point, idx) => ({ [`${idx}`]: { 0: point[0], 1: point[1] } }))
-          .reduce((acc, curr) => ({ ...acc, ...curr }), {})
-      };
 
       await postData(
-        `owner/locations/${editingLocation.id}`,
-        requestBody,
+        `owner/locations`,
+        {
+          property_listing_id: propertyId,
+          name: popupName.trim(),
+          polygon: currentCoordinates
+        },
         new AxiosHeaders({
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
         })
       );
 
-      setShowEditModal(false);
-      setEditingLocation(null);
-      resetFormData();
-      if (onUpdate) onUpdate();
+      alert('Coordinates logged successfully!');
+
+      // Call onUpdate function
+      if (onUpdate) {
+        onUpdate();
+      }
+
     } catch (error) {
-      console.error('Failed to update location:', error);
+      console.error('Error logging coordinates:', error);
+      alert('Failed to log coordinates');
     } finally {
       setLoading(false);
+      setShowPopup(false);
+      setPopupName('');
     }
   };
 
-  const handleMultiAddSubmit = async () => {
-    if (!multiName.trim()) {
-      showToast(t("Please enter a name for all locations."), "error");
-      return;
-    }
-    if (tempLocations.length === 0) return;
-
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      const formDataToSend = createMultiPointFormData(tempLocations);
-
-      await postData('owner/locations', formDataToSend, new AxiosHeaders({
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      }));
-
-      resetMultiAddMode();
-      if (onUpdate) onUpdate();
-    } catch (error) {
-      console.error('Failed to add locations:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handlePopupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPopupName(e.target.value);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'latitude' || name === 'longitude' || name === 'polygon_radius'
-        ? parseFloat(value) || 0
-        : name === 'polygon_points'
-        ? parseInt(value) || 1
-        : value
-    }));
-  };
+  // Helper function to group locations for display
+  // const getLocationGroups = (): LocationGroup => {
+  //   if (!property?.property_locations) return {};
 
-  // Enhanced single location form with better styling similar to multi-add
-  const renderLocationForm = (isEdit = false) => (
-    <form onSubmit={isEdit ? handleEditSubmit : handleAddSubmit} className="space-y-6">
-
-      {/* Location Name Section */}
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <h4 className="font-medium text-gray-700 mb-3">{t("Location Information")}</h4>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t("Location Name")} *
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-            placeholder={t("Enter location name")}
-          />
-        </div>
-      </div>
-
-      {/* Coordinates Section */}
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <h4 className="font-medium text-gray-700 mb-3">{t("Coordinates")}</h4>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("Latitude")} *
-            </label>
-            <input
-              type="number"
-              name="latitude"
-              value={formData.latitude}
-              onChange={handleInputChange}
-              step="any"
-              className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("Longitude")} *
-            </label>
-            <input
-              type="number"
-              name="longitude"
-              value={formData.longitude}
-              onChange={handleInputChange}
-              step="any"
-              className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex justify-end space-x-3 pt-4 border-t">
-        <button
-          type="button"
-          onClick={() => {
-            if (isEdit) {
-              setShowEditModal(false);
-              setEditingLocation(null);
-            } else {
-              setShowAddModal(false);
-            }
-            resetFormData();
-          }}
-          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
-          disabled={loading}
-        >
-          {t("Cancel")}
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 disabled:opacity-50 flex items-center gap-2"
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              {t("Saving...")}
-            </>
-          ) : (
-            <>
-              <Save size={16} />
-              {isEdit ? t("Update Location") : t("Add Location")}
-            </>
-          )}
-        </button>
-      </div>
-    </form>
-  );
+  //   return property.property_locations.reduce((groups: LocationGroup, location: PropertyLocation) => {
+  //     if (!groups[location.name]) {
+  //       groups[location.name] = [];
+  //     }
+  //     groups[location.name].push(location);
+  //     return groups;
+  //   }, {});
+  // };
 
   return (
     <div className="mb-8">
-                  {toast.show && <Toast message={toast.message} type={toast.type} duration={3000} />}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
           {t("Property Locations")}
         </h3>
-        <div className="flex items-center gap-2">
-          {locations.length > 0 && (
-            <>
-              <button
-                onClick={handleSelectAll}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 text-sm"
-              >
-                {selectedLocationIds.length === locations.length ? t('Deselect All') : t('Select All')}
-              </button>
-              {selectedLocationIds.length > 0 && (
-                <button
-                  onClick={handleBulkDeleteClick}
-                  className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2 text-sm"
-                >
-                  <Trash2 size={16} />
-                  {t("Delete Selected")} ({selectedLocationIds.length})
-                </button>
-              )}
-            </>
-          )}
+        <div className="flex gap-2">
           <button
-            onClick={handleAddSingleClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2 text-sm"
+            onClick={toggleOldLocations}
+            className={`${showOldLocations
+              ? 'bg-blue-600 hover:bg-blue-700'
+              : 'bg-gray-600 hover:bg-gray-700'
+              } text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2`}
           >
-            <Plus size={16} />
-            {t("Add Single")}
+            {showOldLocations ? <Eye size={20} /> : <EyeOff size={20} />}
+            {showOldLocations ? t('Hide Old Locations') : t('Show Old Locations')}
           </button>
+
+          {!showOldLocations && (
+            <button
+              onClick={clearNewPolygon}
+              className="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200"
+            >
+              {t("Clear Polygon")}
+            </button>
+          )}
+
           <button
-            onClick={handleAddMultipleClick}
-            className="bg-green-600 hover:bg-green-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2 text-sm"
+            onClick={() => setShowPopup(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
+            disabled={getCurrentCoordinates().length === 0}
           >
-            <Plus size={16} />
-            {t("Add Multiple")}
+            <MapPin size={20} />
+            {t("create Area")} ({getCurrentCoordinates().length} {t("points")})
           </button>
         </div>
       </div>
 
-      {/* Multi-add mode controls */}
-      {isMultiAddMode && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-          <div className="flex justify-between items-center mb-3">
-            <div>
-              <h4 className="font-medium text-yellow-800">{t("Multi-Add Mode Active")}</h4>
-              <p className="text-sm text-yellow-700">
-                {t("Points added")}: {tempLocations.length}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleSaveAllPoints}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2 text-sm"
-                disabled={tempLocations.length === 0}
-              >
-                <Save size={16} />
-                {t("Save All Points")}
-              </button>
-              <button
-                onClick={handleCancelMultiAdd}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center gap-2 text-sm"
-              >
-                <X size={16} />
-                {t("cancel")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Map Container */}
-      <div className="mb-6">
-        <div
-          ref={mapContainer}
-          className="w-full h-96 rounded-lg border border-gray-300 dark:border-gray-600"
-        />
-        <p className="text-sm text-gray-600 mt-2">
-          {isMultiAddMode
-            ? t("Multi-add mode: Click on the map to add multiple location points")
-            : t("Click on the map to add a new location point")
+      {/* Instructions */}
+      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <p className="text-sm text-blue-800">
+          <strong className='px-3'>{t("Instructions")}       :</strong>
+          {showOldLocations
+            ? t('Click')
+            : t('Use the')
           }
         </p>
       </div>
 
-      {/* Temporary locations list (when in multi-add mode) */}
-      {isMultiAddMode && tempLocations.length > 0 && (
-        <div className="mb-6">
-          <h4 className="font-medium text-gray-700 mb-3">{t("Points to be added")}:</h4>
-          {/* Single input for name of all points */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("Location Name for All")} *
-            </label>
+      <div className="mb-6">
+        <div
+          ref={mapContainer}
+          className="h-96 w-full rounded-lg border border-gray-300"
+          style={{ height: '400px' }}
+        />
+      </div>
+
+      {/* Show existing areas summary
+      {property?.property_locations && property.property_locations.length > 0 && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800 mb-2">
+            <strong>{t("Existing Areas:")}</strong>
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            {Object.entries(getLocationGroups()).map(([name, locations]) => (
+              <div key={name} className="text-xs text-blue-700 bg-white p-2 rounded border">
+                <div className="font-semibold">{name}</div>
+                <div>{locations.length} {t("points")}</div>
+                <div>{locations.length >= 3 ? 'Polygon Area' : 'Point Location'}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )} */}
+
+      {/* Show summary of selected polygon */}
+      {newSelectedPolygon.length > 0 && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>{t("New Polygon Area:")}</strong> {newSelectedPolygon.length} {t("points")}
+          </p>
+          <div className="mt-2 max-h-32 overflow-y-auto">
+            {newSelectedPolygon.map((point, index) => (
+              <div key={index} className="text-xs text-blue-700">
+                {t("Point")} {index + 1}: {point.lat.toFixed(6)}, {point.lng.toFixed(6)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Popup to enter name and log coordinates */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black/50  flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md w-1/3 max-w-md">
+            <h3 className="text-lg font-semibold mb-4">{t("Enter Name for Area")}</h3>
+            <p className="text-sm text-gray-600 mb-3">
+              {t("Enter Name for Area")} {getCurrentCoordinates().length} {t("coordinate points")}
+            </p>
             <input
               type="text"
-              value={multiName}
-              onChange={(e) => setMultiName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t("Enter name for all locations")}
-              required
+              value={popupName}
+              onChange={handlePopupNameChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              placeholder="Enter area name"
+              autoFocus
             />
-          </div>
-          <div className="space-y-3">
-            {tempLocations.map((tempLoc, index) => (
-              <div key={tempLoc.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-600">#{index + 1}</span>
-                <span className="text-xs text-gray-500">
-                  {tempLoc.latitude.toFixed(6)}, {tempLoc.longitude.toFixed(6)}
-                </span>
-                <button
-                  onClick={() => removeTempLocation(tempLoc.id)}
-                  className="bg-red-500 hover:bg-red-600 text-white p-1 rounded"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Locations List */}
-      {property.property_locations.length > 0 ? (
-        <div className="space-y-4 mb-6">
-          {property.property_locations.map((location) => (
-            <div key={location.id} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-500">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedLocationIds.includes(location.id.toString())}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedLocationIds(prev => [...prev, location.id.toString()]);
-                      } else {
-                        setSelectedLocationIds(prev => prev.filter(id => id !== location.id.toString()));
-                      }
-                    }}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                    <MapPin size={20} className="text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
-                      {location.name}
-                    </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      Lat: {location.latitude}, Lng: {location.longitude}
-                    </div>
-                    {location.location_points && location.location_points.length > 0 && (
-                      <div className="text-xs text-gray-400">
-                        Polygon points: {location.location_points.length}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleEditClick(location)}
-                    className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg transition duration-200"
-                    title="Edit location"
-                  >
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteClick(location.id.toString())}
-                    className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition duration-200"
-                    title="Delete location"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
+            <div className="flex justify-end space-x-3 pt-4">
+              <button
+                onClick={() => {
+                  setShowPopup(false);
+                  setPopupName('');
+                }}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
+              >
+                {t("Cancel")}
+              </button>
+              <button
+                onClick={handleLogCoordinates}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition duration-200 disabled:opacity-50"
+                disabled={loading || !popupName.trim()}
+              >
+                {loading ? t('loading') : t('create Area')}
+              </button>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-          <MapPin size={48} className="mx-auto mb-4 opacity-50" />
-          <p className="text-lg font-medium mb-2">No locations marked yet</p>
-          <p className="text-sm">Click on the map above or use the &quot;Add New Location&quot; button to mark your first location.</p>
-        </div>
-      )}
-
-      {/* Add Single Location Modal */}
-      <ModalForm
-        open={showAddModal}
-        title={t("Add New Location")}
-        onClose={() => {
-          setShowAddModal(false);
-          resetFormData();
-        }}
-      >
-        {renderLocationForm(false)}
-      </ModalForm>
-
-      {/* Multi-Add Modal */}
-      <ModalForm
-        open={showMultiAddModal}
-        title={t("Save Multiple Locations")}
-        onClose={() => {
-          setShowMultiAddModal(false);
-        }}
-      >
-        <div className="mb-4">
-          <p className="text-gray-600 mb-4">
-            {t("You are about to save")} {tempLocations.length} {t("location(s).")}
-          </p>
-          <div className="max-h-60 overflow-y-auto space-y-2">
-            {tempLocations.map((tempLoc, index) => (
-              <div key={tempLoc.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded">
-                <span className="text-sm font-medium text-gray-600">#{index + 1}</span>
-                <span className="text-xs text-gray-500">
-                  {tempLoc.latitude.toFixed(4)}, {tempLoc.longitude.toFixed(4)}
-                </span>
-              </div>
-            ))}
           </div>
         </div>
-        <div className="flex justify-end space-x-3">
-          <button
-            onClick={() => setShowMultiAddModal(false)}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
-            disabled={loading}
-          >
-            {t("Cancel")}
-          </button>
-          <button
-            onClick={handleMultiAddSubmit}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition duration-200 disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? t("Saving...") : t("Save All Locations")}
-          </button>
-        </div>
-      </ModalForm>
-
-      {/* Edit Location Modal */}
-      <ModalForm
-        open={showEditModal}
-        title={t("Edit Location")}
-        onClose={() => {
-          setShowEditModal(false);
-          setEditingLocation(null);
-          resetFormData();
-        }}
-      >
-        {renderLocationForm(true)}
-      </ModalForm>
-
-      {/* Delete Confirmation Modal */}
-      <ModalForm
-        open={showDeleteModal}
-        title={t("Confirm Delete")}
-        onClose={() => {
-          setShowDeleteModal(false);
-          setSelectedLocationIds([]);
-        }}
-      >
-        <p className="text-gray-600 mb-6">
-          {t("Are you sure you want to delete")} {selectedLocationIds.length === 1 ? t('this location') : `${t('these')} ${selectedLocationIds.length} ${t('locations')}`}? {t("This action cannot be undone.")}
-        </p>
-        <div className="flex justify-end space-x-3">
-          <button
-            onClick={() => {
-              setShowDeleteModal(false);
-              setSelectedLocationIds([]);
-            }}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
-            disabled={loading}
-          >
-            {t("Cancel")}
-          </button>
-          <button
-            onClick={handleDeleteConfirm}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition duration-200 disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? t('Deleting...') : `${t('Delete')} ${selectedLocationIds.length === 1 ? t('Location') : t('Locations')}`}
-          </button>
-        </div>
-      </ModalForm>
+      )}
     </div>
   );
 };
