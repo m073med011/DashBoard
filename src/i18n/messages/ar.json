@@ -391,6 +391,9 @@
     },
   
   "properties": {
+    "title_arabic_placeholder": "أدخل العنوان باللغة العربية",
+    "slug_arabic_placeholder": "أدخل الرابط (Slug) باللغة العربية",
+    "keywords_arabic_placeholder": "أدخل الكلمات المفتاحية باللغة العربية",
     "title_english_placeholder": "عنوان باللغة الإنجليزية",
     "slug_english_placeholder": "الرابط الثابت باللغة الإنجليزية",
     "keywords_english_placeholder": "الكلمات الرئيسية باللغة الإنجليزية",

@@ -400,6 +400,9 @@
     "No English content available for this banner": "No English Content Available for this Banner"
   },
   "properties": {
+    "title_arabic_placeholder": "Enter the title in Arabic",
+    "slug_arabic_placeholder": "Enter the slug in Arabic",
+    "keywords_arabic_placeholder": "Enter the keywords in Arabic",
     "title_english_placeholder": "Title in English",
     "slug_english_placeholder": "Slug in English",
     "keywords_english_placeholder": "Keywords in English",

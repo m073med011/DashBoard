@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { postData, getData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import Toast from "@/components/Toast";
 import RichTextEditor from "@/components/RichTextEditor";
@@ -15,6 +15,7 @@ type FormInputs = {
   // General Information
   type_id: string;
   area_id: string;
+  userId: string;
   price: string;
   down_price: string;
   sqt: string;
@@ -65,6 +66,14 @@ type AreaOption = {
   };
 };
 
+type AgentOption = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+};
+
 type ImagePreview = {
   file: File;
   url: string;
@@ -73,6 +82,7 @@ type ImagePreview = {
 
 const CreatePropertyPage = () => {
   const t = useTranslations("properties");
+  // const locale = useLocale();
   const router = useRouter();
 
   const {
@@ -104,6 +114,7 @@ const CreatePropertyPage = () => {
   // State for dropdown options
   const [propertyTypes, setPropertyTypes] = useState<SelectOption[]>([]);
   const [areas, setAreas] = useState<AreaOption[]>([]);
+  const [agents, setAgents] = useState<AgentOption[]>([]);
 
   const showToast = (message: string, type: "success" | "error" | "info" = "info") => {
     setToast({ message, type, show: true });
@@ -166,13 +177,17 @@ const CreatePropertyPage = () => {
       }
 
       try {
-        const [typesResponse, areasResponse] = await Promise.all([
+        const [typesResponse, areasResponse, agentsResponse] = await Promise.all([
           getData("owner/types", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` })),
-          getData("owner/areas", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` }))
+          getData("owner/areas", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` })),
+          getData("owner/agents", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` }))
         ]);
 
         if (typesResponse.status) setPropertyTypes(typesResponse.data);
         if (areasResponse.status) setAreas(areasResponse.data);
+        setAgents(agentsResponse);
+        console.log(agents, "agents data fetched successfully");
+
       } catch (error) {
         console.error("Error fetching dropdown data:", error);
         showToast(t("error_fetching_dropdown_data"), "error");
@@ -199,6 +214,7 @@ const CreatePropertyPage = () => {
     // Add general fields
     formData.append("type_id", data.type_id);
     formData.append("area_id", data.area_id);
+    formData.append("user_id", data.userId);
     formData.append("price", data.price);
     formData.append("down_price", data.down_price);
     formData.append("sqt", data.sqt);
@@ -227,9 +243,9 @@ const CreatePropertyPage = () => {
     });
 
     try {
-      await postData("owner/property_listings", formData, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
+      const response = await postData("owner/property_listings", formData, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
       showToast(t("property_added_successfully"), "success");
-      router.back();
+      router.push(`/properties/view/${response?.data?.id}`);
     } catch (error) {
       console.error("Failed to create property:", error);
       showToast(t("failed_to_add_property"), "error");
@@ -353,7 +369,7 @@ const CreatePropertyPage = () => {
               description={t("property_type_location_details")}
             />
             {expandedSections.basic && (
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <InputField
                   label={t("property_type")}
                   name="type_id"
@@ -372,6 +388,17 @@ const CreatePropertyPage = () => {
                     label: `${area.description.en.name} / ${area.description.ar.name}` 
                   }))}
                   placeholder={t("select_area")}
+                />
+                <InputField
+                  label="Agent"
+                  name="userId"
+                  type="select"
+                  required
+                  options={agents?.map(agent => ({
+                    value: agent.id.toString(),
+                    label: agent.name
+                  }))}
+                  placeholder="Select Agent"
                 />
               </div>
             )}
