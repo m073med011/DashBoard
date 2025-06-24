@@ -278,6 +278,8 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
 
       {/* Add Images Modal */}
       <ModalForm
+              className='max-w-1/3'
+
         open={showAddModal}
         title={t("Add New Images")}
         onClose={() => {
@@ -290,6 +292,8 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
 
       {/* Delete Confirmation Modal */}
       <ModalForm
+              className='max-w-1/3'
+
         open={showDeleteModal}
         title="Confirm Delete"
         onClose={() => {

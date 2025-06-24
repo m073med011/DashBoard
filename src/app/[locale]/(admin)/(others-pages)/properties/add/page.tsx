@@ -8,7 +8,7 @@ import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import Toast from "@/components/Toast";
 import RichTextEditor from "@/components/RichTextEditor";
-import { ChevronDown, ChevronUp, DollarSign, Home, FileText, Globe, Camera, Check, X, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, DollarSign, Home, FileText, Globe, Camera, Check, X } from "lucide-react";
 import Image from "next/image";
 
 type FormInputs = {
@@ -93,7 +93,7 @@ const CreatePropertyPage = () => {
 
   const [descriptionEn, setDescriptionEn] = useState<string>("");
   const [descriptionAr, setDescriptionAr] = useState<string>("");
-  const [imagesPreviews, setImagesPreviews] = useState<ImagePreview[]>([]);
+  const [imagePreview, setImagePreview] = useState<ImagePreview | null>(null); // Changed to single image
   const [toast, setToast] = useState<ToastState>({
     message: "",
     type: "success",
@@ -130,40 +130,36 @@ const CreatePropertyPage = () => {
     }));
   };
 
-  // Handle adding new images
+  // Handle selecting a single image
   const handleImageSelect = (files: FileList | null) => {
-    if (!files) return;
+    if (!files || files.length === 0) return;
 
-    const newPreviews: ImagePreview[] = [];
-    
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const url = URL.createObjectURL(file);
-      const id = `${Date.now()}-${i}-${Math.random()}`;
-      
-      newPreviews.push({ file, url, id });
+    // Clean up previous image URL if exists
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview.url);
     }
 
-    setImagesPreviews(prev => [...prev, ...newPreviews]);
+    const file = files[0]; // Take only the first file
+    const url = URL.createObjectURL(file);
+    const id = `${Date.now()}-${Math.random()}`;
+    
+    setImagePreview({ file, url, id });
   };
 
-  // Handle removing an image
-  const handleRemoveImage = (imageId: string) => {
-    setImagesPreviews(prev => {
-      const imageToRemove = prev.find(img => img.id === imageId);
-      if (imageToRemove) {
-        URL.revokeObjectURL(imageToRemove.url);
-      }
-      return prev.filter(img => img.id !== imageId);
-    });
+  // Handle removing the image
+  const handleRemoveImage = () => {
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview.url);
+      setImagePreview(null);
+    }
   };
 
-  // Cleanup URLs when component unmounts
+  // Cleanup URL when component unmounts
   useEffect(() => {
     return () => {
-      imagesPreviews.forEach(img => {
-        URL.revokeObjectURL(img.url);
-      });
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview.url);
+      }
     };
   }, []);
 
@@ -204,8 +200,8 @@ const CreatePropertyPage = () => {
       return;
     }
 
-    if (imagesPreviews.length === 0) {
-      showToast(t("please_select_at_least_one_image"), "error");
+    if (!imagePreview) {
+      showToast(t("please_select_an_image"), "error"); // Changed message
       return;
     }
 
@@ -237,10 +233,8 @@ const CreatePropertyPage = () => {
     formData.append("keywords[ar]", data.keywords_ar);
     formData.append("slug[ar]", data.slug_ar);
 
-    // Add images from previews
-    imagesPreviews.forEach(imgPreview => {
-      formData.append("cover", imgPreview.file);
-    });
+    // Add single image
+    formData.append("cover", imagePreview.file);
 
     try {
       const response = await postData("owner/property_listings", formData, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
@@ -616,94 +610,99 @@ const CreatePropertyPage = () => {
             )}
           </div>
 
-          {/* Images Upload */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+         {/* Single Image Upload */}
+         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <SectionHeader 
-              title={t("property_images")} 
+              title={t("property_image")}
               icon={<Camera className="w-5 h-5 text-pink-600" />}
               sectionKey="images"
-              description={t("upload_high_quality_photos")}
+              description={t("upload_high_quality_photo")}
             />
             {expandedSections.images && (
               <div className="p-6 space-y-6">
-                {/* Upload Area */}
-                <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-8 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200">
-                  <Camera className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                  <label className="cursor-pointer">
-                    <span className="text-lg font-medium text-slate-700 dark:text-slate-300">
-                      {imagesPreviews.length > 0 ? t("add_more_images") : t("click_to_upload_images")}
-                    </span>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={(e) => handleImageSelect(e.target.files)}
-                      className="hidden"
-                    />
-                  </label>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                    {t("select_multiple_high_quality_images")}
-                  </p>
-                  {imagesPreviews.length > 0 && (
-                    <div className="mt-4 flex items-center justify-center space-x-2 text-green-600">
-                      <Check className="w-5 h-5" />
-                      <span className="text-sm font-medium">
-                        {imagesPreviews.length} {t("image")}
-                        {imagesPreviews.length > 1 ? t("s") : ''} {t("selected")}
-                      </span>
+                {/* Upload Area with Preview */}
+                <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200">
+                  {!imagePreview ? (
+                    // Upload prompt when no image
+                    <div className="p-8 text-center">
+                      <Camera className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                      <label className="cursor-pointer">
+                        <span className="text-lg font-medium text-slate-700 dark:text-slate-300">
+                          {t("click_to_upload_image")}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageSelect(e.target.files)}
+                          className="hidden"
+                        />
+                      </label>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                        {t("select_high_quality_image")}
+                      </p>
+                    </div>
+                  ) : (
+                    // Image preview with overlay controls
+                    <div className="relative group">
+                      <Image
+                        width={800}
+                        height={400}
+                        src={imagePreview.url}
+                        alt={t("property_preview")}
+                        className="w-full h-64 md:h-80 object-cover"
+                      />
+                      
+                      {/* Overlay controls */}
+                      <div className="absolute inset-0  group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-3">
+                          {/* Change image button */}
+                          <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transform hover:scale-110 transition-all duration-200">
+                            <Camera className="w-5 h-5" />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageSelect(e.target.files)}
+                              className="hidden"
+                            />
+                          </label>
+                          
+                          {/* Remove image button */}
+                          <button
+                            type="button"
+                            onClick={handleRemoveImage}
+                            className="bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow-lg transform hover:scale-110 transition-all duration-200"
+                            title={t("remove_image")}
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Success indicator */}
+                      <div className="absolute top-4 right-4 bg-green-500 text-white rounded-full p-2 shadow-lg">
+                        <Check className="w-4 h-4" />
+                      </div>
+                      
+                      {/* Image info overlay */}
+                      <div className="absolute bottom-4 left-4 bg-black bg-opacity-60 text-white px-3 py-2 rounded-lg">
+                        <p className="text-sm font-medium">{imagePreview.file.name}</p>
+                        <p className="text-xs opacity-90">
+                          {(imagePreview.file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
 
-                {/* Image Previews */}
-                {imagesPreviews.length > 0 && (
-                  <div>
-                    <h4 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-4">
-                      {t("selected_images")} ({imagesPreviews.length})
-                    </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {imagesPreviews.map((imagePreview) => (
-                        <div
-                          key={imagePreview.id}
-                          className="relative group rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200"
-                        >
-                          <Image
-                              width={40}
-                              height={40}
-                            src={imagePreview.url}
-                            alt={t("property_preview")}
-                            className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-200"
-                          />
-                          {/* Remove button overlay */}
-                          <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveImage(imagePreview.id)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg transform hover:scale-110"
-                              title={t("remove_image")}
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                      {/* Add More Button */}
-                      <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg h-32 flex items-center justify-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200">
-                        <label className="cursor-pointer flex flex-col items-center space-y-2 text-slate-500 dark:text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200">
-                          <Plus className="w-8 h-8" />
-                          <span className="text-sm font-medium">{t("add_more")}</span>
-                          <input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            onChange={(e) => handleImageSelect(e.target.files)}
-                            className="hidden"
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {/* Helper text */}
+                <div className="text-center">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {imagePreview 
+                      ? t("hover_over_image_to_change_or_remove") 
+                      : t("supported_formats_jpg_png_webp")
+                    }
+                  </p>
+                </div>
               </div>
             )}
           </div>

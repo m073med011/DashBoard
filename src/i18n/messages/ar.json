@@ -391,6 +391,13 @@
     },
   
   "properties": {
+    "property_image": "صورة العقار",
+    "upload_high_quality_photo": "قم بتحميل صورة عالية الجودة لعقارك",
+    "click_to_upload_image": "انقر لتحميل الصورة",
+    "select_high_quality_image": "حدد صورة عالية الجودة",
+    "property_preview": "معاينة العقار",
+    "hover_over_image_to_change_or_remove": "مرر الماوس فوق الصورة لتغييرها أو إزالتها",
+    "supported_formats_jpg_png_webp": "الصيغ المدعومة: JPG، PNG، WebP",
     "title_arabic_placeholder": "أدخل العنوان باللغة العربية",
     "slug_arabic_placeholder": "أدخل الرابط (Slug) باللغة العربية",
     "keywords_arabic_placeholder": "أدخل الكلمات المفتاحية باللغة العربية",

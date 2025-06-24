@@ -281,6 +281,8 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
 
       {/* Add Floor Plans Modal */}
       <ModalForm
+        className='max-w-1/3'
+
         open={showAddModal}
         title={t("Add New Floor Plans")} 
         onClose={() => {
@@ -293,6 +295,8 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
 
       {/* Delete Confirmation Modal */}
       <ModalForm
+        className='max-w-1/3'
+
         open={showDeleteModal}
         title={t("confirm_delete")}
         onClose={() => {

@@ -400,6 +400,13 @@
     "No English content available for this banner": "No English Content Available for this Banner"
   },
   "properties": {
+    "property_image": "Property Image",
+    "upload_high_quality_photo": "Upload a high-quality photo of your property",
+    "click_to_upload_image": "Click to upload image",
+    "select_high_quality_image": "Select a high-quality image",
+    "property_preview": "Property preview",
+    "hover_over_image_to_change_or_remove": "Hover over the image to change or remove it",
+    "supported_formats_jpg_png_webp": "Supported formats: JPG, PNG, WebP",
     "title_arabic_placeholder": "Enter the title in Arabic",
     "slug_arabic_placeholder": "Enter the slug in Arabic",
     "keywords_arabic_placeholder": "Enter the keywords in Arabic",

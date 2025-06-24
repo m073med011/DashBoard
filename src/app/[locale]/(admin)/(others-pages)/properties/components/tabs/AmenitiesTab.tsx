@@ -275,6 +275,7 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
 
       {/* Add Amenity Modal */}
       <ModalForm
+        className='max-w-1/3'
         open={showAddModal}
         title={t("Add New Amenity")} 
         onClose={() => {
@@ -287,6 +288,7 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
 
       {/* Edit Amenity Modal */}
       <ModalForm
+              className='max-w-1/3'
         open={showEditModal}
         title={t("Edit Amenity")} 
         onClose={() => {

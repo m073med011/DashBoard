@@ -289,6 +289,7 @@ export default function OwnersPage() {
       )}
 
       <ModalForm
+              className='max-w-1/2'
         open={!!modalState.type}
         title={
           modalState.type === 'create'

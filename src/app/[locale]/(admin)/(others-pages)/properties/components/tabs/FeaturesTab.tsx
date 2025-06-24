@@ -372,6 +372,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
 
       {/* Add Feature Modal */}
       <ModalForm
+        className='max-w-1/2'
         open={showAddModal}
         title={t("Add New Feature")}
         onClose={() => {
@@ -384,6 +385,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
 
       {/* Edit Feature Modal */}
       <ModalForm
+        className='max-w-1/2'
         open={showEditModal}
         title={t("Edit Feature")}
         onClose={() => {
