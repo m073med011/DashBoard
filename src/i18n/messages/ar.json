@@ -392,7 +392,9 @@
     },
   
   "properties": {
-    "enter_you_location":"أدخل موقعك",
+    "select_agent": "Select Agent",
+    "Agent": "وكيل",
+    "enter_your_location": "أدخل موقعك",
     "location":"الموقع",
     "Cancelled": "ملغي",
     "pending": "قيد الاتنظار",

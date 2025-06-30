@@ -401,6 +401,8 @@
     "No English content available for this banner": "No English Content Available for this Banner"
   },
   "properties": {
+    "Agent": "Agent",
+    "select_agent": "Select Agent",
     "Save Location": "Save Location",
     "enter_your_location": "Enter Your Location",
     "location": "Location",

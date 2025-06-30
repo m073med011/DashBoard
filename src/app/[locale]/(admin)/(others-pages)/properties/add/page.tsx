@@ -323,7 +323,7 @@ const CreatePropertyPage = () => {
     placeholder?: string;
   }) => (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+      <label className="block text-sm font-medium text-dark dark:text-white">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
@@ -386,27 +386,9 @@ const CreatePropertyPage = () => {
               description={t("property_type_location_details")}
             />
             {expandedSections.basic && (
+              
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <InputField
-                  label={t("property_type")}
-                  name="type_id"
-                  type="select"
-                  required
-                  options={propertyTypes.map(type => ({ value: type.id, label: type.title || '' }))}
-                  placeholder={t("select_type")}
-                />
-                <InputField
-                  label={t("area")}
-                  name="area_id"
-                  type="select"
-                  required
-                  options={areas.map(area => ({ 
-                    value: area.id.toString(), 
-                    label: `${area.description.en.name} / ${area.description.ar.name}` 
-                  }))}
-                  placeholder={t("select_area")}
-                />
-                <div className="md:col-span-1">
+                <div>
                   <GoogleLocationSearch
                     label={t("location")}
                     name="location"
@@ -431,9 +413,29 @@ const CreatePropertyPage = () => {
                     errorMessage={errors.location ? t("field_required") : undefined}
                     t={t}
                   />
-                </div>
+                  </div>
                 <InputField
-                  label="Agent"
+                  label={t("property_type")}
+                  name="type_id"
+                  type="select"
+                  required
+                  options={propertyTypes.map(type => ({ value: type.id, label: type.title || '' }))}
+                  placeholder={t("select_type")}
+                />
+                <InputField
+                  label={t("area")}
+                  name="area_id"
+                  type="select"
+                  required
+                  options={areas.map(area => ({ 
+                    value: area.id.toString(), 
+                    label: `${area.description.en.name} / ${area.description.ar.name}` 
+                  }))}
+                  placeholder={t("select_area")}
+                />
+                
+                <InputField
+                  label={t("Agent")}
                   name="userId"
                   type="select"
                   required
@@ -441,7 +443,7 @@ const CreatePropertyPage = () => {
                     value: agent.id.toString(),
                     label: agent.name
                   }))}
-                  placeholder="Select Agent"
+                  placeholder={t(`select_agent`)}
                 />
               </div>
             )}

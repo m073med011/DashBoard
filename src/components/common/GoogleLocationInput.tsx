@@ -168,11 +168,11 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
   }, []);
 
   return (
-    <div className="mb-4">
+    <div className=" absolute max-w-[220px]">
       {/* Label */}
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-gray-700 mb-2"
+        className="block text-sm font-medium text-dark dark:text-white mb-2"
         dir={dir}
       >
         {label}
@@ -216,34 +216,33 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
           </div>
         )}
 
-        {/* Suggestions List */}
         {showLocationSuggestions && locationSuggestions.length > 0 && (
-          <div
-            ref={suggestionsRef}
-            className="absolute top-full left-0 right-0 z-20 bg-white shadow-lg rounded-b-md border border-t-0 border-gray-300 max-h-60 overflow-y-auto"
-          >
-            {locationSuggestions.map((suggestion) => (
-              <div
-                key={suggestion.place_id}
-                onClick={() => handleSuggestionSelect(suggestion)}
-                className="flex items-center p-3 cursor-pointer hover:bg-gray-100 transition-colors"
-              >
-                <MapPin className="text-gray-600 mr-3" size={16} />
-                <div>
-                  <div className="font-medium text-gray-800">
-                    {suggestion.structured_formatting?.main_text ||
-                      suggestion.description}
-                  </div>
-                  {suggestion.structured_formatting?.secondary_text && (
-                    <div className="text-xs text-gray-500 mt-1">
-                      {suggestion.structured_formatting.secondary_text}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+  <div
+    ref={suggestionsRef}
+    className="absolute top-full mt-1 w-full z-50 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl"
+  >
+    {locationSuggestions.map((suggestion) => (
+      <div
+        key={suggestion.place_id}
+        onClick={() => handleSuggestionSelect(suggestion)}
+        className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+      >
+        <MapPin className="mt-1 text-blue-500 dark:text-blue-400" size={18} />
+        <div>
+          <div className="font-semibold text-sm text-gray-800 dark:text-white">
+            {suggestion.structured_formatting?.main_text || suggestion.description}
           </div>
-        )}
+          {suggestion.structured_formatting?.secondary_text && (
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              {suggestion.structured_formatting.secondary_text}
+            </div>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
       </div>
 
       {/* Error Message */}
