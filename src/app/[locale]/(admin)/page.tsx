@@ -205,7 +205,7 @@ export default function DashBoard() {
 
   useEffect(() => {
     fetchStatistics();
-  });
+  },[]);
 
 
 
