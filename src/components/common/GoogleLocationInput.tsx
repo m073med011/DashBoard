@@ -1,63 +1,63 @@
-// components/GoogleLocationSearch.tsx
+'use client';
 
-import { useEffect, useState, useRef } from "react";
-import { MapPin } from "lucide-react";
+import { useEffect, useState, useRef } from 'react';
+import { MapPin } from 'lucide-react';
+
+/// <reference types="@types/google.maps" />
 
 declare global {
   interface Window {
-    google: any;
+    google: typeof google;
     initGoogleMaps?: () => void;
   }
-}
-
-interface Prediction {
-  place_id: string;
-  description: string;
-  structured_formatting?: {
-    main_text: string;
-    secondary_text: string;
-  };
 }
 
 interface GoogleLocationSearchProps {
   label: string;
   name: string;
   value?: string;
-  onChange?: (value: string, locationData?: any) => void;
+  onChange?: (
+    value: string,
+    locationData?: {
+      address: string;
+      placeId: string;
+      lat?: number;
+      lng?: number;
+    }
+  ) => void;
   placeholder?: string;
   required?: boolean;
   dir?: string;
   error?: boolean;
   errorMessage?: string;
-  t?: (key: string) => string; // Translation function
+  t?: (key: string) => string;
 }
 
 const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
   label,
   name,
-  value = "",
+  value = '',
   onChange,
-  placeholder = "",
+  placeholder = '',
   required = false,
-  dir = "ltr",
+  dir = 'ltr',
   error = false,
   errorMessage,
-  t = (key: string) => key, // Default fallback for translation
+  t = (key: string) => key,
 }) => {
   const [locationQuery, setLocationQuery] = useState(value);
-  const [locationSuggestions, setLocationSuggestions] = useState<Prediction[]>(
-    []
-  );
+  const [locationSuggestions, setLocationSuggestions] = useState<
+    google.maps.places.AutocompletePrediction[]
+  >([]);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  const autocompleteService = useRef<any>(null);
-  const placesService = useRef<any>(null);
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+  const placesService = useRef<google.maps.places.PlacesService | null>(null);
 
-  // Load Google Maps API
   useEffect(() => {
     const loadGoogleMapsAPI = () => {
       if (window.google && window.google.maps) {
@@ -67,7 +67,7 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
 
       if (!document.querySelector('script[src*="maps.googleapis.com"]')) {
         window.initGoogleMaps = initializeGoogleMapsServices;
-        const script = document.createElement("script");
+        const script = document.createElement('script');
         script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&callback=initGoogleMaps`;
         script.async = true;
         script.defer = true;
@@ -77,14 +77,9 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
 
     const initializeGoogleMapsServices = () => {
       if (window.google && window.google.maps) {
-        autocompleteService.current =
-          new window.google.maps.places.AutocompleteService();
-
-        const dummyDiv = document.createElement("div");
-        placesService.current = new window.google.maps.places.PlacesService(
-          dummyDiv
-        );
-
+        autocompleteService.current = new window.google.maps.places.AutocompleteService();
+        const dummyDiv = document.createElement('div');
+        placesService.current = new window.google.maps.places.PlacesService(dummyDiv);
         setIsGoogleMapsLoaded(true);
       }
     };
@@ -92,61 +87,51 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
     loadGoogleMapsAPI();
   }, []);
 
-  // Update local state when value prop changes
   useEffect(() => {
     setLocationQuery(value);
   }, [value]);
 
-  // Handle input change with autocomplete
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setLocationQuery(query);
 
     if (query.length > 2 && isGoogleMapsLoaded && autocompleteService.current) {
-      const request = {
+      const request: google.maps.places.AutocompletionRequest = {
         input: query,
-        types: ["establishment", "geocode"],
+        types: ['establishment', 'geocode'],
       };
 
-      autocompleteService.current.getPlacePredictions(
-        request,
-        (predictions: Prediction[], status: string) => {
-          if (
-            status === window.google.maps.places.PlacesServiceStatus.OK &&
-            predictions
-          ) {
-            setLocationSuggestions(predictions);
-            setShowLocationSuggestions(true);
-          } else {
-            setLocationSuggestions([]);
-            setShowLocationSuggestions(false);
-          }
+      autocompleteService.current.getPlacePredictions(request, (predictions, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+          setLocationSuggestions(predictions);
+          setShowLocationSuggestions(true);
+        } else {
+          setLocationSuggestions([]);
+          setShowLocationSuggestions(false);
         }
-      );
+      });
     } else {
       setLocationSuggestions([]);
       setShowLocationSuggestions(false);
     }
 
-    // Notify parent about text change
     if (onChange) {
       onChange(query);
     }
   };
 
-  // Handle suggestion selection
-  const handleSuggestionSelect = (prediction: Prediction) => {
+  const handleSuggestionSelect = (prediction: google.maps.places.AutocompletePrediction) => {
     setLocationQuery(prediction.description);
     setShowLocationSuggestions(false);
 
     if (placesService.current) {
-      const request = {
+      const request: google.maps.places.PlaceDetailsRequest = {
         placeId: prediction.place_id,
-        fields: ["geometry", "formatted_address", "name"],
+        fields: ['geometry', 'formatted_address', 'name'],
       };
 
-      placesService.current.getDetails(request, (place: any, status: string) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+      placesService.current.getDetails(request, (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
           const locationData = {
             address: prediction.description,
             placeId: prediction.place_id,
@@ -166,7 +151,6 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
     }
   };
 
-  // Hide suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -179,15 +163,14 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
     <div className="mb-4">
       {/* Label */}
-      <label 
+      <label
         htmlFor={name}
         className="block text-sm font-medium text-gray-700 mb-2"
         dir={dir}
@@ -196,7 +179,7 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
-      {/* Input Container */}
+      {/* Input Field */}
       <div className="relative w-full">
         <div className="relative">
           <input
@@ -204,17 +187,16 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
             id={name}
             name={name}
             type="text"
-            placeholder={placeholder || `${t("select")} ${label}`}
+            placeholder={placeholder || `${t('select')} ${label}`}
             className={`w-full px-4 py-3 pl-10 border rounded-md focus:outline-none focus:ring-2 transition-colors ${
-              error 
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+              error
+                ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                 : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
             }`}
             value={locationQuery}
             onChange={handleInputChange}
             onFocus={() =>
-              locationSuggestions.length > 0 &&
-              setShowLocationSuggestions(true)
+              locationSuggestions.length > 0 && setShowLocationSuggestions(true)
             }
             autoComplete="off"
             dir={dir}
@@ -227,14 +209,14 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
           />
         </div>
 
-        {/* Loading Message */}
+        {/* Loading Indicator */}
         {!isGoogleMapsLoaded && (
           <div className="absolute top-full left-0 right-0 bg-gray-100 text-sm text-gray-600 p-2 rounded-b-md border-x border-b border-gray-300 z-10">
             Loading location services...
           </div>
         )}
 
-        {/* Suggestions Dropdown */}
+        {/* Suggestions List */}
         {showLocationSuggestions && locationSuggestions.length > 0 && (
           <div
             ref={suggestionsRef}
@@ -268,7 +250,7 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
       {error && errorMessage && (
         <div className="mt-2">
           <p className="text-sm text-red-600">
-            {errorMessage || t("field_required")}
+            {errorMessage || t('field_required')}
           </p>
         </div>
       )}
