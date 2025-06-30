@@ -1,64 +1,136 @@
-// import React, { useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import { Phone, Mail, MessageCircle, Home, Bed, Bath, ChefHat, Ruler, MapPin, User, CheckCircle, Clock } from 'lucide-react';
+import {
+  Phone, Mail, MessageCircle, Home, Bed, Bath,
+  ChefHat, Ruler, MapPin, User, CheckCircle, Clock, ChevronDown
+} from 'lucide-react';
 import { PropertyData, PropertyStatistics } from '@/types/PropertyTypes';
 import { useTranslations } from 'next-intl';
-// import { postData } from '@/libs/axios/server';
-// import axios from 'axios';
-// import { AxiosHeaders } from 'axios'; // Import AxiosHeaders from axios
+import { postData } from '@/libs/axios/server';
+import { AxiosHeaders } from 'axios';
+import Toast from '@/components/Toast';
 
 interface MainTabProps {
   propertystat: PropertyStatistics;
   property: PropertyData;
 }
 
+type ToastState = {
+  message: string;
+  type: 'success' | 'error' | 'info';
+  show: boolean;
+};
+
 export const MainTab: React.FC<MainTabProps> = ({ property, propertystat }) => {
-  // const [loading, setLoading] = useState(false);
-  // const [status, setStatus] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(property.approval_status);
+  const [toast, setToast] = useState<ToastState>({ message: '', type: 'info', show: false });
   const t = useTranslations("properties");
 
+  const statusOptions = [
+    { value: 'accepted', label: 'Accepted', color: 'text-green-600', bgColor: 'bg-green-50 hover:bg-green-100' },
+    { value: 'pending', label: 'Pending', color: 'text-yellow-600', bgColor: 'bg-yellow-50 hover:bg-yellow-100' },
+    { value: 'cancelled', label: 'Cancelled', color: 'text-red-600', bgColor: 'bg-red-50 hover:bg-red-100' }
+  ];
 
-// const handleApprovalStatusChange = async () => {
-//     setLoading(true);
-//     try {
-//       // Retrieve the token from localStorage
-//       const token = localStorage.getItem('token');  // Change 'auth_token' to whatever your key is
-  
-//       // Create an AxiosHeaders instance and add the Authorization header if token exists
-//       let headers: AxiosHeaders = new AxiosHeaders();
-      
-//       if (token) {
-//         headers = headers.set('Authorization', `Bearer ${token}`);
-//       }
-  
-//       // Assuming postData is your axios wrapper
-//       const response = await postData(
-//         `/owner/property_listings/${property.id}/change-status`,
-//         {
-//           approval_status: 'accepted',
-//         },
-//         headers  // Pass headers as AxiosHeaders
-//       );
-  
-//       if (response.status === 200) {
-//         setStatus('Success');
-//       } else {
-//         setStatus('Failed');
-//       }
-//     } catch (error) {
-//       console.error(error);  // For debugging purposes
-//       setStatus('Error');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-  
-  
-  
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type, show: true });
+    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
+  };
 
+  const getStatusColor = (status: string) => {
+    const option = statusOptions.find(opt => opt.value === status);
+    return option ? option.color : 'text-gray-600';
+  };
+
+  const getStatusBgColor = (status: string) => {
+    const option = statusOptions.find(opt => opt.value === status);
+    return option ? option.bgColor.split(' ')[0] : 'bg-gray-50';
+  };
+
+  const handleApprovalStatusChange = async (newStatus: string) => {
+    setLoading(true);
+    setIsDropdownOpen(false);
+
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+      let headers: AxiosHeaders = new AxiosHeaders();
+      if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+
+      const response = await postData(
+        `/owner/property_listings/${property.id}/change-status`,
+        { approval_status: newStatus },
+        headers
+      );
+
+      if (response.status === 200) {
+        setSelectedStatus(newStatus);
+        showToast(response.message, 'success');
+      } else {
+        showToast(response.message, 'success');
+      }
+    } catch (error: unknown) {
+      console.error(error);
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const axiosError = error as {
+          response?: { data?: { message?: string } };
+        };
+        showToast(axiosError.response?.data?.message || 'An error occurred while updating status.', 'error');
+      } else {
+        showToast('An unknown error occurred.', 'error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-8">
+      {toast.show && <Toast message={toast.message} type={toast.type} />}
+      {/* Modern Approval Status Dropdown */}
+      <div className="mt-6  flex justify-end">
+        <div className="relative inline-block text-left">
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            disabled={loading}
+            className={`inline-flex items-center justify-center w-full px-6 py-3 text-sm font-semibold rounded-xl  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${getStatusBgColor(selectedStatus)} ${getStatusColor(selectedStatus)} hover:shadow-md`}
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4"></div>
+                {t("Updating Status...")}
+              </>
+            ) : (
+              <>
+                {t("Change Status")}  :  {t(selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1))}
+                <ChevronDown className={`ml-2 h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </>
+            )}
+          </button>
+
+          {isDropdownOpen && !loading && (
+            <div className="absolute right-0 mt-2 w-56 z-50 rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-gray-400 ring-opacity-5 focus:outline-none border border-gray-200 dark:border-gray-700">
+              <div className="py-2">
+                {statusOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleApprovalStatusChange(option.value)}
+                    className={`${option.bgColor} ${option.color} gap-3 group flex w-full items-center px-4 py-3 text-sm font-medium transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg hover:shadow-sm`}
+                    disabled={selectedStatus === option.value}
+                  >
+                    <div className={`w-3 h-3 rounded-full mr-3 ${option.value === 'accepted' ? 'bg-green-500' : option.value === 'pending' ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                    {t(option.label)}
+                    {selectedStatus === option.value && (
+                      <CheckCircle className="ml-auto h-4 w-4" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-700">
@@ -101,7 +173,7 @@ export const MainTab: React.FC<MainTabProps> = ({ property, propertystat }) => {
               <div className="flex items-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4" />
-                  <span>{t("Status")}: {property?.approval_status}</span>
+                  <span>{t("Status")}: {selectedStatus}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
@@ -170,8 +242,8 @@ export const MainTab: React.FC<MainTabProps> = ({ property, propertystat }) => {
           </h3>
         </div>
         
-        <div className="p-6">
-          <div className="flex items-start gap-6 mb-6">
+        <div className="p-6 grid-cols-2 grid">
+          <div className="flex items-start gap-6 mb-6 ">
             {property?.user?.avatar && (
               <div className="relative">
                 <Image
@@ -211,22 +283,15 @@ export const MainTab: React.FC<MainTabProps> = ({ property, propertystat }) => {
             </div>
           </div>
 
-          {/* Change Approval Status Button */}
-          {/* <div className="mt-6 flex justify-center">
-            <button
-              onClick={handleApprovalStatusChange}
-              disabled={loading}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold disabled:opacity-50"
-            >
-              {loading ? 'Changing Status...' : 'Accept Property'}
-            </button>
-          </div> */}
 
-          {/* {status && (
-            <div className={`mt-4 text-center ${status === 'Success' ? 'text-green-600' : 'text-red-600'}`}>
-              {status === 'Success' ? 'Property Status Accepted!' : 'Failed to Change Status.'}
-            </div>
-          )} */}
+
+          {/* Click outside handler */}
+          {isDropdownOpen && (
+            <div
+              className="fixed inset-0 z-0"
+              onClick={() => setIsDropdownOpen(false)}
+            ></div>
+          )}
         </div>
       </div>
     </div>

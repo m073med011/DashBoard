@@ -1,8 +1,12 @@
-"use client"
+'use client'
 import React, { useState, useEffect } from 'react';
 import { getData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
-import { TrendingUp, Users, UserCheck, Home, Clock, CheckCircle, XCircle, DollarSign, MapPin, Building2, Loader2, AlertCircle, ArrowUpRight, ArrowDownRight, BarChart3, PieChart } from 'lucide-react';
+import {
+  TrendingUp, Users, UserCheck, Home, Clock, CheckCircle,
+  XCircle, DollarSign, MapPin, Building2, Loader2,
+  AlertCircle, ArrowUpRight, ArrowDownRight, BarChart3, PieChart
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface StatisticsData {
@@ -31,47 +35,55 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-const StatCard = ({ title, value, icon: Icon, gradient, isLoading, subtitle, trend }: {
+const StatCard = ({ 
+  title, 
+  value, 
+  icon: Icon, 
+  gradient, 
+  isLoading, 
+  subtitle, 
+  trend 
+}: {
   title: string;
   value: string | number;
   icon: React.ElementType;
   gradient?: string;
   isLoading?: boolean;
   subtitle?: string;
-  trend?: { value: number; isPositive: boolean };
+  trend?: {
+    isPositive: boolean;
+    value: number;
+  };
 }) => (
-  <div className="group relative overflow-hidden bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/60 p-6 hover:shadow-2xl hover:shadow-gray-900/15 transition-all duration-300 hover:-translate-y-1">
+  <div className="group relative overflow-hidden bg-white/90 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-200/60 dark:border-gray-700 p-6 hover:shadow-2xl hover:shadow-gray-900/15 transition-all duration-300 hover:-translate-y-1">
     <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 ${gradient || 'bg-gradient-to-br from-blue-600 to-purple-600'}`}></div>
-
     <div className="relative">
       <div className="flex items-start justify-between mb-4">
-        <div className={`p-3 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 group-hover:scale-110 transition-transform duration-300 ${gradient ? 'shadow-lg' : ''}`}>
-          <Icon className="w-6 h-6 text-gray-700 group-hover:text-gray-900 transition-colors" />
+        <div className={`p-3 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 group-hover:scale-110 transition-transform duration-300 ${gradient ? 'shadow-lg' : ''}`}>
+          <Icon className="w-6 h-6 text-gray-700 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
         </div>
         {trend && (
-          <div className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${trend.isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-            }`}>
+          <div className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${trend.isPositive ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300' : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'}`}>
             {trend.isPositive ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
             {Math.abs(trend.value)}%
           </div>
         )}
       </div>
-
       <div>
-        <p className="text-sm font-medium text-gray-600 mb-2">{title}</p>
+        <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">{title}</p>
         {isLoading ? (
           <div className="flex items-center">
-            <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+            <Loader2 className="w-6 h-6 animate-spin text-gray-400 dark:text-gray-500" />
             <div className="ml-3 space-y-2">
-              <div className="h-6 w-20 bg-gray-200 rounded animate-pulse"></div>
-              <div className="h-3 w-16 bg-gray-100 rounded animate-pulse"></div>
+              <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              <div className="h-3 w-16 bg-gray-100 dark:bg-gray-600 rounded animate-pulse"></div>
             </div>
           </div>
         ) : (
           <>
-            <p className="text-3xl font-bold text-gray-900 mb-1">{value}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{value}</p>
             {subtitle && (
-              <p className="text-sm text-gray-500">{subtitle}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
             )}
           </>
         )}
@@ -80,38 +92,42 @@ const StatCard = ({ title, value, icon: Icon, gradient, isLoading, subtitle, tre
   </div>
 );
 
-const ModernChartCard =  ({ title, data, isLoading, icon: Icon }: {
+const ModernChartCard = ({ 
+  title, 
+  data, 
+  isLoading, 
+  icon: Icon 
+}: {
   title: string;
   data: Array<{ name: string; count: number }>;
-  isLoading?: boolean;
+  isLoading: boolean;
   icon: React.ElementType;
 }) => (
-  <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/60 p-6 hover:shadow-2xl hover:shadow-gray-900/15 transition-all duration-300">
+  <div className="bg-white/90 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-200/60 dark:border-gray-700 p-6 hover:shadow-2xl hover:shadow-gray-900/15 transition-all duration-300">
     <div className="flex items-center justify-between mb-6">
       <div className="flex items-center space-x-3">
-        <div className="p-2 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl">
-          <Icon className="w-5 h-5 text-indigo-600" />
+        <div className="p-2 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-700 dark:to-gray-800 rounded-xl">
+          <Icon className="w-5 h-5 text-indigo-600 dark:text-indigo-300" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
       </div>
     </div>
-
     {isLoading ? (
       <div className="space-y-4">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="space-y-3">
             <div className="flex justify-between items-center">
-              <div className="h-4 w-24 bg-gray-200 rounded-full animate-pulse"></div>
-              <div className="h-4 w-8 bg-gray-200 rounded-full animate-pulse"></div>
+              <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+              <div className="h-4 w-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
             </div>
-            <div className="h-3 w-full bg-gray-100 rounded-full animate-pulse"></div>
+            <div className="h-3 w-full bg-gray-100 dark:bg-gray-600 rounded-full animate-pulse"></div>
           </div>
         ))}
       </div>
     ) : (
       <div className="space-y-4">
-        {data.map((item, index) => {
-          const maxCount = Math.max(...data.map(d => d.count));
+        {data.map((item: { name: string; count: number }, index: number) => {
+          const maxCount = Math.max(...data.map((d: { count: number }) => d.count));
           const percentage = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
           const colors = [
             'from-blue-500 to-cyan-500',
@@ -120,23 +136,19 @@ const ModernChartCard =  ({ title, data, isLoading, icon: Icon }: {
             'from-orange-500 to-red-500',
             'from-indigo-500 to-purple-500'
           ];
-
           return (
             <div key={index} className="group">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">{item.name}</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{item.name}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-bold text-gray-900">{item.count}</span>
-                  <span className="text-xs text-gray-500">
-                    {data.length > 0 ? ((item.count / data.reduce((sum, d) => sum + d.count, 0)) * 100).toFixed(1) : 0}%
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">{item.count}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {data.length > 0 ? ((item.count / data.reduce((sum: number, d: { count: number }) => sum + d.count, 0)) * 100).toFixed(1) : 0}%
                   </span>
                 </div>
               </div>
-              <div className="relative w-full bg-gray-100 rounded-full h-3 overflow-hidden">
-                <div
-                  className={`h-full bg-gradient-to-r ${colors[index % colors.length]} rounded-full transition-all duration-700 ease-out group-hover:scale-105 origin-left`}
-                  style={{ width: `${percentage}%` }}
-                ></div>
+              <div className="relative w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                <div className={`h-full bg-gradient-to-r ${colors[index % colors.length]} rounded-full transition-all duration-700 ease-out group-hover:scale-105 origin-left`} style={{ width: `${percentage}%` }}></div>
               </div>
             </div>
           );
@@ -146,16 +158,16 @@ const ModernChartCard =  ({ title, data, isLoading, icon: Icon }: {
   </div>
 );
 
-const ErrorCard = ({ message, onRetry, t }: { message: string; onRetry: () => void; t:  ReturnType<typeof useTranslations> }) => (
+const ErrorCard = ({ message, onRetry, t }: { message: string; onRetry: () => void; t: (key: string) => string }) => (
   <div className="col-span-full">
-    <div className="bg-gradient-to-br from-red-50 to-pink-50 border border-red-200/50 rounded-2xl p-6 backdrop-blur-sm">
+    <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/40 dark:to-pink-900/40 border border-red-200/50 dark:border-red-800 rounded-2xl p-6 backdrop-blur-sm">
       <div className="flex items-center">
-        <div className="p-2 bg-red-100 rounded-xl">
-          <AlertCircle className="w-5 h-5 text-red-600" />
+        <div className="p-2 bg-red-100 dark:bg-red-800 rounded-xl">
+          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-300" />
         </div>
         <div className="flex-1 ml-4">
-          <h3 className="text-sm font-semibold text-red-800">{t('unableToLoadDashboard')}</h3>
-          <p className="text-sm text-red-600 mt-1">{message}</p>
+          <h3 className="text-sm font-semibold text-red-800 dark:text-red-300">{t('unableToLoadDashboard')}</h3>
+          <p className="text-sm text-red-600 dark:text-red-400 mt-1">{message}</p>
         </div>
         <button
           onClick={onRetry}
@@ -178,21 +190,11 @@ export default function DashBoard() {
     try {
       setLoading(true);
       setError(null);
-
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error(t('authenticationTokenNotFound'));
-      }
-
-      const response = await getData('owner/statistics', {}, new AxiosHeaders({
-        Authorization: `Bearer ${token}`,
-      }));
-
-      if (response.data && response.status) {
-        setStatistics(response.data);
-      } else {
-        throw new Error(response.msg || t('failedToFetchStatistics'));
-      }
+      if (!token) throw new Error(t('authenticationTokenNotFound'));
+      const response = await getData('owner/statistics', {}, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
+      if (response.data && response.status) setStatistics(response.data);
+      else throw new Error(response.msg || t('failedToFetchStatistics'));
     } catch (error) {
       setError(t('failedToLoadData'));
       console.error(t('failedToFetchStatistics'), error);
@@ -203,11 +205,13 @@ export default function DashBoard() {
 
   useEffect(() => {
     fetchStatistics();
-  }, []);
+  });
+
+
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800 p-4">
         <div className="grid grid-cols-12 gap-6">
           <ErrorCard message={error} onRetry={fetchStatistics} t={t} />
         </div>
@@ -222,57 +226,29 @@ export default function DashBoard() {
         <div className="col-span-12 lg:col-span-8">
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-12 sm:col-span-6 lg:col-span-6">
-              <StatCard
-                title={t('totalProperties')}
-                value={statistics?.total ?? 0}
-                icon={Home}
-                gradient="bg-gradient-to-br from-blue-600 to-cyan-600"
-                isLoading={loading}
-              />
+              <StatCard title={t('totalProperties')} value={statistics?.total ?? 0} icon={Home} gradient="bg-gradient-to-br from-blue-600 to-cyan-600" isLoading={loading} />
             </div>
-
             <div className="col-span-12 sm:col-span-6 lg:col-span-6">
-              <StatCard
-                title={t('totalCustomers')}
-                value={statistics?.total_customers ?? 0}
-                icon={Users}
-                gradient="bg-gradient-to-br from-emerald-600 to-green-600"
-                isLoading={loading}
-              />
+              <StatCard title={t('totalCustomers')} value={statistics?.total_customers ?? 0} icon={Users} gradient="bg-gradient-to-br from-emerald-600 to-green-600" isLoading={loading} />
             </div>
-
             <div className="col-span-12 sm:col-span-6 lg:col-span-6">
-              <StatCard
-                title={t('totalAgents')}
-                value={statistics?.total_agents ?? 0}
-                icon={UserCheck}
-                gradient="bg-gradient-to-br from-purple-600 to-pink-600"
-                isLoading={loading}
-              />
+              <StatCard title={t('totalAgents')} value={statistics?.total_agents ?? 0} icon={UserCheck} gradient="bg-gradient-to-br from-purple-600 to-pink-600" isLoading={loading} />
             </div>
-
             <div className="col-span-12 sm:col-span-6 lg:col-span-6">
-              <StatCard
-                title={t('averagePrice')}
-                value={statistics ? formatCurrency(statistics.average_price) : "EGP 0"}
-                icon={DollarSign}
-                gradient="bg-gradient-to-br from-orange-600 to-red-600"
-                isLoading={loading}
-              />
+              <StatCard title={t('averagePrice')} value={statistics ? formatCurrency(statistics.average_price) : "EGP 0"} icon={DollarSign} gradient="bg-gradient-to-br from-orange-600 to-red-600" isLoading={loading} />
             </div>
           </div>
         </div>
 
         {/* Status Overview */}
         <div className="col-span-12 lg:col-span-4">
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/60 p-6 h-full hover:shadow-2xl hover:shadow-gray-900/15 transition-all duration-300">
+          <div className="bg-white/90 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-200/60 dark:border-gray-700 p-6 h-full hover:shadow-2xl hover:shadow-gray-900/15 transition-all duration-300">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="p-2 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl">
-                <BarChart3 className="w-5 h-5 text-indigo-600" />
+              <div className="p-2 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-700 dark:to-gray-800 rounded-xl">
+                <BarChart3 className="w-5 h-5 text-indigo-600 dark:text-indigo-300" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">{t('statusOverview')}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('statusOverview')}</h3>
             </div>
-
             <div className="space-y-4">
               {[
                 { label: t('accepted'), value: statistics?.accepted ?? 0, color: 'bg-emerald-500', icon: CheckCircle },
@@ -280,14 +256,14 @@ export default function DashBoard() {
                 { label: t('cancelled'), value: statistics?.cancelled ?? 0, color: 'bg-red-500', icon: XCircle },
                 { label: t('immediate'), value: statistics?.immediate_delivery ?? 0, color: 'bg-blue-500', icon: TrendingUp }
               ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-xl hover:bg-gray-50 transition-colors">
+                <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 dark:bg-gray-800 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 ${item.color} rounded-lg`}>
                       <item.icon className="w-4 h-4 text-white" />
                     </div>
-                    <span className="font-medium text-gray-700">{item.label}</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-200">{item.label}</span>
                   </div>
-                  <span className="font-bold text-gray-900">{loading ? '...' : item.value}</span>
+                  <span className="font-bold text-gray-900 dark:text-white">{loading ? '...' : item.value}</span>
                 </div>
               ))}
             </div>
@@ -296,54 +272,24 @@ export default function DashBoard() {
 
         {/* Property Types */}
         <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-          <StatCard
-            title={t('forSale')}
-            value={statistics?.for_sale ?? 0}
-            icon={Home}
-            gradient="bg-gradient-to-br from-indigo-600 to-blue-600"
-            subtitle={statistics ? formatCurrency(statistics.total_price_for_sale) : undefined}
-            isLoading={loading}
-          />
+          <StatCard title={t('forSale')} value={statistics?.for_sale ?? 0} icon={Home} gradient="bg-gradient-to-br from-indigo-600 to-blue-600" subtitle={statistics ? formatCurrency(statistics.total_price_for_sale) : undefined} isLoading={loading} />
         </div>
 
         <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-          <StatCard
-            title={t('forRent')}
-            value={statistics?.for_rent ?? 0}
-            icon={Building2}
-            gradient="bg-gradient-to-br from-pink-600 to-rose-600"
-            subtitle={statistics ? formatCurrency(statistics.total_price_for_rent) : undefined}
-            isLoading={loading}
-          />
+          <StatCard title={t('forRent')} value={statistics?.for_rent ?? 0} icon={Building2} gradient="bg-gradient-to-br from-pink-600 to-rose-600" subtitle={statistics ? formatCurrency(statistics.total_price_for_rent) : undefined} isLoading={loading} />
         </div>
 
         <div className="col-span-12 lg:col-span-4">
-          <StatCard
-            title={t('totalPortfolioValue')}
-            value={statistics ? formatCurrency(statistics.total_price_for_sale + statistics.total_price_for_rent) : "EGP 0"}
-            icon={DollarSign}
-            gradient="bg-gradient-to-br from-green-600 to-emerald-600"
-            isLoading={loading}
-          />
+          <StatCard title={t('totalPortfolioValue')} value={statistics ? formatCurrency(statistics.total_price_for_sale + statistics.total_price_for_rent) : "EGP 0"} icon={DollarSign} gradient="bg-gradient-to-br from-green-600 to-emerald-600" isLoading={loading} />
         </div>
 
         {/* Charts */}
         <div className="col-span-12 lg:col-span-6">
-          <ModernChartCard
-            title={t('propertiesByArea')}
-            data={statistics?.by_area.map(area => ({ name: area.area_name, count: area.count })) ?? []}
-            isLoading={loading}
-            icon={MapPin}
-          />
+          <ModernChartCard title={t('propertiesByArea')} data={statistics?.by_area.map(area => ({ name: area.area_name, count: area.count })) ?? []} isLoading={loading} icon={MapPin} />
         </div>
 
         <div className="col-span-12 lg:col-span-6">
-          <ModernChartCard
-            title={t('propertiesByType')}
-            data={statistics?.by_type.map(type => ({ name: type.type_name, count: type.count })) ?? []}
-            isLoading={loading}
-            icon={PieChart}
-          />
+          <ModernChartCard title={t('propertiesByType')} data={statistics?.by_type.map(type => ({ name: type.type_name, count: type.count })) ?? []} isLoading={loading} icon={PieChart} />
         </div>
       </div>
     </div>

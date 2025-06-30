@@ -1,20 +1,29 @@
+"use client"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MapPin, Eye, EyeOff } from 'lucide-react';
+// import { MapPin, Eye, EyeOff } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { PropertyData, PropertyLocation, LocationPoint } from '@/types/PropertyTypes';
 import { postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import mapboxgl from 'mapbox-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { useTranslations } from 'next-intl';
+import GoogleLocationSearch from '@/components/common/GoogleLocationInput';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'your-mapbox-token-here';
 
 interface LocationTabProps {
   property: PropertyData;
   onUpdate?: () => void;
+}
+
+interface LocationData {
+  address: string;
+  placeId: string;
+  lat?: number;
+  lng?: number;
+  name?: string;
 }
 
 interface LocationGroup {
@@ -33,14 +42,14 @@ interface PolygonGeoJSONFeature {
   };
   geometry: {
     type: 'Polygon';
-    coordinates: number[][][]; // Polygon coordinates (array of rings)
+    coordinates: number[][][];
   };
 }
 
 interface PointGeoJSONFeature {
   type: 'Feature';
   properties: {
-    name: string;
+    // name: string;
     color: string;
     pointCount?: number;
     locations?: PropertyLocation[];
@@ -49,37 +58,78 @@ interface PointGeoJSONFeature {
   };
   geometry: {
     type: 'Point';
-    coordinates: number[]; // Point coordinates
+    coordinates: number[];
   };
-}
-
-// type GeoJSONFeature = PolygonGeoJSONFeature | PointGeoJSONFeature;
-
-interface DrawEvent {
-  features: Array<{
-    geometry: {
-      type: string;
-      coordinates: number[][][]; // For polygons
-    };
-  }>;
 }
 
 export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) => {
   const params = useParams();
   const propertyId = params?.id as string;
-  // console.log('Property Locations:', property.property_locations);
   const t = useTranslations('properties');
+  
+  // Initialize states with first property location if exists
+  const getInitialLocationValue = useCallback(() => {
+    if (property?.property_locations && property.property_locations.length > 0) {
+      const firstLocation = property.property_locations[0];
+      return firstLocation.location || '';
+    }
+    return '';
+  }, [property?.property_locations]);
 
+  const getInitialSelectedLocation = useCallback((): LocationData | null => {
+    if (property?.property_locations && property.property_locations.length > 0) {
+      const firstLocation = property.property_locations[0];
+      
+      console.log('=== Initial Location Debug ===');
+      console.log('First location raw data:', firstLocation);
+      
+      // Check if we have the required data for location
+      if (firstLocation.location && firstLocation.location_place_id) {
+        const locationData = {
+          address: firstLocation.location,
+          placeId: firstLocation.location_place_id,
+          lat: firstLocation.location_lat ? parseFloat(firstLocation.location_lat.toString()) : undefined,
+          lng: firstLocation.location_lng ? parseFloat(firstLocation.location_lng.toString()) : undefined,
+          name: firstLocation.name || firstLocation.location.split(',')[0].trim()
+        };
+        
+        console.log('Processed location data:', locationData);
+        console.log('Has valid coordinates:', locationData.lat && locationData.lng && !isNaN(locationData.lat) && !isNaN(locationData.lng));
+        console.log('=== End Initial Location Debug ===');
+        
+        return locationData;
+      }
+    }
+    
+    console.log('No valid initial location found');
+    return null;
+  }, [property?.property_locations]);
+  
+  console.log('====================================');
+  console.log('First property location:', property.property_locations?.[0]);
+  console.log('Initial location value:', getInitialLocationValue());
+  console.log('Initial selected location:', getInitialSelectedLocation());
+  console.log('====================================');
+  
+  // States - Initialize with first property location if available
+  const [locationValue, setLocationValue] = useState<string>(getInitialLocationValue());
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(getInitialSelectedLocation());
+  const [loading, setLoading] = useState(false);
+  // const [showOldLocations, setShowOldLocations] = useState(true);
+
+  // Refs
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const draw = useRef<MapboxDraw | null>(null);
   const existingMarkers = useRef<mapboxgl.Marker[]>([]);
 
-  const [loading, setLoading] = useState(false);
-  const [showOldLocations, setShowOldLocations] = useState(true);
-  const [newSelectedPolygon, setNewSelectedPolygon] = useState<Array<{ lng: number; lat: number }>>([]);
-  const [showPopup, setShowPopup] = useState(false);
-  const [popupName, setPopupName] = useState('');
+  // Update states when property changes
+  useEffect(() => {
+    const newLocationValue = getInitialLocationValue();
+    const newSelectedLocation = getInitialSelectedLocation();
+    
+    setLocationValue(newLocationValue);
+    setSelectedLocation(newSelectedLocation);
+  }, [property, getInitialLocationValue, getInitialSelectedLocation]);
 
   const loadExistingLocations = useCallback(() => {
     if (!map.current || !property?.property_locations) return;
@@ -102,7 +152,7 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
       }
     });
 
-    // Group locations by name with proper typing
+    // Group locations by name
     const locationGroups: LocationGroup = property.property_locations.reduce((groups: LocationGroup, location: PropertyLocation) => {
       if (!groups[location.name]) {
         groups[location.name] = [];
@@ -111,10 +161,10 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
       return groups;
     }, {});
 
-    // Create areas for each group
+    // Create features
     const areaFeatures: PolygonGeoJSONFeature[] = [];
     const pointFeatures: PointGeoJSONFeature[] = [];
-    const colors = ['#45B7D1', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
+    const colors = ['#45B7D1', '#4ECDC4', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
     let colorIndex = 0;
 
     Object.entries(locationGroups).forEach(([name, locations]) => {
@@ -123,9 +173,7 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
 
       if (locations.length >= 3) {
         // Create polygon for 3+ points
-        const coordinates = locations.map(loc => [loc.longitude, loc.latitude]);
-
-        // Close the polygon by adding the first point at the end
+        const coordinates = locations.map(loc => [loc.location_lng, loc.location_lat]);
         coordinates.push(coordinates[0]);
 
         areaFeatures.push({
@@ -147,21 +195,20 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
           pointFeatures.push({
             type: 'Feature',
             properties: {
-              name: name,
               color: color,
               id: location.id,
               location_points: location.location_points
             },
             geometry: {
               type: 'Point',
-              coordinates: [location.longitude, location.latitude]
+              coordinates: [location.location_lng, location.location_lat]
             }
           });
         });
       }
     });
 
-    // Add area source and layers
+    // Add areas to map
     if (areaFeatures.length > 0) {
       map.current!.addSource('existing-areas', {
         type: 'geojson',
@@ -171,7 +218,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
         }
       });
 
-      // Add fill layer
       map.current!.addLayer({
         id: 'existing-areas-fill',
         type: 'fill',
@@ -182,7 +228,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
         }
       });
 
-      // Add stroke layer
       map.current!.addLayer({
         id: 'existing-areas-stroke',
         type: 'line',
@@ -194,7 +239,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
         }
       });
 
-      // Add labels layer for area names
       map.current!.addLayer({
         id: 'existing-areas-labels',
         type: 'symbol',
@@ -203,45 +247,17 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
           'text-field': ['get', 'name'],
           'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
           'text-size': 14,
-          'text-anchor': 'center',
-          'text-allow-overlap': false,
-          'text-ignore-placement': false
+          'text-anchor': 'center'
         },
         paint: {
           'text-color': '#000000',
           'text-halo-color': '#ffffff',
-          'text-halo-width': 2,
-          'text-halo-blur': 1
-        }
-      });
-
-      // Add click handler for areas
-      map.current!.on('click', 'existing-areas-fill', (e: mapboxgl.MapMouseEvent) => {
-        if (e.features && e.features[0] && e.features[0].properties) {
-      // const properties = e.features[0].properties;
-
-          new mapboxgl.Popup()
-            .setLngLat(e.lngLat)
-
-            .addTo(map.current!);
-        }
-      });
-
-      // Change cursor on hover
-      map.current!.on('mouseenter', 'existing-areas-fill', () => {
-        if (map.current) {
-          map.current.getCanvas().style.cursor = 'pointer';
-        }
-      });
-
-      map.current!.on('mouseleave', 'existing-areas-fill', () => {
-        if (map.current) {
-          map.current.getCanvas().style.cursor = '';
+          'text-halo-width': 2
         }
       });
     }
 
-    // Add point source and layers for single/double points
+    // Add points to map
     if (pointFeatures.length > 0) {
       map.current!.addSource('existing-points', {
         type: 'geojson',
@@ -264,7 +280,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
         }
       });
 
-      // Add labels for individual points
       map.current!.addLayer({
         id: 'existing-points-labels',
         type: 'symbol',
@@ -274,48 +289,12 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
           'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
           'text-size': 12,
           'text-anchor': 'top',
-          'text-offset': [0, 1.5],
-          'text-allow-overlap': false,
-          'text-ignore-placement': false
+          'text-offset': [0, 1.5]
         },
         paint: {
           'text-color': '#000000',
           'text-halo-color': '#ffffff',
-          'text-halo-width': 2,
-          'text-halo-blur': 1
-        }
-      });
-
-      // Add click handler for points
-      map.current!.on('click', 'existing-points-points', (e: mapboxgl.MapMouseEvent) => {
-        if (e.features && e.features[0] && e.features[0].properties) {
-          const properties = e.features[0].properties;
-
-          new mapboxgl.Popup()
-            .setLngLat(e.lngLat)
-            .setHTML(`
-              <div>
-                <p><strong>Name:</strong> ${properties.name || 'N/A'}</p>
-                <p><strong>ID:</strong> ${properties.id || 'N/A'}</p>
-                ${properties.location_points && properties.location_points.length > 0 ?
-                `<p><strong>Location Points:</strong> ${properties.location_points.length}</p>` : ''}
-                <p><strong>Type:</strong> Point Location</p>
-              </div>
-            `)
-            .addTo(map.current!);
-        }
-      });
-
-      // Change cursor on hover
-      map.current!.on('mouseenter', 'existing-points-points', () => {
-        if (map.current) {
-          map.current.getCanvas().style.cursor = 'pointer';
-        }
-      });
-
-      map.current!.on('mouseleave', 'existing-points-points', () => {
-        if (map.current) {
-          map.current.getCanvas().style.cursor = '';
+          'text-halo-width': 2
         }
       });
     }
@@ -324,44 +303,70 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
     if (property.property_locations.length > 0) {
       const bounds = new mapboxgl.LngLatBounds();
       property.property_locations.forEach((location: PropertyLocation) => {
-        bounds.extend([location.longitude, location.latitude]);
+        bounds.extend([location.location_lng, location.location_lat]);
       });
       map.current!.fitBounds(bounds, { padding: 50 });
     }
   }, [property?.property_locations]);
 
+  // Initialize map
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [31.2357, 30.0444], // Default to Cairo, Egypt
-      zoom: 12
-    });
+    console.log('=== Map Initialization Debug ===');
+    console.log('Mapbox token:', mapboxgl.accessToken ? 'Token exists' : 'No token');
+    console.log('Property locations:', property?.property_locations);
 
-    draw.current = new MapboxDraw({
-      displayControlsDefault: false,
-      controls: {
-        polygon: true
-      },
-      defaultMode: 'draw_polygon'
-    });
+    // Determine initial center based on first location or default to Cairo
+    let initialCenter: [number, number] = [31.2357, 30.0444]; // Default to Cairo, Egypt
+    let initialZoom = 12;
 
-    map.current.addControl(draw.current);
-
-    map.current.on('load', () => {
-      if (property?.property_locations?.length > 0) {
-        loadExistingLocations();
+    if (property?.property_locations?.length > 0) {
+      const firstLocation = property.property_locations[0];
+      console.log('First location for map center:', firstLocation);
+      
+      if (firstLocation.location_lng && firstLocation.location_lat) {
+        const lng = parseFloat(firstLocation.location_lng.toString());
+        const lat = parseFloat(firstLocation.location_lat.toString());
+        
+        if (!isNaN(lng) && !isNaN(lat)) {
+          initialCenter = [lng, lat];
+          initialZoom = 15; // Zoom closer when we have a specific location
+          console.log('Using property location as center:', initialCenter);
+        } else {
+          console.log('Invalid coordinates, using default center');
+        }
       }
-    });
+    }
 
-    map.current.on('click', handleMapClick);
+    console.log('Map center:', initialCenter, 'Zoom:', initialZoom);
 
-    // Listen for draw events
-    map.current.on('draw.create', handleDrawCreate);
-    map.current.on('draw.update', handleDrawUpdate);
-    map.current.on('draw.delete', handleDrawDelete);
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: initialCenter,
+        zoom: initialZoom
+      });
+
+      map.current.on('load', () => {
+        console.log('Map loaded successfully');
+        if (property?.property_locations?.length > 0) {
+          console.log('Loading existing locations...');
+          loadExistingLocations();
+        }
+      });
+
+      map.current.on('error', (e) => {
+        console.error('Map error:', e);
+      });
+
+      console.log('Map initialized successfully');
+    } catch (error) {
+      console.error('Error initializing map:', error);
+    }
+
+    console.log('=== End Map Initialization Debug ===');
 
     return () => {
       if (map.current) {
@@ -371,111 +376,48 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
     };
   }, [mapContainer, property, loadExistingLocations]);
 
-  const toggleOldLocations = () => {
-    setShowOldLocations(!showOldLocations);
+  // Toggle old locations visibility
+  // const toggleOldLocations = () => {
+  //   setShowOldLocations(!showOldLocations);
 
-    // Toggle visibility of area and point layers
-    const layers = ['existing-areas-fill', 'existing-areas-stroke', 'existing-areas-labels', 'existing-points-points', 'existing-points-labels'];
+  //   const layers = ['existing-areas-fill', 'existing-areas-stroke', 'existing-areas-labels', 'existing-points-points', 'existing-points-labels'];
 
-    layers.forEach(layerId => {
-      if (map.current && map.current.getLayer(layerId)) {
-        map.current.setLayoutProperty(
-          layerId,
-          'visibility',
-          showOldLocations ? 'none' : 'visible'
-        );
-      }
-    });
-  };
+  //   layers.forEach(layerId => {
+  //     if (map.current && map.current.getLayer(layerId)) {
+  //       map.current.setLayoutProperty(
+  //         layerId,
+  //         'visibility',
+  //         showOldLocations ? 'none' : 'visible'
+  //       );
+  //     }
+  //   });
+  // };
 
-  const handleMapClick = () => {
-  // Map click is now only used for polygon drawing via MapboxDraw
-  // No manual point selection needed
-  };
-
-  const handleDrawCreate = (e: DrawEvent) => {
-    // Handle polygon creation
-    if (e.features && e.features[0] && e.features[0].geometry.type === 'Polygon') {
-      const coordinates = e.features[0].geometry.coordinates[0];
-      setNewSelectedPolygon(coordinates.map((coord: number[]) => ({ lng: coord[0], lat: coord[1] })));
-      console.log('New polygon created:', coordinates);
-    }
-  };
-
-  const handleDrawUpdate = (e: DrawEvent) => {
-    // Handle polygon update
-    if (e.features && e.features[0] && e.features[0].geometry.type === 'Polygon') {
-      const coordinates = e.features[0].geometry.coordinates[0];
-      setNewSelectedPolygon(coordinates.map((coord: number[]) => ({ lng: coord[0], lat: coord[1] })));
-      console.log('Polygon updated:', coordinates);
-    }
-  };
-
-  const handleDrawDelete = () => {
-    // Handle polygon deletion
-    setNewSelectedPolygon([]);
-    console.log('Polygon deleted');
-  };
-
-  const getCurrentCoordinates = (): number[][] => {
-    if (!draw.current) return [];
-
-    // Check if there are drawn features (polygons)
-    const data = draw.current.getAll();
-    if (data.features.length > 0) {
-      const feature = data.features[0];
-      if (feature.geometry.type === 'Polygon') {
-        return feature.geometry.coordinates[0] as number[][];
-      }
-    }
-
-    return [];
-  };
-
-  const clearNewPolygon = () => {
-    setNewSelectedPolygon([]);
-
-    // Clear any drawn features
-    if (draw.current) {
-      draw.current.deleteAll();
-    }
-  };
-
-  const handleLogCoordinates = async () => {
+  // Save selected location to API
+  const handleSaveLocation = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       alert('You are not authenticated');
       return;
     }
 
-    const currentCoordinates = getCurrentCoordinates();
-
-    if (currentCoordinates.length === 0) {
-      alert('Please draw a polygon area first');
+    if (!selectedLocation || !selectedLocation.lat || !selectedLocation.lng) {
+      alert('Please select a valid location');
       return;
     }
-
-    if (!popupName.trim()) {
-      alert('Please enter a name for the coordinates');
-      return;
-    }
-
-    console.log('Logging Coordinates:', {
-      propertyId,
-      name: popupName,
-      coordinates: currentCoordinates,
-      totalPoints: currentCoordinates.length
-    });
 
     try {
       setLoading(true);
 
+      // Removed name field from the API request
       await postData(
         `owner/locations`,
         {
           property_listing_id: propertyId,
-          name: popupName.trim(),
-          polygon: currentCoordinates
+          location: selectedLocation.address,
+          location_place_id: selectedLocation.placeId,
+          location_lat: selectedLocation.lat,
+          location_lng: selectedLocation.lng
         },
         new AxiosHeaders({
           Authorization: `Bearer ${token}`,
@@ -483,7 +425,14 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
         })
       );
 
-      alert('Coordinates logged successfully!');
+      alert('Location saved successfully!');
+
+      // Reset form only if this was a new location (not the initial one)
+      const isInitialLocation = property?.property_locations?.[0]?.location_place_id === selectedLocation.placeId;
+      if (!isInitialLocation) {
+        setLocationValue("");
+        setSelectedLocation(null);
+      }
 
       // Call onUpdate function
       if (onUpdate) {
@@ -491,40 +440,162 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
       }
 
     } catch (error) {
-      console.error('Error logging coordinates:', error);
-      alert('Failed to log coordinates');
+      console.error('Error saving location:', error);
+      alert('Failed to save location');
     } finally {
       setLoading(false);
-      setShowPopup(false);
-      setPopupName('');
     }
   };
 
-  const handlePopupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPopupName(e.target.value);
-  };
+  // Add selected location marker to map
+  useEffect(() => {
+    console.log('=== Marker Effect Debug ===');
+    console.log('selectedLocation:', selectedLocation);
+    console.log('map.current:', map.current);
+    console.log('map loaded:', map.current?.loaded());
+    
+    if (!selectedLocation || !selectedLocation.lat || !selectedLocation.lng) {
+      console.log('No selected location or missing coordinates');
+      return;
+    }
 
-  // Helper function to group locations for display
-  // const getLocationGroups = (): LocationGroup => {
-  //   if (!property?.property_locations) return {};
+    if (!map.current) {
+      console.log('Map not initialized');
+      return;
+    }
 
-  //   return property.property_locations.reduce((groups: LocationGroup, location: PropertyLocation) => {
-  //     if (!groups[location.name]) {
-  //       groups[location.name] = [];
-  //     }
-  //     groups[location.name].push(location);
-  //     return groups;
-  //   }, {});
-  // };
+    // Wait for map to be loaded
+    const addMarker = () => {
+      try {
+        console.log('Adding marker at:', [selectedLocation.lng, selectedLocation.lat]);
+        
+        // Clear any existing new location markers
+        const existingNewMarkers = document.querySelectorAll('.new-location-marker');
+        existingNewMarkers.forEach(marker => marker.remove());
+
+        // Check if this is the initial location from API
+        const isInitialLocation = property?.property_locations?.[0]?.location_place_id === selectedLocation.placeId;
+        console.log('Is initial location:', isInitialLocation);
+        
+        // Add new marker for selected location
+        const el = document.createElement('div');
+        el.className = 'new-location-marker';
+        
+        // Different styling for initial vs new locations
+        if (isInitialLocation) {
+          el.style.cssText = `
+            background-color: #10b981;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+            cursor: pointer;
+            position: relative;
+            z-index: 1000;
+          `;
+          // Add a small indicator for initial location
+          const indicator = document.createElement('div');
+          indicator.style.cssText = `
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background-color: #059669;
+            border-radius: 50%;
+            border: 1px solid white;
+          `;
+          el.appendChild(indicator);
+        } else {
+          el.style.cssText = `
+            background-color: #ef4444;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 1000;
+          `;
+        }
+
+        // Validate coordinates
+        const lng = parseFloat(selectedLocation.lng?.toString() ?? '0');
+        const lat = parseFloat(selectedLocation.lat?.toString() ?? '0');
+        
+        if (isNaN(lng) || isNaN(lat)) {
+          console.error('Invalid coordinates:', { lng, lat });
+          return;
+        }
+
+        console.log('Creating marker with coordinates:', [lng, lat]);
+
+new mapboxgl.Marker(el)
+          .setLngLat([lng, lat])
+          .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`
+            <div style="padding: 10px;">
+              <p style="margin: 0 0 4px 0; font-size: 12px;">${selectedLocation.address}</p>
+              <p style="margin: 0 0 4px 0; font-size: 11px; color: #666;">Lat: ${lat.toFixed(6)}</p>
+              <p style="margin: 0 0 4px 0; font-size: 11px; color: #666;">Lng: ${lng.toFixed(6)}</p>
+              ${isInitialLocation ? '<p style="color: #10b981; font-size: 10px; margin: 0;"><strong>current location </strong></p>' : ''}
+            </div>
+          `))
+          .addTo(map.current!);
+
+        console.log('Marker added successfully');
+
+        // Center map on location
+        map.current!.flyTo({
+          center: [lng, lat],
+          zoom: 15,
+          duration: 1000
+        });
+
+        console.log('Map centered on location');
+
+      } catch (error) {
+        console.error('Error adding marker:', error);
+      }
+    };
+
+    if (map.current.loaded()) {
+      addMarker();
+    } else {
+      map.current.on('load', addMarker);
+    }
+
+    console.log('=== End Marker Effect Debug ===');
+  }, [selectedLocation, property]);
 
   return (
     <div className="mb-8">
+      {/* Google Location Search */}
+      <div className="mb-6">
+        <GoogleLocationSearch
+          label={t("location")}
+          name="location"
+          value={locationValue}
+          onChange={(value, googleLocationData) => {
+            setLocationValue(value);
+            if (googleLocationData) {
+              setSelectedLocation(googleLocationData);
+            }
+          }}
+          placeholder={t("enter_your_location")}
+          required={true}
+          dir="ltr"
+          t={t}
+        />
+      </div>
+
+      {/* Action Buttons */}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
           {t("Property Locations")}
         </h3>
         <div className="flex gap-2">
-          <button
+          {/* <button
             onClick={toggleOldLocations}
             className={`${showOldLocations
               ? 'bg-blue-600 hover:bg-blue-700'
@@ -533,39 +604,22 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
           >
             {showOldLocations ? <Eye size={20} /> : <EyeOff size={20} />}
             {showOldLocations ? t('Hide Old Locations') : t('Show Old Locations')}
-          </button>
+          </button> */}
 
-          {!showOldLocations && (
+          {selectedLocation && (
             <button
-              onClick={clearNewPolygon}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200"
+              onClick={handleSaveLocation}
+              className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2 disabled:opacity-50"
+              disabled={loading}
             >
-              {t("Clear Polygon")}
+              <MapPin size={20} />
+              {loading ? t('loading') : t('Save Location')}
             </button>
           )}
-
-          <button
-            onClick={() => setShowPopup(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
-            disabled={getCurrentCoordinates().length === 0}
-          >
-            <MapPin size={20} />
-            {t("create Area")} ({getCurrentCoordinates().length} {t("points")})
-          </button>
         </div>
       </div>
 
-      {/* Instructions */}
-      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-sm text-blue-800">
-          <strong className='px-3'>{t("Instructions")}       :</strong>
-          {showOldLocations
-            ? t('Click')
-            : t('Use the')
-          }
-        </p>
-      </div>
-
+      {/* Map Container */}
       <div className="mb-6">
         <div
           ref={mapContainer}
@@ -573,78 +627,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
           style={{ height: '400px' }}
         />
       </div>
-
-      {/* Show existing areas summary
-      {property?.property_locations && property.property_locations.length > 0 && (
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800 mb-2">
-            <strong>{t("Existing Areas:")}</strong>
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-            {Object.entries(getLocationGroups()).map(([name, locations]) => (
-              <div key={name} className="text-xs text-blue-700 bg-white p-2 rounded border">
-                <div className="font-semibold">{name}</div>
-                <div>{locations.length} {t("points")}</div>
-                <div>{locations.length >= 3 ? 'Polygon Area' : 'Point Location'}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )} */}
-
-      {/* Show summary of selected polygon */}
-      {newSelectedPolygon.length > 0 && (
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>{t("New Polygon Area:")}</strong> {newSelectedPolygon.length} {t("points")}
-          </p>
-          <div className="mt-2 max-h-32 overflow-y-auto">
-            {newSelectedPolygon.map((point, index) => (
-              <div key={index} className="text-xs text-blue-700">
-                {t("Point")} {index + 1}: {point.lat.toFixed(6)}, {point.lng.toFixed(6)}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Popup to enter name and log coordinates */}
-      {showPopup && (
-        <div className="fixed inset-0 bg-black/50  flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-md w-1/3 max-w-md">
-            <h3 className="text-lg font-semibold mb-4">{t("Enter Name for Area")}</h3>
-            <p className="text-sm text-gray-600 mb-3">
-              {t("Enter Name for Area")} {getCurrentCoordinates().length} {t("coordinate points")}
-            </p>
-            <input
-              type="text"
-              value={popupName}
-              onChange={handlePopupNameChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-              placeholder="Enter area name"
-              autoFocus
-            />
-            <div className="flex justify-end space-x-3 pt-4">
-              <button
-                onClick={() => {
-                  setShowPopup(false);
-                  setPopupName('');
-                }}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
-              >
-                {t("Cancel")}
-              </button>
-              <button
-                onClick={handleLogCoordinates}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition duration-200 disabled:opacity-50"
-                disabled={loading || !popupName.trim()}
-              >
-                {loading ? t('loading') : t('create Area')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

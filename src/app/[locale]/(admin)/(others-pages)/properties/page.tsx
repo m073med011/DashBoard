@@ -14,7 +14,7 @@ type User = {
   name: string;
   email: string;
   phone: string;
-  avatar: string | null;
+  cover: string | null;
   subscription: string;
   role: string;
 };
@@ -22,13 +22,13 @@ type User = {
 type PropertyType = {
   id: number;
   title: string;
-  image: string | null;
+  cover: string | null;
 };
 
-type ImageItem = {
-  id: number;
-  image: string;
-};
+// type ImageItem = {
+//   id: number;
+//   cover: string;
+// };
 
 type Location = {
   id: number;
@@ -46,7 +46,8 @@ type PropertyListing = {
   title: string;
   description: string;
   slug: string;
-  property_listing_images: ImageItem[];
+  // property_listing_images: ImageItem[];
+  cover:string;
   property_locations: Location[];
 };
 
@@ -137,14 +138,25 @@ export default function PropertyListingsPage() {
               label: "user",
               render: (item) => item.user?.name ?? "Unknown",
             },
-            { key: "price", label: "price" },
             {
-              key: "property_listing_images",
+  key: "price",
+  label: "price",
+  render: (item) => (
+    <>
+    {item.price}
+  <span className="font-bold px-1"> EGY</span>
+  </>
+),
+
+},
+
+            {
+              key: "title",
               label: "images", 
               render: (item) =>
-                item.property_listing_images?.[0] ? (
+                item ? (
                   <Image
-                    src={item.property_listing_images[0].image}
+                    src={item.cover}
                     alt={item.title}
                     width={100}
                     height={75}

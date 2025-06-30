@@ -10,6 +10,8 @@ import Toast from "@/components/Toast";
 import RichTextEditor from "@/components/RichTextEditor";
 import { ChevronDown, ChevronUp, DollarSign, Home, FileText, Globe, Camera, Check, X } from "lucide-react";
 import Image from "next/image";
+import GoogleLocationSearch from "@/components/common/GoogleLocationInput"
+
 
 type FormInputs = {
   // General Information
@@ -37,6 +39,9 @@ type FormInputs = {
   description_ar: string;
   keywords_ar: string;
   slug_ar: string;
+
+  // Location field
+  location: string;
 };
 
 type ToastState = {
@@ -44,6 +49,13 @@ type ToastState = {
   type: "success" | "error" | "info";
   show: boolean;
 };
+
+interface LocationData {
+  address: string;
+  placeId: string;
+  lat?: number;
+  lng?: number;
+}
 
 type SelectOption = {
   id: string;
@@ -82,18 +94,20 @@ type ImagePreview = {
 
 const CreatePropertyPage = () => {
   const t = useTranslations("properties");
-  // const locale = useLocale();
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<FormInputs>();
 
   const [descriptionEn, setDescriptionEn] = useState<string>("");
   const [descriptionAr, setDescriptionAr] = useState<string>("");
-  const [imagePreview, setImagePreview] = useState<ImagePreview | null>(null); // Changed to single image
+  const [imagePreview, setImagePreview] = useState<ImagePreview | null>(null);
+  const [locationValue, setLocationValue] = useState<string>("");
+  const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [toast, setToast] = useState<ToastState>({
     message: "",
     type: "success",
@@ -201,7 +215,7 @@ const CreatePropertyPage = () => {
     }
 
     if (!imagePreview) {
-      showToast(t("please_select_an_image"), "error"); // Changed message
+      showToast(t("please_select_an_image"), "error");
       return;
     }
 
@@ -221,6 +235,15 @@ const CreatePropertyPage = () => {
     formData.append("type", data.type);
     formData.append("immediate_delivery", data.immediate_delivery);
     
+    // Add location data
+    formData.append("location", locationValue);
+    if (locationData) {
+      // formData.append("location_data", JSON.stringify(locationData));
+      formData.append("location_place_id", locationData.placeId);
+      if (locationData.lat) formData.append("location_lat", locationData.lat.toString());
+      if (locationData.lng) formData.append("location_lng", locationData.lng.toString());
+    }
+
     // Add English fields
     formData.append("title[en]", data.title_en);
     formData.append("description[en]", descriptionEn);
@@ -363,7 +386,7 @@ const CreatePropertyPage = () => {
               description={t("property_type_location_details")}
             />
             {expandedSections.basic && (
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <InputField
                   label={t("property_type")}
                   name="type_id"
@@ -383,6 +406,32 @@ const CreatePropertyPage = () => {
                   }))}
                   placeholder={t("select_area")}
                 />
+                <div className="md:col-span-1">
+                  <GoogleLocationSearch
+                    label={t("location")}
+                    name="location"
+                    value={locationValue}
+                    onChange={(value, googleLocationData) => {
+                      // Update the location text value
+                      setLocationValue(value);
+
+                      // Update react-hook-form value
+                      setValue("location", value);
+
+                      // Update the location data if provided
+                      if (googleLocationData) {
+                        setLocationData(googleLocationData);
+                        console.log('Location data:', googleLocationData);
+                      }
+                    }}
+                    placeholder={t("enter_your_location")}
+                    required={true}
+                    dir="ltr"
+                    error={!!errors.location}
+                    errorMessage={errors.location ? t("field_required") : undefined}
+                    t={t}
+                  />
+                </div>
                 <InputField
                   label="Agent"
                   name="userId"
