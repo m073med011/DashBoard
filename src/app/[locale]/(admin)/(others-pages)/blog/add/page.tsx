@@ -48,13 +48,16 @@ const CreateContentPage = () => {
     formState: { errors },
   } = useForm<FormInputs>();
 
-  // Tab state - starting with Arabic like the edit page
-  const [activeTab, setActiveTab] = useState<"ar" | "en" | "general">("ar");
+  // Tab state - starting with Arabic like the edit page, now with meta tab
+  const [activeTab, setActiveTab] = useState<"ar" | "en" | "general" | "meta">("ar");
 
   const [descriptionEn, setDescriptionEn] = useState<string>("");
   const [descriptionAr, setDescriptionAr] = useState<string>("");
   const [cover, setCover] = useState<File | null>(null);
   const [image, setImage] = useState<File | null>(null);
+  // Add preview URLs state
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>({
     message: "",
     type: "success",
@@ -94,6 +97,64 @@ const CreateContentPage = () => {
     fetchTypes();
   }, []);
 
+  // Handle cover image selection
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setCover(file);
+    
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setCoverPreview(previewUrl);
+    } else {
+      setCoverPreview(null);
+    }
+  };
+
+  // Handle image selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImage(file);
+    
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
+  // Remove cover image
+  const removeCover = () => {
+    setCover(null);
+    if (coverPreview) {
+      URL.revokeObjectURL(coverPreview);
+      setCoverPreview(null);
+    }
+    // Reset the input value
+    const coverInput = document.getElementById('cover-input') as HTMLInputElement;
+    if (coverInput) coverInput.value = '';
+  };
+
+  // Remove image
+  const removeImage = () => {
+    setImage(null);
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+    // Reset the input value
+    const imageInput = document.getElementById('image-input') as HTMLInputElement;
+    if (imageInput) imageInput.value = '';
+  };
+
+  // Cleanup preview URLs on component unmount
+  useEffect(() => {
+    return () => {
+      if (coverPreview) URL.revokeObjectURL(coverPreview);
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [coverPreview, imagePreview]);
+
   const onSubmit = async (data: FormInputs) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     if (!token) {
@@ -131,33 +192,37 @@ const CreateContentPage = () => {
     try {
       await postData("owner/blogs", formData, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
       router.back();
-      showToast(t("Blog added successfully"), "success");
-    } catch (error) {
+      showToast("Blog added successfully", "success");
+    } catch {
       // console.error("Failed to create blog:", error);
-      showToast(t("Failed to add blog") + error, "error");
+      showToast("Failed to add blog", "error");
     }
   };
 
-  // English fields
+  // English fields (without meta and keywords fields)
   const englishFields: { name: keyof FormInputs; label: string }[] = [
     { name: "title_en", label: "Title (EN)" },
     { name: "slug_en", label: "Slug (EN)" },
-    { name: "meta_title_en", label: "Meta Title (EN)" },
-    { name: "meta_description_en", label: "Meta Description (EN)" },
-    { name: "meta_keywords_en", label: "Meta Keywords (EN)" },
     { name: "user_en", label: "User (EN)" },
-    { name: "keywords_en", label: "Keywords (EN)" },
   ];
 
-  // Arabic fields
+  // Arabic fields (without meta and keywords fields)
   const arabicFields: { name: keyof FormInputs; label: string }[] = [
     { name: "title_ar", label: "Title (AR)" },
     { name: "slug_ar", label: "Slug (AR)" },
-    { name: "meta_title_ar", label: "Meta Title (AR)" },
-    { name: "meta_description_ar", label: "Meta Description (AR)" },
-    { name: "meta_keywords_ar", label: "Meta Keywords (AR)" },
     { name: "user_ar", label: "User (AR)" },
-    { name: "keywords_ar", label: "Keywords (AR)" },
+  ];
+
+  // Meta fields for both languages (including keywords)
+  const metaFields: { name: keyof FormInputs; label: string; dir?: string }[] = [
+    { name: "meta_title_en", label: "Meta Title (EN)" },
+    { name: "meta_description_en", label: "Meta Description (EN)" },
+    { name: "meta_keywords_en", label: "Meta Keywords (EN)" },
+    { name: "keywords_en", label: "Keywords (EN)" },
+    { name: "meta_title_ar", label: "Meta Title (AR)", dir: "rtl" },
+    { name: "meta_description_ar", label: "Meta Description (AR)", dir: "rtl" },
+    { name: "meta_keywords_ar", label: "Meta Keywords (AR)", dir: "rtl" },
+    { name: "keywords_ar", label: "Keywords (AR)", dir: "rtl" },
   ];
 
   const TabButton = ({ label, isActive, onClick }: {
@@ -198,6 +263,11 @@ const CreateContentPage = () => {
               label={t("English Content")}
               isActive={activeTab === "en"}
               onClick={() => setActiveTab("en")}
+            />
+            <TabButton
+              label={t("Meta Information")}
+              isActive={activeTab === "meta"}
+              onClick={() => setActiveTab("meta")}
             />
             <TabButton
               label={t("General Information")}
@@ -265,6 +335,28 @@ const CreateContentPage = () => {
               </div>
             )}
 
+            {/* Meta Information Tab */}
+            {activeTab === "meta" && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-4">{t("SEO Meta Information & Keywords")}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {metaFields.map(({ name, label, dir }) => (
+                    <div key={name}>
+                      <label className="block mb-1 font-medium">{t(label)}</label>
+                      <input
+                        {...register(name, { required: true })}
+                        className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring focus:ring-blue-400"
+                        dir={dir}
+                      />
+                      {errors[name] && (
+                        <p className="text-red-500 text-sm mt-1">{t("This field is required")}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* General Information Tab */}
             {activeTab === "general" && (
               <div className="mb-8">
@@ -295,24 +387,68 @@ const CreateContentPage = () => {
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold mb-4">{t("File Uploads")}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Cover Upload */}
                     <div>
                       <label className="block mb-1 font-medium">{t("Cover")}</label>
                       <input
+                        id="cover-input"
                         type="file"
-                        onChange={(e) => setCover(e.target.files?.[0] || null)}
+                        onChange={handleCoverChange}
+                        accept="image/*"
                         className="w-full border px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-sm"
                         required
                       />
+                      
+                      {/* Cover Preview */}
+                      {coverPreview && (
+                        <div className="mt-3 relative">
+                          <img
+                            src={coverPreview}
+                            alt="Cover preview"
+                            className="w-full h-32 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                          />
+                          <button
+                            type="button"
+                            onClick={removeCover}
+                            className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors duration-200"
+                            title="Remove cover"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )}
                     </div>
 
+                    {/* Image Upload */}
                     <div>
                       <label className="block mb-1 font-medium">{t("Image")}</label>
                       <input
+                        id="image-input"
                         type="file"
-                        onChange={(e) => setImage(e.target.files?.[0] || null)}
+                        onChange={handleImageChange}
+                        accept="image/*"
                         className="w-full border px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-sm"
                         required
                       />
+                      
+                      {/* Image Preview */}
+                      {imagePreview && (
+                        <div className="mt-3 relative">
+                          <img
+                            src={imagePreview}
+                            alt="Image preview"
+                            className="w-full h-32 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                          />
+                          <button
+                            type="button"
+                            onClick={removeImage}
+                            className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors duration-200"
+                            title="Remove image"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

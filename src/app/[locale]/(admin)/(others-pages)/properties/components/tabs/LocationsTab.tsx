@@ -590,10 +590,10 @@ new mapboxgl.Marker(el)
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+      <div className="flex justify-end items-center mb-4">
+        {/* <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
           {t("Property Locations")}
-        </h3>
+        </h3> */}
         <div className="flex gap-2">
           {/* <button
             onClick={toggleOldLocations}
@@ -620,7 +620,7 @@ new mapboxgl.Marker(el)
       </div>
 
       {/* Map Container */}
-      <div className="mb-6">
+      <div className="my-16">
         <div
           ref={mapContainer}
           className="h-96 w-full rounded-lg border border-gray-300"

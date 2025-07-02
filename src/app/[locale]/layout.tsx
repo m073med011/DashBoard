@@ -20,6 +20,10 @@ export default async function RootLayout({
   const { locale } = await params;
   return (
     <html dir={locale === "ar" ? "rtl" : "ltr"} lang="en">
+      <header>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Proplix Dashboard </title>
+      </header>
       <body className={`${outfit.className} dark:bg-gray-900`}>
          <NextIntlClientProvider locale={locale}>
         <ThemeProvider>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { postData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
@@ -39,6 +39,9 @@ const CreateBannerPage = () => {
 
   const [imageEn, setImageEn] = useState<File | null>(null);
   const [imageAr, setImageAr] = useState<File | null>(null);
+  // Add preview URLs state
+  const [imageEnPreview, setImageEnPreview] = useState<string | null>(null);
+  const [imageArPreview, setImageArPreview] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>({
     message: "",
     type: "success",
@@ -58,6 +61,64 @@ const CreateBannerPage = () => {
       setToast((prev) => ({ ...prev, show: false }));
     }, 3000);
   };
+
+  // Handle English image selection
+  const handleImageEnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageEn(file);
+    
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setImageEnPreview(previewUrl);
+    } else {
+      setImageEnPreview(null);
+    }
+  };
+
+  // Handle Arabic image selection
+  const handleImageArChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageAr(file);
+    
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setImageArPreview(previewUrl);
+    } else {
+      setImageArPreview(null);
+    }
+  };
+
+  // Remove English image
+  const removeImageEn = () => {
+    setImageEn(null);
+    if (imageEnPreview) {
+      URL.revokeObjectURL(imageEnPreview);
+      setImageEnPreview(null);
+    }
+    // Reset the input value
+    const imageInput = document.getElementById('image-en-input') as HTMLInputElement;
+    if (imageInput) imageInput.value = '';
+  };
+
+  // Remove Arabic image
+  const removeImageAr = () => {
+    setImageAr(null);
+    if (imageArPreview) {
+      URL.revokeObjectURL(imageArPreview);
+      setImageArPreview(null);
+    }
+    // Reset the input value
+    const imageInput = document.getElementById('image-ar-input') as HTMLInputElement;
+    if (imageInput) imageInput.value = '';
+  };
+
+  // Cleanup preview URLs on component unmount
+  useEffect(() => {
+    return () => {
+      if (imageEnPreview) URL.revokeObjectURL(imageEnPreview);
+      if (imageArPreview) URL.revokeObjectURL(imageArPreview);
+    };
+  }, [imageEnPreview, imageArPreview]);
 
   const onSubmit = async (data: FormInputs) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
@@ -186,12 +247,34 @@ const CreateBannerPage = () => {
                 <div className="mt-6">
                   <label className="block mb-1 font-medium">{t("Image (AR)")}</label>
                   <input
+                    id="image-ar-input"
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setImageAr(e.target.files?.[0] || null)}
+                    onChange={handleImageArChange}
                     className="w-full border px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-sm"
                     required
                   />
+                  
+                  {/* Arabic Image Preview */}
+                  {imageArPreview && (
+                    <div className="mt-3 relative">
+                      <Image
+                      width={100}
+                      height={100}
+                        src={imageArPreview}
+                        alt="Arabic image preview"
+                        className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImageAr}
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors duration-200"
+                        title="Remove Arabic image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -226,12 +309,34 @@ const CreateBannerPage = () => {
                 <div className="mt-6">
                   <label className="block mb-1 font-medium">{t("Image (EN)")}</label>
                   <input
+                    id="image-en-input"
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setImageEn(e.target.files?.[0] || null)}
+                    onChange={handleImageEnChange}
                     className="w-full border px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-sm"
                     required
                   />
+                  
+                  {/* English Image Preview */}
+                  {imageEnPreview && (
+                    <div className="mt-3 relative">
+                      <Image
+                      width={100}
+                      height={100}
+                        src={imageEnPreview}
+                        alt="English image preview"
+                        className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImageEn}
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors duration-200"
+                        title="Remove English image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -271,39 +376,6 @@ const CreateBannerPage = () => {
                     )}
                   </div>
                 </div>
-
-                {/* Preview Section */}
-                {(imageEn || imageAr) && (
-                  <div className="mt-8">
-                    <h3 className="text-lg font-semibold mb-4">{t("Image Preview")}</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {imageEn && (
-                        <div>
-                          <label className="block mb-2 font-medium text-sm">{t("English Image")}</label>
-                          <Image
-                            width={100}
-                            height={100}
-                            src={URL.createObjectURL(imageEn)}
-                            alt="English preview"
-                            className="w-full h-48 object-cover rounded-lg border"
-                          />
-                        </div>
-                      )}
-                      {imageAr && (
-                        <div>
-                          <label className="block mb-2 font-medium text-sm">{t("Arabic Image")}</label>
-                          <Image
-                            width={100}
-                            height={100}
-                            src={URL.createObjectURL(imageAr)}
-                            alt="Arabic preview"
-                            className="w-full h-48 object-cover rounded-lg border"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 

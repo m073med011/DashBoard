@@ -10,6 +10,8 @@ import Toast from '@/components/Toast';
 import { useLocale } from 'next-intl';
 import { useTranslations } from 'next-intl';
 import { AxiosError } from 'axios'; // Make sure to import AxiosError type
+import ImageWithFallback from '@/components/ImageWithFallback';
+
 
 type OwnerItem = {
   id: number;
@@ -117,10 +119,10 @@ export default function OwnersPage() {
         }),
       );
       fetchOwners(token);
-      showToast(t('Owner deleted successfully'), 'success');
+      showToast('Owner deleted successfully', 'success');
     } catch (error) {
       console.error('Delete failed', error);
-      showToast(t('Delete failed'), 'error');
+      showToast('Delete failed', 'error');
     }
   };
 
@@ -180,13 +182,20 @@ export default function OwnersPage() {
               label: 'Avatar',
               render: (item) =>
                 item.avatar ? (
-                  <Image
-                    width={50}
-                    height={50}
-                    src={item.avatar}
-                    alt="owner avatar"
-                    className="h-12 w-12 object-cover rounded-full"
-                  />
+                  // <Image
+                  //   width={50}
+                  //   height={50}
+                  //   src={item.avatar}
+                  //   alt="owner avatar"
+                  //   className="h-12 w-12 object-cover rounded-full"
+                  // />
+                  <ImageWithFallback
+  src={item?.avatar || ''}
+  alt="User Avatar"
+  width={80}
+  height={80}
+  className="rounded-xl object-cover"
+/>
                 ) : (
                   <div className="h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center text-xs">
                     No Avatar

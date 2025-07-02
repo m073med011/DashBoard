@@ -8,8 +8,7 @@ import { useTranslations, useLocale } from "next-intl";
 import {
   LayoutDashboard, Newspaper, Shapes, Map,
   Building2,
-  GalleryHorizontal,
-  Users
+  GalleryHorizontal,UserCheck, Headset
 } from "lucide-react";
 import { ChevronDownIcon, HorizontaLDots } from "../icons/index";
 // import Image from "next/image";
@@ -34,10 +33,10 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { icon: <LayoutDashboard />, name: "dashboard", path: "/" },
   {
-    icon: <Users />, name: "agents", path: "/agent"
+    icon: <Headset />, name: "agents", path: "/agent"
   },
   {
-    icon: <Users />, name: "owners", path: "/owner"
+    icon: <UserCheck />, name: "owners", path: "/owner"
   },
   { icon: <Newspaper />, name: "blogs", path: "/blog" },
   { icon: <GalleryHorizontal />, name: "banners", path: "/banners" },

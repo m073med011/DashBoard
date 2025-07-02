@@ -36,6 +36,7 @@ export default function AreasPage() {
   const [items, setItems] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>({
     message: '',
     type: 'info',
@@ -63,7 +64,16 @@ export default function AreasPage() {
 
   useEffect(() => {
     if (token) fetchAreas(token);
-  }, [token, locale]);
+  }, [token,locale]);
+
+  // Reset image preview when modal closes or opens
+  useEffect(() => {
+    if (!modalState.type) {
+      setImagePreview(null);
+    } else if (modalState.type === 'edit' && modalState.item?.image) {
+      setImagePreview(modalState.item.image);
+    }
+  }, [modalState]);
 
   const fetchAreas = async (authToken: string) => {
     try {
@@ -91,6 +101,24 @@ export default function AreasPage() {
     } catch (error) {
       console.error('Delete failed', error);
       showToast("Delete failed", 'error');
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // If no file selected, reset to current image (for edit mode) or null (for create mode)
+      if (modalState.type === 'edit' && modalState.item?.image) {
+        setImagePreview(modalState.item.image);
+      } else {
+        setImagePreview(null);
+      }
     }
   };
 
@@ -155,9 +183,9 @@ export default function AreasPage() {
                 <Image
                   src={item.image}
                   alt={"area"}
-                  width={48}
-                  height={48}
-                  className="rounded object-cover"
+                  width={100}
+                  height={100}
+                  className=" rounded object-fill w-full items-center"
                 />
               ),
             },
@@ -175,6 +203,7 @@ export default function AreasPage() {
       )}
 
       <ModalForm
+      className='max-w-[500px] '
         open={!!modalState.type}
         title={
           modalState.type === 'create'
@@ -186,32 +215,42 @@ export default function AreasPage() {
         onClose={() => setModalState({ type: null })}
       >
         {modalState.type === 'view' || modalState.type === 'quick' ? (
-          <div className="space-y-4">
-            <div>
-              <strong className="block text-sm font-medium text-gray-700">{t('Name (EN)')}:</strong>
-              <p className="mt-1">{modalState.item?.description.en.name}</p>
-            </div>
-            <div>
-              <strong className="block text-sm font-medium text-gray-700">{t('Name (AR)')}:</strong>
-              <p className="mt-1">{modalState.item?.description.ar.name}</p>
-            </div>
-            <div>
-              <strong className="block text-sm font-medium text-gray-700">{t('Properties')}:</strong>
-              <p className="mt-1">{modalState.item?.count_of_properties}</p>
-            </div>
-            {modalState.item?.image && (
-              <div>
-                <strong className="block text-sm font-medium text-gray-700 mb-2">{t('Image')}:</strong>
-                <Image
-                  src={modalState.item.image}
-                  alt={t("Area")}
-                  width={200}
-                  height={200}
-                  className="w-full max-w-sm rounded-lg object-cover"
-                />
-              </div>
-            )}
-          </div>
+          <div className="w-full p-6  rounded-2xl">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    
+    <div className='text-center'>
+      <strong className="block text-sm font-semibold text-gray-800">{t('Name (EN)')}:</strong>
+      <p className="mt-1 text-gray-600">{modalState.item?.description.en.name}</p>
+    </div>
+
+    <div className='text-center'>
+      <strong className="block text-sm font-semibold text-gray-800">{t('Name (AR)')}:</strong>
+      <p className="mt-1 text-gray-600">{modalState.item?.description.ar.name}</p>
+    </div>
+
+    
+    <div className='text-center'>
+      <strong className="block text-sm font-semibold text-gray-800">{t('Properties')}:</strong>
+      <p className="mt-1 text-gray-600">{modalState.item?.count_of_properties}</p>
+    </div>
+  </div>
+
+  {modalState.item?.image && (
+    <div className="mt-6">
+      <strong className="block text-sm font-semibold text-gray-800 mb-2">{t('Image')}:</strong>
+      <div className="overflow-hidden rounded-lg shadow-sm border border-gray-200 w-full max-w-md">
+        <Image
+          src={modalState.item.image}
+          alt={t("Area")}
+          width={400}
+          height={400}
+          className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105"
+        />
+      </div>
+    </div>
+  )}
+</div>
+
         ) : (
           <form
             onSubmit={(e) => {
@@ -276,10 +315,42 @@ export default function AreasPage() {
                 type="file"
                 name="image"
                 accept="image/*"
+                onChange={handleImageChange}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               {modalState.type === 'edit' && (
                 <p className="mt-1 text-sm text-gray-500">{t('Leave empty to keep current image')}</p>
+              )}
+              
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="mt-3">
+                  <p className="text-sm font-medium text-gray-700 mb-2">{t('Image Preview')}:</p>
+                  <div className="relative w-full max-w-xs mx-auto">
+                    <div className="overflow-hidden rounded-lg shadow-sm border border-gray-200">
+                      <Image
+                        src={imagePreview}
+                        alt={t("Image preview")}
+                        width={200}
+                        height={200}
+                        className="w-full h-48 object-cover"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImagePreview(null);
+                        // Reset the file input
+                        const fileInput = document.getElementById('image') as HTMLInputElement;
+                        if (fileInput) fileInput.value = '';
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-lg transition-colors"
+                      title={t('Remove image')}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
             

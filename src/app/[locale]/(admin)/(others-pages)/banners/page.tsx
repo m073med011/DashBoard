@@ -6,6 +6,8 @@ import Table from '@/components/tables/Table';
 import { getData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import Toast from '@/components/Toast';
+import { useTranslations } from "next-intl";
+
 
 type Banner = {
   id: number;
@@ -45,6 +47,7 @@ export default function Page() {
     type: 'info',
     show: false,
   });
+  const t = useTranslations("blogs");
 
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToast({ message, type, show: true });
@@ -129,7 +132,7 @@ export default function Page() {
       )}
 
       {loading ? (
-        <p>Loading...</p>
+                 <div className="loader w-full h-100vw flex items-center justify-center">{t("Loading")}</div>
       ) : (
         <Table<Banner>
           data={items}

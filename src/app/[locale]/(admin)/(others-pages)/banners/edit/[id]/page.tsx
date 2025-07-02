@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import ImageWithFallback from "@/components/ImageWithFallback";
 import { useForm } from "react-hook-form";
 import { postData, getData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
@@ -61,6 +62,9 @@ const EditBannerPage = () => {
   const [imageAr, setImageAr] = useState<File | null>(null);
   const [currentImageEn, setCurrentImageEn] = useState<string>("");
   const [currentImageAr, setCurrentImageAr] = useState<string>("");
+  // Add preview URLs state
+  const [imageEnPreview, setImageEnPreview] = useState<string | null>(null);
+  const [imageArPreview, setImageArPreview] = useState<string | null>(null);
   const [descriptionEn, setDescriptionEn] = useState<string>("");
   const [descriptionAr, setDescriptionAr] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -76,6 +80,64 @@ const EditBannerPage = () => {
       setToast((prev) => ({ ...prev, show: false }));
     }, 3000);
   };
+
+  // Handle English image selection
+  const handleImageEnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageEn(file);
+    
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setImageEnPreview(previewUrl);
+    } else {
+      setImageEnPreview(null);
+    }
+  };
+
+  // Handle Arabic image selection
+  const handleImageArChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageAr(file);
+    
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setImageArPreview(previewUrl);
+    } else {
+      setImageArPreview(null);
+    }
+  };
+
+  // Remove English image
+  const removeImageEn = () => {
+    setImageEn(null);
+    if (imageEnPreview) {
+      URL.revokeObjectURL(imageEnPreview);
+      setImageEnPreview(null);
+    }
+    // Reset the input value
+    const imageInput = document.getElementById('image-en-input') as HTMLInputElement;
+    if (imageInput) imageInput.value = '';
+  };
+
+  // Remove Arabic image
+  const removeImageAr = () => {
+    setImageAr(null);
+    if (imageArPreview) {
+      URL.revokeObjectURL(imageArPreview);
+      setImageArPreview(null);
+    }
+    // Reset the input value
+    const imageInput = document.getElementById('image-ar-input') as HTMLInputElement;
+    if (imageInput) imageInput.value = '';
+  };
+
+  // Cleanup preview URLs on component unmount
+  useEffect(() => {
+    return () => {
+      if (imageEnPreview) URL.revokeObjectURL(imageEnPreview);
+      if (imageArPreview) URL.revokeObjectURL(imageArPreview);
+    };
+  }, [imageEnPreview, imageArPreview]);
 
   // Fetch banner data on component mount
   useEffect(() => {
@@ -266,22 +328,44 @@ const EditBannerPage = () => {
                   {currentImageAr && !imageAr && (
                     <div className="mb-4">
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t("Current Image:")}</p>
-                      <Image
-                        width={100}
-                        height={100}
-                        src={currentImageAr}
+                      <ImageWithFallback
+                        src={currentImageAr || ''}
                         alt="Current Arabic image"
-                        className="w-32 h-24 object-cover rounded-lg border"
+                        width={200}
+                        height={150}
+                        className="w-48 h-32 object-cover rounded-lg border"
                       />
                     </div>
                   )}
                   <input
+                    id="image-ar-input"
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setImageAr(e.target.files?.[0] || null)}
+                    onChange={handleImageArChange}
                     className="w-full border px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-sm"
                   />
                   <p className="text-xs text-gray-500 mt-1">{t("Leave empty to keep current image")}</p>
+                  
+                  {/* Arabic Image Preview */}
+                  {imageArPreview && (
+                    <div className="mt-3 relative">
+                      <Image
+                        width={100}
+                        height={100}
+                        src={imageArPreview}
+                        alt="Arabic image preview"
+                        className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImageAr}
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors duration-200"
+                        title="Remove Arabic image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -319,22 +403,44 @@ const EditBannerPage = () => {
                   {currentImageEn && !imageEn && (
                     <div className="mb-4">
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t("Current Image:")}</p>
-                      <Image
-                        width={100}
-                        height={100}
-                        src={currentImageEn}
+                      <ImageWithFallback
+                        src={currentImageEn || ''}
                         alt="Current English image"
-                        className="w-32 h-24 object-cover rounded-lg border"
+                        width={200}
+                        height={150}
+                        className="w-48 h-32 object-cover rounded-lg border"
                       />
                     </div>
                   )}
                   <input
+                    id="image-en-input"
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setImageEn(e.target.files?.[0] || null)}
+                    onChange={handleImageEnChange}
                     className="w-full border px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-sm"
                   />
                   <p className="text-xs text-gray-500 mt-1">{t("Leave empty to keep current image")}</p>
+                  
+                  {/* English Image Preview */}
+                  {imageEnPreview && (
+                    <div className="mt-3 relative">
+                      <Image
+                        width={100}
+                        height={100}
+                        src={imageEnPreview}
+                        alt="English image preview"
+                        className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImageEn}
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors duration-200"
+                        title="Remove English image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -356,64 +462,6 @@ const EditBannerPage = () => {
                       )}
                     </div>
                   ))}
-                </div>
-
-                {/* Preview Section */}
-                <div className="mt-8">
-                  <h3 className="text-lg font-semibold mb-4">{t("Image Preview")}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* English Image Preview */}
-                    <div>
-                      <label className="block mb-2 font-medium text-sm">{t("English Image")}</label>
-                      {imageEn ? (
-                        <Image
-                          width={100}
-                          height={100}
-                          src={URL.createObjectURL(imageEn)}
-                          alt="New English preview"
-                          className="w-full h-48 object-cover rounded-lg border"
-                        />
-                      ) : currentImageEn ? (
-                        <Image
-                          width={100}
-                          height={100}
-                          src={currentImageEn}
-                          alt="Current English image"
-                          className="w-full h-48 object-cover rounded-lg border"
-                        />
-                      ) : (
-                        <div className="w-full h-48 bg-gray-200 dark:bg-gray-600 rounded-lg border flex items-center justify-center">
-                          <span className="text-gray-500">{t("No image")}</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Arabic Image Preview */}
-                    <div>
-                      <label className="block mb-2 font-medium text-sm">{t("Arabic Image")}</label>
-                      {imageAr ? (
-                        <Image
-                          width={100}
-                          height={100}
-                          src={URL.createObjectURL(imageAr)}
-                          alt="New Arabic preview"
-                          className="w-full h-48 object-cover rounded-lg border"
-                        />
-                      ) : currentImageAr ? (
-                        <Image
-                          width={100}
-                          height={100}
-                          src={currentImageAr}
-                          alt="Current Arabic image"
-                          className="w-full h-48 object-cover rounded-lg border"
-                        />
-                      ) : (
-                        <div className="w-full h-48 bg-gray-200 dark:bg-gray-600 rounded-lg border flex items-center justify-center">
-                          <span className="text-gray-500">{t("No image")}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
                 </div>
               </div>
             )}

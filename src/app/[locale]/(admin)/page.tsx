@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import {
@@ -186,7 +186,7 @@ export default function DashBoard() {
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations('Home');
 
-  const fetchStatistics = async () => {
+  const fetchStatistics = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -201,13 +201,11 @@ export default function DashBoard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     fetchStatistics();
-  },[]);
-
-
+  }, [fetchStatistics]);
 
   if (error) {
     return (

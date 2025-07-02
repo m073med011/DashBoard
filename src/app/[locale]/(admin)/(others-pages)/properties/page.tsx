@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import Table from "@/components/tables/Table";
 import Toast from "@/components/Toast";
-import Image from "next/image";
+// import Image from "next/image";
 import { getData, deleteData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
 import { useRouter } from "next/navigation";
 import {useLocale } from "next-intl";
-
+import ImageWithFallback from "@/components/ImageWithFallback";
 type User = {
   id: number;
   name: string;
@@ -155,13 +155,20 @@ export default function PropertyListingsPage() {
               label: "images", 
               render: (item) =>
                 item ? (
-                  <Image
-                    src={item.cover}
-                    alt={item.title}
-                    width={100}
-                    height={75}
-                    className="rounded object-cover"
-                  />
+                  // <Image
+                  //   src={item.cover}
+                  //   alt={item.title}
+                  //   width={100}
+                  //   height={75}
+                  //   className="rounded object-cover"
+                  // />
+                  <ImageWithFallback
+  src={item.cover|| ''}
+  alt="User Avatar"
+  width={100}
+  height={75}
+  className="rounded-lg w-full object-cover"
+/>
                 ) : (
                   "No image"
                 ),

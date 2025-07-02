@@ -5,12 +5,13 @@ import Table from '@/components/tables/Table';
 import ModalForm from '@/components/tables/ModalTableForm';
 import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
-import Image from 'next/image';
+// import Image from 'next/image';
 import Toast from '@/components/Toast';
 import { useLocale } from 'next-intl';
-import { useTranslations } from 'next-intl';
+// import { useTranslations } from 'next-intl';
+import ImageWithFallback from '@/components/ImageWithFallback';
 
-
+import { useRouter } from '@/i18n/routing';
 type TypeItem = {
   id: number;
   title: string;
@@ -39,7 +40,9 @@ type ToastState = {
 
 export default function TypesPage() {
   const locale = useLocale();
-  const t = useTranslations();
+  const router = useRouter();
+
+  // const t = useTranslations("types");
   const [items, setItems] = useState<TypeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
@@ -48,6 +51,11 @@ export default function TypesPage() {
     type: 'info',
     show: false
   }); 
+  
+  // Image preview states
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [removeExistingImage, setRemoveExistingImage] = useState(false);
   
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToast({ message, type, show: true });
@@ -58,6 +66,54 @@ export default function TypesPage() {
     type: 'create' | 'edit' | 'view' | 'quick' | null;
     item?: TypeItem;
   }>({ type: null });
+
+  // Reset image states when modal closes
+  const resetImageStates = () => {
+    setPreviewImage(null);
+    setSelectedFile(null);
+    setRemoveExistingImage(false);
+  };
+
+  // Handle file selection
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setRemoveExistingImage(false); // Reset remove flag when new file selected
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewImage(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Remove selected image
+  const removeSelectedImage = () => {
+    setSelectedFile(null);
+    setPreviewImage(null);
+    
+    // Clear the file input
+    const fileInput = document.querySelector('input[name="image"]') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
+  // Remove existing image (for edit mode)
+  const removeExistingImageHandler = () => {
+    setRemoveExistingImage(true);
+    setPreviewImage(null);
+    setSelectedFile(null);
+    
+    // Clear the file input
+    const fileInput = document.querySelector('input[name="image"]') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
 
   // Use useCallback to memoize fetchTypes function
   const fetchTypes = useCallback(async (authToken: string) => {
@@ -82,20 +138,21 @@ export default function TypesPage() {
       setItems(normalized);
     } catch (error) {
       console.error('Failed to fetch types', error);
-      showToast(t("Failed to fetch types"), "error");
+      showToast("Failed to fetch types", "error");
     } finally {
       setLoading(false);
     }
-  }, [locale, t]); // Include locale as dependency since it's used inside
+  }, [locale]); // Include locale as dependency since it's used inside
+
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
     } else {
-      showToast(t("Token not found in localStorage"), "error");
+      showToast("Token not found in localStorage", "error");
     }
-  }, [t]);
+  }, [locale]);
 
   useEffect(() => {
     if (token) fetchTypes(token);
@@ -108,10 +165,10 @@ export default function TypesPage() {
         Authorization: `Bearer ${token}`,
       }));
       fetchTypes(token);
-      showToast(t("Type deleted successfully"), 'success');
+      showToast("Type deleted successfully", 'success');
     } catch (error) {
       console.error('Delete failed', error);
-      showToast(t("Delete failed"), 'error');
+      showToast("Delete failed", 'error');
     }
   };
 
@@ -122,9 +179,13 @@ export default function TypesPage() {
     payload.append('title[en]', formData.get('title[en]') as string);
     payload.append('title[ar]', formData.get('title[ar]') as string);
 
-    const file = formData.get('image') as File;
-    if (file && file.size > 0) {
-      payload.append('image', file);
+    // Handle image logic
+    if (selectedFile) {
+      // New image selected
+      payload.append('image', selectedFile);
+    } else if (removeExistingImage && modalState.type === 'edit') {
+      // Mark for removal (you might need to adjust this based on your API)
+      payload.append('remove_image', 'true');
     }
 
     try {
@@ -140,11 +201,26 @@ export default function TypesPage() {
 
       fetchTypes(token);
       setModalState({ type: null });
-      showToast(t("Type saved successfully"), 'success');
+      resetImageStates();
+      showToast("Type saved successfully", 'success');
+      // reloading page
+      router.refresh();
     } catch (error) {
       console.error('Save failed', error);
-      showToast(t("Save failed"), 'error');
+      showToast("Save failed", 'error');
     }
+  };
+
+  // Handle modal open
+  const handleModalOpen = (type: 'create' | 'edit' | 'view', item?: TypeItem) => {
+    setModalState({ type, item });
+    resetImageStates();
+  };
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setModalState({ type: null });
+    resetImageStates();
   };
 
   return (
@@ -169,12 +245,12 @@ export default function TypesPage() {
               label: 'Image',
               render: (item) => (
                 item.image ? (
-                  <Image
-                    width={50}
-                    height={50}
-                    src={item.image}
-                    alt="type"
-                    className="h-12 w-12 object-cover rounded"
+                  <ImageWithFallback
+                    src={item.image|| ''}
+                    alt="User Avatar"
+                    width={100}
+                    height={100}
+                    className="rounded-lg w-full max-h-20 object-fill"
                   />
                 ) : (
                   <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center text-xs">
@@ -184,14 +260,15 @@ export default function TypesPage() {
               ),
             },
           ]}
-          onCreate={() => setModalState({ type: 'create' })}
-          onEdit={item => setModalState({ type: 'edit', item })}
+          onCreate={() => handleModalOpen('create')}
+          onEdit={item => handleModalOpen('edit', item)}
           onDelete={handleDelete}
-          onView={item => setModalState({ type: 'view', item })}
+          onView={item => handleModalOpen('view', item)}
         />
       )}
 
       <ModalForm
+        className='max-w-2xl'
         open={!!modalState.type}
         title={
           modalState.type === 'create'
@@ -200,19 +277,19 @@ export default function TypesPage() {
             ? 'Edit Type'
             : 'View Type'
         }
-        onClose={() => setModalState({ type: null })}
+        onClose={handleModalClose}
       >
         {modalState.type === 'view' || modalState.type === 'quick' ? (
           <div className="space-y-2">
             <p><strong>Title (EN):</strong> {modalState.item?.titleObj?.en || modalState.item?.descriptions?.en?.title}</p>
             <p><strong>Title (AR):</strong> {modalState.item?.titleObj?.ar || modalState.item?.descriptions?.ar?.title}</p>
             {modalState.item?.image && (
-              <Image
-                width={300}
-                height={200}
-                src={modalState.item.image}
-                alt="Type"
-                className="w-full rounded"
+              <ImageWithFallback
+                src={modalState.item.image|| ''}
+                alt="User Avatar"
+                width={100}
+                height={100}
+                className="rounded-full object-cover"
               />
             )}
           </div>
@@ -241,13 +318,79 @@ export default function TypesPage() {
               className="w-full border p-2 rounded"
               required
             />
-            <input
-              type="file"
-              name="image"
-              accept="image/*"
-              className="w-full border p-2 rounded"
-            />
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+            
+            {/* Image Upload Section */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">
+                Image
+              </label>
+              
+              {/* File Input */}
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="w-full border p-2 rounded"
+              />
+              
+              {/* Existing Image (Edit Mode) */}
+              {modalState.type === 'edit' && modalState.item?.image && !removeExistingImage && !previewImage && (
+                <div className="relative">
+                  <div className="text-sm text-gray-600 mb-2">Current Image:</div>
+                  <div className="relative inline-block">
+                    <ImageWithFallback
+                      src={modalState.item.image}
+                      alt="Current image"
+                      width={200}
+                      height={150}
+                      className="rounded-lg object-cover border"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeExistingImageHandler}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                      title="Remove current image"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Image Preview */}
+              {previewImage && (
+                <div className="relative">
+                  <div className="text-sm text-gray-600 mb-2">Preview:</div>
+                  <div className="relative inline-block">
+                    <ImageWithFallback
+                      src={previewImage}
+                      alt="Preview"
+                      width={192}
+                      height={144}
+                      className="w-48 h-36 object-cover rounded-lg border"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeSelectedImage}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                      title="Remove selected image"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Removed Image Indicator */}
+              {removeExistingImage && (
+                <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                  Current image will be removed
+                </div>
+              )}
+            </div>
+            
+            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
               Submit
             </button>
           </form>

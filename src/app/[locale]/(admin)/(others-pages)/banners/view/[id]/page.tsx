@@ -7,7 +7,8 @@ import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Toast from "@/components/Toast";
 import RichTextEditor from "@/components/RichTextEditor";
-import Image from "next/image";
+// import Image from "next/image";
+import ImageWithFallback from "@/components/ImageWithFallback";
 
 type ToastState = {
   message: string;
@@ -139,13 +140,20 @@ const ViewBannerPage = () => {
               <RichTextEditor value={bannerData.ar.description} readOnly label={t("Description (AR)")} />
               <div>
                 <label className="block mb-2 font-medium">{t("Image (AR)")}</label>
-                <Image 
+                {/* <Image 
                   width={192}
                   height={128}
                   src={bannerData.ar.image}
                   alt="Arabic Image"
                   className="w-48 h-32 object-cover rounded-md border"
-                />
+                /> */}
+                <ImageWithFallback
+  src={bannerData.ar.image || ''}
+  alt="User Avatar"
+  width={100}
+  height={100}
+  className="rounded-lg w-full max-h-56 object-fill"
+/>
               </div>
             </div>
           )}
@@ -164,13 +172,20 @@ const ViewBannerPage = () => {
               <RichTextEditor value={bannerData.en.description} readOnly label={t("Description (EN)")} />
               <div>
                 <label className="block mb-2 font-medium">{t("Image (EN)")}</label>
-                <Image 
+                {/* <Image 
                   width={192}
                   height={128}
                   src={bannerData.en.image}
                   alt="English Image"
                   className="w-48 h-32 object-cover rounded-md border"
-                />
+                /> */}
+                <ImageWithFallback
+  src={bannerData.en.image || ''}
+  alt="User Avatar"
+  width={300}
+  height={300}
+  className="rounded-lg w-full max-h-56 object-fill"
+/>
               </div>
             </div>
           )}

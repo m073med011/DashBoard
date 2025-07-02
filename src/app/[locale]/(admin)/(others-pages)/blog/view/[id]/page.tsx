@@ -52,7 +52,7 @@ const ViewContentPage = () => {
   const id = params?.id as string;
   const locale = useLocale();
 
-  const [activeTab, setActiveTab] = useState<"ar" | "en" | "general">("ar");
+  const [activeTab, setActiveTab] = useState<"ar" | "en" | "general" | "meta">("ar");
   const [blogData, setBlogData] = useState<BlogData | null>(null);
   const [toast, setToast] = useState<ToastState>({
     message: "",
@@ -98,26 +98,30 @@ const ViewContentPage = () => {
     }
   }, [id]);
 
-  // Arabic fields
+  // Arabic fields (without meta and keywords fields)
   const arabicFields: { name: string; label: string; value: string }[] = [
     { name: "title_ar", label: "Title (AR)", value: blogData?.descriptions.ar.title || "" },
     { name: "slug_ar", label: "Slug (AR)", value: blogData?.descriptions.ar.slug || "" },
-    { name: "meta_title_ar", label: "Meta Title (AR)", value: blogData?.descriptions.ar.meta_title || "" },
-    { name: "meta_description_ar", label: "Meta Description (AR)", value: blogData?.descriptions.ar.meta_description || "" },
-    { name: "meta_keywords_ar", label: "Meta Keywords (AR)", value: blogData?.descriptions.ar.meta_keywords || "" },
     { name: "user_ar", label: "User (AR)", value: blogData?.descriptions.ar.user || "" },
-    { name: "keywords_ar", label: "Keywords (AR)", value: blogData?.descriptions.ar.keywords || "" },
   ];
 
-  // English fields
+  // English fields (without meta and keywords fields)
   const englishFields: { name: string; label: string; value: string }[] = [
     { name: "title_en", label: "Title (EN)", value: blogData?.descriptions.en.title || "" },
     { name: "slug_en", label: "Slug (EN)", value: blogData?.descriptions.en.slug || "" },
+    { name: "user_en", label: "User (EN)", value: blogData?.descriptions.en.user || "" },
+  ];
+
+  // Meta fields for both languages (including keywords)
+  const metaFields: { name: string; label: string; value: string; isRtl?: boolean }[] = [
     { name: "meta_title_en", label: "Meta Title (EN)", value: blogData?.descriptions.en.meta_title || "" },
     { name: "meta_description_en", label: "Meta Description (EN)", value: blogData?.descriptions.en.meta_description || "" },
     { name: "meta_keywords_en", label: "Meta Keywords (EN)", value: blogData?.descriptions.en.meta_keywords || "" },
-    { name: "user_en", label: "User (EN)", value: blogData?.descriptions.en.user || "" },
     { name: "keywords_en", label: "Keywords (EN)", value: blogData?.descriptions.en.keywords || "" },
+    { name: "meta_title_ar", label: "Meta Title (AR)", value: blogData?.descriptions.ar.meta_title || "", isRtl: true },
+    { name: "meta_description_ar", label: "Meta Description (AR)", value: blogData?.descriptions.ar.meta_description || "", isRtl: true },
+    { name: "meta_keywords_ar", label: "Meta Keywords (AR)", value: blogData?.descriptions.ar.meta_keywords || "", isRtl: true },
+    { name: "keywords_ar", label: "Keywords (AR)", value: blogData?.descriptions.ar.keywords || "", isRtl: true },
   ];
 
   const TabButton = ({ label, isActive, onClick }: {
@@ -235,6 +239,12 @@ const ViewContentPage = () => {
               onClick={() => setActiveTab("en")}
             />
             <TabButton
+              tab="meta"
+              label={t("Meta Information")}
+              isActive={activeTab === "meta"}
+              onClick={() => setActiveTab("meta")}
+            />
+            <TabButton
               tab="general"
               label={t("General Information")}
               isActive={activeTab === "general"}
@@ -287,6 +297,23 @@ const ViewContentPage = () => {
             </div>
           )}
 
+          {/* Meta Information Tab */}
+          {activeTab === "meta" && (
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-4">{t("SEO Meta Information & Keywords")}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {metaFields.map(({ name, label, value, isRtl }) => (
+                  <ReadOnlyField
+                    key={name}
+                    label={t(label)}
+                    value={value}
+                    isRtl={isRtl}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* General Information Tab */}
           {activeTab === "general" && (
             <div className="mb-8">
@@ -294,7 +321,7 @@ const ViewContentPage = () => {
               <div className="mb-6">
                 <ReadOnlyField
                   label={t("Type")}
-                  value={blogData.type.title}
+                  value={blogData?.type?.title}
                 />
               </div>
 

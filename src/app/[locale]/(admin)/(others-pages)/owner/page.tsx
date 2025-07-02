@@ -9,6 +9,7 @@ import Image from 'next/image';
 import Toast from '@/components/Toast';
 import { useLocale } from 'next-intl';
 import { useTranslations } from 'next-intl';
+import ImageWithFallback from '@/components/ImageWithFallback';
 
 type ModuleItem = {
   id: number;
@@ -224,13 +225,20 @@ export default function OwnersPage() {
               label: 'Avatar',
               render: (item) =>
                 item.avatar ? (
-                  <Image
-                    width={50}
-                    height={50}
-                    src={item.avatar}
-                    alt="owner avatar"
-                    className="h-12 w-12 object-cover rounded-full"
-                  />
+                  // <Image
+                  //   width={50}
+                  //   height={50}
+                  //   src={item.avatar}
+                  //   alt="owner avatar"
+                  //   className="h-12 w-12 object-cover rounded-full"
+                  // />
+                  <ImageWithFallback
+  src={item?.avatar || ''}
+  alt="User Avatar"
+  width={80}
+  height={80}
+  className="rounded-xl object-cover"
+/>
                 ) : (
                   <div className="h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center text-xs">
                     No Avatar
@@ -440,7 +448,7 @@ export default function OwnersPage() {
                           defaultChecked={isChecked}
                           className="rounded border-gray-300"
                         />
-                        <span className="text-sm">{module.name}</span>
+                        <span className="text-sm">{t(module.name)}</span>
                       </label>
                     );
                   })}

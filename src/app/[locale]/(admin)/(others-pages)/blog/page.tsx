@@ -65,13 +65,13 @@ export default function BlogsPage() {
       });
 
       setItems(normalized);
-    } catch (error) {
+    } catch  {
       // console.error("Failed to fetch blogs", error);
-      showToast(t("Failed to fetch blogs" + error), "error");
+      showToast("Failed to fetch blogs", "error");
     } finally {
       setLoading(false);
     }
-  }, [showToast, t]);
+  }, [showToast]);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -98,12 +98,12 @@ export default function BlogsPage() {
         Authorization: `Bearer ${token}`,
       }));
       await fetchItems(token);
-      showToast(t("Blog deleted successfully"), "success");
+      showToast("Blog deleted successfully", "success");
     } catch {
       // console.error("Delete failed");
-      showToast(t("Failed to delete blog"), "error");
+      showToast("Failed to delete blog", "error");    
     }
-  }, [token, fetchItems, showToast, t]);
+  }, [token,fetchItems,showToast]);
 
  
 
@@ -117,7 +117,7 @@ export default function BlogsPage() {
 
       {loading ? (
         <div className="flex justify-center items-center min-h-[200px]">
-          <div className="loader">Loading...</div>
+          <div className="loader">{t("Loading")}</div>
         </div>
       ) : (
         <Table<Blog>
