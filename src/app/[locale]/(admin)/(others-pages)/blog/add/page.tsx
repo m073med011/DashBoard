@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Toast from "@/components/Toast";
 import RichTextEditor from "@/components/RichTextEditor";
+import { useLocale } from "next-intl";
 
 type FormInputs = {
   type_id: string;
@@ -39,6 +40,7 @@ type TypeOption = {
 };
 
 const CreateContentPage = () => {
+  const locale= useLocale()
   const t = useTranslations("blogs");
   const router = useRouter();
 
@@ -82,7 +84,7 @@ const CreateContentPage = () => {
         return;
       }
       try {
-        const response = await getData("owner/types", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` }));  
+        const response = await getData("owner/types", {}, new AxiosHeaders({ Authorization: `Bearer ${token}`,lang:locale }));  
         if (response.status) {
           setTypes(response.data);
         } else {
@@ -265,7 +267,7 @@ const CreateContentPage = () => {
               onClick={() => setActiveTab("en")}
             />
             <TabButton
-              label={t("Meta Information")}
+              label={t("SEO Information")}
               isActive={activeTab === "meta"}
               onClick={() => setActiveTab("meta")}
             />

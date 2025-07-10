@@ -18,7 +18,8 @@ export default function PropertyDetailsPage() {
   const params = useParams();
   const propertyId = params?.id as string;
   const t = useTranslations("properties");
-  const { property, propertystat, loading, toast } = useProperty(propertyId);
+  const { property, propertystat, loading, toast,refetch } = useProperty(propertyId);
+  // const { property, propertystat, loading, toast } = useProperty(propertyId);
   const [activeTab, setActiveTab] = useState<TabType>('main');
 
   // Update page title when property loads
@@ -38,19 +39,29 @@ export default function PropertyDetailsPage() {
     if (!property) return null;
     switch (activeTab) {
       case 'main':
-        return propertystat ? <MainTab property={property} propertystat={propertystat} /> : null;
+        return propertystat ?<MainTab
+  property={property}
+  propertystat={propertystat}
+  // onReload={refetch}
+/>
+ : null;
       case 'amenities':
-        return <AmenitiesTab property={property} />;
+        return <AmenitiesTab property={property} refetch={refetch} />;
       case 'features':
-        return <FeaturesTab property={property} />;
+        return <FeaturesTab property={property}  refetch={refetch} />;
       case 'locations':
-        return <LocationTab property={property} />;
+        return <LocationTab property={property}  refetch={refetch}  />;
       case 'images':
-        return <ImagesTab property={property} />;
+        return <ImagesTab property={property}  refetch={refetch} />;
       case 'floorplan':
-        return <FloorPlanTab property={property} />;
+        return <FloorPlanTab property={property}  refetch={refetch} />;
       default:
-        return propertystat ? <MainTab property={property} propertystat={propertystat} /> : null;
+        return propertystat ? <MainTab  refetch={refetch}
+  property={property}
+  propertystat={propertystat}
+  // onReload={refetch}
+/>
+: null;
     }
   };
 

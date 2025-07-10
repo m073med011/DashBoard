@@ -10,7 +10,8 @@ import { useTranslations } from 'next-intl';
 
 interface ImagesTabProps {
   property: PropertyData;
-  onUpdate?: () => void; // Callback to refresh property data
+  onUpdate?: () => void; 
+  refetch?: () => void; 
 }
 
 interface ImageFormData {
@@ -18,7 +19,7 @@ interface ImageFormData {
   images: FileList | null;
 }
 
-export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
+export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate, refetch }) => {
   const params = useParams();
   const propertyId = params?.id as string;
   const t = useTranslations("Images");
@@ -88,8 +89,10 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
       setShowDeleteModal(false);
       setSelectedImageIds([]);
       
-      // Call the update callback to refresh the property data
-      if (onUpdate) {
+      // Use refetch if available, otherwise fall back to onUpdate
+      if (refetch) {
+        refetch();
+      } else if (onUpdate) {
         onUpdate();
       }
     } catch (error) {
@@ -129,8 +132,10 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
       setShowAddModal(false);
       resetFormData();
       
-      // Call the update callback to refresh the property data
-      if (onUpdate) {
+      // Use refetch if available, otherwise fall back to onUpdate
+      if (refetch) {
+        refetch();
+      } else if (onUpdate) {
         onUpdate();
       }
     } catch (error) {
@@ -278,8 +283,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
 
       {/* Add Images Modal */}
       <ModalForm
-              className='max-w-1/3'
-
+        className='max-w-1/3'
         open={showAddModal}
         title={t("Add New Images")}
         onClose={() => {
@@ -292,8 +296,7 @@ export const ImagesTab: React.FC<ImagesTabProps> = ({ property, onUpdate }) => {
 
       {/* Delete Confirmation Modal */}
       <ModalForm
-              className='max-w-1/3'
-
+        className='max-w-1/3'
         open={showDeleteModal}
         title="Confirm Delete"
         onClose={() => {

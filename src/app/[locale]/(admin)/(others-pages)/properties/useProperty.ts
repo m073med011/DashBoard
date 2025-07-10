@@ -55,6 +55,13 @@ export const useProperty = (propertyId: string) => {
     }
   }, []);
 
+  const refetch = useCallback(() => {
+    if (token && propertyId) {
+      fetchProperty(token, propertyId);
+      fetchPropertyStatistics(token, propertyId);
+    }
+  }, [token, propertyId, fetchProperty, fetchPropertyStatistics]);
+
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
@@ -78,7 +85,6 @@ export const useProperty = (propertyId: string) => {
     loading,
     toast,
     showToast,
-    fetchProperty, // Export fetchProperty for manual refetching
-    fetchPropertyStatistics // Export fetchPropertyStatistics for manual refetching
+    refetch, // ✅ Now available for MainTab
   };
 };

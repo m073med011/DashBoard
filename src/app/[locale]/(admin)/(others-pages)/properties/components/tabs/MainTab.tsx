@@ -13,6 +13,7 @@ import Toast from '@/components/Toast';
 interface MainTabProps {
   propertystat: PropertyStatistics;
   property: PropertyData;
+  refetch?: () => void;
 }
 
 type ToastState = {
@@ -21,7 +22,7 @@ type ToastState = {
   show: boolean;
 };
 
-export const MainTab: React.FC<MainTabProps> = ({ property, propertystat }) => {
+export const MainTab: React.FC<MainTabProps> = ({ property, propertystat, refetch }) => {
   const [loading, setLoading] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(property.approval_status);
@@ -67,6 +68,11 @@ export const MainTab: React.FC<MainTabProps> = ({ property, propertystat }) => {
       if (response.status === 200) {
         setSelectedStatus(newStatus);
         showToast(response.message, 'success');
+        
+        // Refresh the property data to get updated information
+        if (refetch) {
+          refetch();
+        }
       } else {
         showToast(response.message, 'success');
       }
@@ -99,7 +105,7 @@ export const MainTab: React.FC<MainTabProps> = ({ property, propertystat }) => {
             {loading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4"></div>
-                {t("Updating Status...")}
+                {t("Updating Status")}
               </>
             ) : (
               <>
@@ -282,8 +288,6 @@ export const MainTab: React.FC<MainTabProps> = ({ property, propertystat }) => {
               </div>
             </div>
           </div>
-
-
 
           {/* Click outside handler */}
           {isDropdownOpen && (

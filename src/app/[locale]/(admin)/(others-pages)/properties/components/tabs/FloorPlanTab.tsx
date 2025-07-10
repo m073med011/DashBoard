@@ -11,6 +11,7 @@ import { useTranslations } from 'next-intl';
 interface FloorPlanTabProps {
   property: PropertyData;
   onUpdate?: () => void; // Callback to refresh property data
+  refetch?: () => void; 
 }
 
 interface FloorPlanFormData {
@@ -18,7 +19,7 @@ interface FloorPlanFormData {
   floor_plans: FileList | null;
 }
 
-export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }) => {
+export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate, refetch }) => {
   const params = useParams();
   const propertyId = params?.id as string;
   const t = useTranslations("floorplan");
@@ -88,8 +89,10 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
       setShowDeleteModal(false);
       setSelectedPlanIds([]);
       
-      // Call the update callback to refresh the property data
-      if (onUpdate) {
+      // Use refetch if available, otherwise fall back to onUpdate
+      if (refetch) {
+        refetch();
+      } else if (onUpdate) {
         onUpdate();
       }
     } catch {
@@ -118,7 +121,7 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
       
       // Append multiple floor plans
       Array.from(formData.floor_plans).forEach((file, index) => {
-        formDataToSend.append(`floor_plans[${index}]`, file);
+        formDataToSend.append(`images[${index}]`, file);
       });
       
       await postData('owner/property/floor-plan', formDataToSend, new AxiosHeaders({
@@ -129,8 +132,10 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
       setShowAddModal(false);
       resetFormData();
       
-      // Call the update callback to refresh the property data
-      if (onUpdate) {
+      // Use refetch if available, otherwise fall back to onUpdate
+      if (refetch) {
+        refetch();
+      } else if (onUpdate) {
         onUpdate();
       }
     } catch (error) {
@@ -211,7 +216,7 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
                   className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2 text-sm"
                 >
                   <Trash2 size={16} />
-                  {/* {t("Delete Selected")} ({selectedPlanIds.length}) */}
+                  {t("Delete Selected")} ({selectedPlanIds.length})
                 </button>
               )}
             </>
@@ -250,10 +255,6 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
                   <Trash2 size={16} />
                 </button>
               </div>
-
-              <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-                Floor Plan {index + 1}
-              </label>
               <div className="aspect-[4/5] relative rounded overflow-hidden mb-4">
                 <Image
                   src={plan.image}
@@ -282,7 +283,6 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
       {/* Add Floor Plans Modal */}
       <ModalForm
         className='max-w-1/3'
-
         open={showAddModal}
         title={t("Add New Floor Plans")} 
         onClose={() => {
@@ -296,7 +296,6 @@ export const FloorPlanTab: React.FC<FloorPlanTabProps> = ({ property, onUpdate }
       {/* Delete Confirmation Modal */}
       <ModalForm
         className='max-w-1/3'
-
         open={showDeleteModal}
         title={t("confirm_delete")}
         onClose={() => {

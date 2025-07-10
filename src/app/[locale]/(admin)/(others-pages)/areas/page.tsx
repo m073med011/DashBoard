@@ -35,8 +35,10 @@ export default function AreasPage() {
   const t = useTranslations("areas");
   const [items, setItems] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalLoading, setModalLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [currentArea, setCurrentArea] = useState<Area | null>(null);
   const [toast, setToast] = useState<ToastState>({
     message: '',
     type: 'info',
@@ -70,8 +72,12 @@ export default function AreasPage() {
   useEffect(() => {
     if (!modalState.type) {
       setImagePreview(null);
-    } else if (modalState.type === 'edit' && modalState.item?.image) {
-      setImagePreview(modalState.item.image);
+      setCurrentArea(null);
+    } else if (modalState.type === 'create') {
+      setImagePreview(null);
+      setCurrentArea(null);
+    } else if (modalState.item && (modalState.type === 'edit' || modalState.type === 'view')) {
+      fetchSingleArea(modalState.item.id);
     }
   }, [modalState]);
 
@@ -87,6 +93,31 @@ export default function AreasPage() {
       showToast("Failed to fetch areas", 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSingleArea = async (areaId: number) => {
+    if (!token) return;
+    
+    setModalLoading(true);
+    try {
+      const res = await getData(`owner/areas/${areaId}`, {}, new AxiosHeaders({
+        lang: locale,
+        Authorization: `Bearer ${token}`,
+      }));
+      
+      if (res.status === 200 && res.data) {
+        setCurrentArea(res.data);
+        // Set image preview for edit mode
+        if (modalState.type === 'edit' && res.data.image) {
+          setImagePreview(res.data.image);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch single area', error);
+      showToast("Failed to fetch area details", 'error');
+    } finally {
+      setModalLoading(false);
     }
   };
 
@@ -114,8 +145,8 @@ export default function AreasPage() {
       reader.readAsDataURL(file);
     } else {
       // If no file selected, reset to current image (for edit mode) or null (for create mode)
-      if (modalState.type === 'edit' && modalState.item?.image) {
-        setImagePreview(modalState.item.image);
+      if (modalState.type === 'edit' && currentArea?.image) {
+        setImagePreview(currentArea.image);
       } else {
         setImagePreview(null);
       }
@@ -141,9 +172,9 @@ export default function AreasPage() {
           Authorization: `Bearer ${token}`,
         }));
         showToast("Area created successfully", 'success');
-      } else if (modalState.type === 'edit' && modalState.item) {
+      } else if (modalState.type === 'edit' && currentArea) {
         payload.append('_method', 'PATCH');
-        await patchData(`owner/areas/${modalState.item.id}`, payload, new AxiosHeaders({
+        await patchData(`owner/areas/${currentArea.id}`, payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
         showToast("Area updated successfully", 'success');
@@ -165,7 +196,7 @@ export default function AreasPage() {
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <p className="text-lg">{t("Loading areas...")}</p>
+          <p className="text-lg">{t("Loading")}</p>
         </div>
       ) : (
         <Table<Area>
@@ -174,7 +205,7 @@ export default function AreasPage() {
             {
               key: 'name',
               label: 'Name',
-              render: (item) => `${item.description.en.name} / ${item.description.ar.name}`,
+              render: (item) => `${item?.name}`,
             },
             {
               key: 'image',
@@ -185,7 +216,7 @@ export default function AreasPage() {
                   alt={"area"}
                   width={100}
                   height={100}
-                  className=" rounded object-fill w-full items-center"
+                  className=" max-h-25 rounded object-fill w-full items-center"
                 />
               ),
             },
@@ -203,7 +234,7 @@ export default function AreasPage() {
       )}
 
       <ModalForm
-      className='max-w-[500px] '
+        className='max-w-[500px] '
         open={!!modalState.type}
         title={
           modalState.type === 'create'
@@ -214,43 +245,63 @@ export default function AreasPage() {
         }
         onClose={() => setModalState({ type: null })}
       >
-        {modalState.type === 'view' || modalState.type === 'quick' ? (
-          <div className="w-full p-6  rounded-2xl">
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-    
-    <div className='text-center'>
-      <strong className="block text-sm font-semibold text-gray-800">{t('Name (EN)')}:</strong>
-      <p className="mt-1 text-gray-600">{modalState.item?.description.en.name}</p>
-    </div>
-
-    <div className='text-center'>
-      <strong className="block text-sm font-semibold text-gray-800">{t('Name (AR)')}:</strong>
-      <p className="mt-1 text-gray-600">{modalState.item?.description.ar.name}</p>
-    </div>
-
-    
-    <div className='text-center'>
-      <strong className="block text-sm font-semibold text-gray-800">{t('Properties')}:</strong>
-      <p className="mt-1 text-gray-600">{modalState.item?.count_of_properties}</p>
-    </div>
+        {modalLoading ? (
+          <div className="flex justify-center items-center h-32">
+            <p className="text-lg">{t("Loading area details")}</p>
+          </div>
+        ) : modalState.type === 'view' || modalState.type === 'quick' ? (
+          <div className="w-full">
+  <div className="">
+    <table className="w-full">
+      <thead className="bg-gray-50">
+      </thead>
+      <tbody className="divide-y divide-gray-200">
+        <tr>
+          <td className="px-6 py-4 text-sm font-medium text-gray-800">
+            {t('Name (EN)')}
+          </td>
+          <td className="px-6 py-4 text-sm text-gray-600">
+            {currentArea?.description.en.name}
+          </td>
+        </tr>
+        <tr>
+          <td className="px-6 py-4 text-sm font-medium text-gray-800">
+            {t('Name (AR)')}
+          </td>
+          <td className="px-6 py-4 text-sm text-gray-600">
+            {currentArea?.description.ar.name}
+          </td>
+        </tr>
+        <tr>
+          <td className="px-6 py-4 text-sm font-medium text-gray-800">
+            {t('Properties')}
+          </td>
+          <td className="px-6 py-4 text-sm text-gray-600">
+            {currentArea?.count_of_properties}
+          </td>
+        </tr>
+        {currentArea?.image && (
+          <tr>
+            <td className="px-6 py-4 text-sm font-medium text-gray-800">
+              {t('Image')}
+            </td>
+            <td className="px-6 py-4">
+              <div className="overflow-hidden rounded-lg shadow-sm border border-gray-200 w-full max-w-md">
+                <Image
+                  src={currentArea.image}
+                  alt={t("Area")}
+                  width={400}
+                  height={400}
+                  className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105"
+                />
+              </div>
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
   </div>
-
-  {modalState.item?.image && (
-    <div className="mt-6">
-      <strong className="block text-sm font-semibold text-gray-800 mb-2">{t('Image')}:</strong>
-      <div className="overflow-hidden rounded-lg shadow-sm border border-gray-200 w-full max-w-md">
-        <Image
-          src={modalState.item.image}
-          alt={t("Area")}
-          width={400}
-          height={400}
-          className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105"
-        />
-      </div>
-    </div>
-  )}
 </div>
-
         ) : (
           <form
             onSubmit={(e) => {
@@ -269,7 +320,7 @@ export default function AreasPage() {
                 type="text"
                 name="name[en]"
                 placeholder={t('Enter area name in English')}
-                defaultValue={modalState.item?.description.en.name ?? ''}
+                defaultValue={currentArea?.description.en.name ?? ''}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -284,7 +335,7 @@ export default function AreasPage() {
                 type="text"
                 name="name[ar]"
                 placeholder={t('Enter area name in Arabic')}
-                defaultValue={modalState.item?.description.ar.name ?? ''}
+                defaultValue={currentArea?.description.ar.name ?? ''}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -299,7 +350,7 @@ export default function AreasPage() {
                 type="number"
                 name="count_of_properties"
                 placeholder={t('Enter number of properties')}
-                defaultValue={modalState.item?.count_of_properties?.toString() ?? ''}
+                defaultValue={currentArea?.count_of_properties?.toString() ?? ''}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 min="0"
                 required
@@ -365,6 +416,7 @@ export default function AreasPage() {
               <button 
                 type="submit" 
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={modalLoading}
               >
                 {modalState.type === 'create' ? t('Create') : t('Update')}
               </button>

@@ -1,4 +1,5 @@
 {
+  "Loading":"Loading...",
   "header": {
     "home": "Home",
     "logout": "Logout",
@@ -178,7 +179,30 @@
     "edit": "Edit",
     "Link": "Link"
   },
+  "types": {
+    "Create Type": "Create Type",
+    "Edit Type": "Edit Type",
+    "View Type": "View Type",
+    "Type Details": "Type Details",
+    "Title": "Title",
+    "Image": "Image",
+    "No Image": "No Image",
+    "Close": "Close",
+    "Submit": "Submit",
+    "Loading": "Loading...",
+    "Title (EN)": "Title (EN)",
+    "Title (AR)": "Title (AR)",
+    "Current image will be removed": "Current image will be removed",
+    "Failed to fetch types": "Failed to fetch types",
+    "Token not found in localStorage": "Token not found in localStorage",
+    "Type deleted successfully": "Type deleted successfully",
+    "Delete failed": "Delete failed",
+    "Type saved successfully": "Type saved successfully",
+    "Save failed": "Save failed"
+  },
   "areas": {
+    "Loading area details":"Loading area details",
+    "Loading":"Loading Data",
         "Image Preview": "Image Preview",
     "Name (EN)": "Name (EN)",
     "Name (AR)": "Name (AR)",
@@ -248,10 +272,14 @@
     "welcome": "Welcome"
   },
   "blogs": {
+     "Current cover": "Current cover",
+  "Current image": "Current image",
+  "Leave empty to keep current cover": "Leave empty to keep current cover",
+  "Leave empty to keep current image": "Leave empty to keep current image",
     "Loading": "Loading",
     "Images": "Images",
     "No data": "No Data found",
-    "Meta Information": "Meta Information",
+    "SEO Information": "SEO Information",
     "SEO Meta Information & Keywords": "SEO Meta Information & Keywords",
     "CEO Content": "CEO Content",
     "Go Back": "Go Back",
@@ -313,7 +341,10 @@
     "Edit Content": "Edit Content"
   },
   "toast": {
-    
+  "please_select_an_image": "Please select an image",
+  "failed_to_add_property": "Failed to add property",
+  "property_added_successfully": "Property added successfully",
+    "Property deleted successfully":"Property deleted successfully",
     "Failed to fetch areas": "Failed to fetch areas",
     "Area deleted successfully": "Area Deleted Successfully",
     "Area updated successfully": "Area Updated Successfully",
@@ -358,6 +389,7 @@
       "Banner not found": "Banner Not Found"
     },
     "Tables": {
+      "agent saved successfully": "agent Saved Successfully",
       "Owner saved successfully": "Owner Saved Successfully",
       "Failed to fetch data": "Failed to Fetch Data",
       "Data loaded successfully": "Data Loaded Successfully",
@@ -398,7 +430,8 @@
     }
   },
   "banners": {
-    "View Banner": "View Banner",
+ "Back": "Back",
+     "View Banner": "View Banner",
     "Current Image:": "Current Image",
     "Edit Banner": "Edit Banner",
     "Select banner type": "Select Banner Type",
@@ -447,8 +480,9 @@
     "No English content available for this banner": "No English Content Available for this Banner"
   },
   "properties": {
+  "Updating Status": "Updating Status...",
+      "select_agent":"Select Agent",
     "Agent": "Agent",
-    "select_agent": "Select Agent",
     "Save Location": "Save Location",
     "enter_your_location": "Enter Your Location",
     "location": "Location",

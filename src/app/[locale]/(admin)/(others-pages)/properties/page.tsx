@@ -7,7 +7,7 @@ import Toast from "@/components/Toast";
 import { getData, deleteData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
 import { useRouter } from "next/navigation";
-import {useLocale } from "next-intl";
+import {useLocale,useTranslations } from "next-intl";
 import ImageWithFallback from "@/components/ImageWithFallback";
 type User = {
   id: number;
@@ -58,6 +58,7 @@ type ToastState = {
 };
 
 export default function PropertyListingsPage() {
+  const t =useTranslations("")
   const locale = useLocale();
   const [items, setItems] = useState<PropertyListing[]>([]);
   const [loading, setLoading] = useState(false);
@@ -103,7 +104,7 @@ export default function PropertyListingsPage() {
     async (item: PropertyListing) => {
       if (!token) return showToast("No auth token", "error");
 
-      if (!confirm(`Are you sure you want to delete "${item.title}"?`)) return;
+      // if (!confirm(`Are you sure you want to delete "${item.title}"?`)) return;
 
       try {
         await deleteData(`owner/property_listings/${item.id}`, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
@@ -127,7 +128,7 @@ export default function PropertyListingsPage() {
 
 
       {loading ? (
-        <div className="flex justify-center items-center min-h-[200px]">جاري التحميل...</div>
+        <div className="flex justify-center items-center min-h-[200px]">{t("Loading")}</div>
       ) : (
         <Table<PropertyListing>
           data={items}

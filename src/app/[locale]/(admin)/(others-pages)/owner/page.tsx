@@ -5,7 +5,7 @@ import Table from '@/components/tables/Table';
 import ModalForm from '@/components/tables/ModalTableForm';
 import { getData, postData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
-import Image from 'next/image';
+// import Image from 'next/image';
 import Toast from '@/components/Toast';
 import { useLocale } from 'next-intl';
 import { useTranslations } from 'next-intl';
@@ -206,7 +206,7 @@ export default function OwnersPage() {
       showToast(t('Owner saved successfully'), 'success');
     } catch (error) {
       console.error('Save failed', error);
-      showToast(t('Save failed'), 'error');
+      showToast('Save failed', 'error');
     }
   };
 
@@ -240,9 +240,13 @@ export default function OwnersPage() {
   className="rounded-xl object-cover"
 />
                 ) : (
-                  <div className="h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center text-xs">
-                    No Avatar
-                  </div>
+                  <ImageWithFallback
+  src={item?.avatar || ''}
+  alt="User Avatar"
+  width={80}
+  height={80}
+  className="rounded-xl object-cover"
+/>
                 ),
             },
             {
@@ -312,13 +316,13 @@ export default function OwnersPage() {
           <div className="space-y-3">
             {modalState.item?.avatar && (
               <div className="flex justify-center">
-                <Image
-                  width={120}
-                  height={120}
-                  src={modalState.item.avatar}
-                  alt="Owner Avatar"
-                  className="w-30 h-30 object-cover rounded-full"
-                />
+               <ImageWithFallback
+  src={modalState.item.avatar}
+  alt="User Avatar"
+  width={120}
+  height={120}
+  className="rounded-xl object-cover"
+/>
               </div>
             )}
             <p className='flex items-center gap-2'>

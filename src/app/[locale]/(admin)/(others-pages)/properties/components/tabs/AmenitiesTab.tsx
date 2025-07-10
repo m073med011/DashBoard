@@ -11,6 +11,7 @@ import { useTranslations } from 'next-intl';
 interface AmenitiesTabProps {
   property: PropertyData;
   onUpdate?: () => void; // Callback to refresh property data
+  refetch?: () => void; // Callback to refresh property data
 }
 
 interface AmenityFormData {
@@ -19,7 +20,7 @@ interface AmenityFormData {
   'title[ar]': string;
 }
 
-export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }) => {
+export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate, refetch }) => {
   const params = useParams();
   const propertyId = params?.id as string;
   const t = useTranslations("Amenities");
@@ -77,6 +78,9 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
       setShowDeleteModal(false);
       setSelectedAmenityId(null);
       
+      // Refetch data to update the UI
+      refetch?.();
+      
       // Call the update callback to refresh the property data
       if (onUpdate) {
         onUpdate();
@@ -109,6 +113,9 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
       
       setShowAddModal(false);
       resetFormData();
+      
+      // ✅ Refetch data to update the UI after adding new amenity
+      refetch?.();
       
       // Call the update callback to refresh the property data
       if (onUpdate) {
@@ -146,6 +153,9 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate }
       setShowEditModal(false);
       setSelectedAmenityId(null);
       resetFormData();
+      
+      // ✅ Refetch data to update the UI after editing amenity
+      refetch?.();
       
       // Call the update callback to refresh the property data
       if (onUpdate) {

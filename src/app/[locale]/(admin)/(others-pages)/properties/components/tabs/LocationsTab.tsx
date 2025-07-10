@@ -1,6 +1,5 @@
 "use client"
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-// import { MapPin, Eye, EyeOff } from 'lucide-react';
 import { MapPin } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { PropertyData, PropertyLocation, LocationPoint } from '@/types/PropertyTypes';
@@ -15,7 +14,8 @@ mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'your-mapb
 
 interface LocationTabProps {
   property: PropertyData;
-  onUpdate?: () => void;
+  onUpdate?: () => void; // Callback to refresh property data
+  refetch?: () => void; // Callback to refresh property data - THIS IS THE ONE WE NEED
 }
 
 interface LocationData {
@@ -49,7 +49,6 @@ interface PolygonGeoJSONFeature {
 interface PointGeoJSONFeature {
   type: 'Feature';
   properties: {
-    // name: string;
     color: string;
     pointCount?: number;
     locations?: PropertyLocation[];
@@ -62,7 +61,7 @@ interface PointGeoJSONFeature {
   };
 }
 
-export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) => {
+export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, refetch }) => {
   const params = useParams();
   const propertyId = params?.id as string;
   const t = useTranslations('properties');
@@ -105,17 +104,10 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
     return null;
   }, [property?.property_locations]);
   
-  console.log('====================================');
-  console.log('First property location:', property.property_locations?.[0]);
-  console.log('Initial location value:', getInitialLocationValue());
-  console.log('Initial selected location:', getInitialSelectedLocation());
-  console.log('====================================');
-  
   // States - Initialize with first property location if available
   const [locationValue, setLocationValue] = useState<string>(getInitialLocationValue());
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(getInitialSelectedLocation());
   const [loading, setLoading] = useState(false);
-  // const [showOldLocations, setShowOldLocations] = useState(true);
 
   // Refs
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -376,23 +368,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
     };
   }, [mapContainer, property, loadExistingLocations]);
 
-  // Toggle old locations visibility
-  // const toggleOldLocations = () => {
-  //   setShowOldLocations(!showOldLocations);
-
-  //   const layers = ['existing-areas-fill', 'existing-areas-stroke', 'existing-areas-labels', 'existing-points-points', 'existing-points-labels'];
-
-  //   layers.forEach(layerId => {
-  //     if (map.current && map.current.getLayer(layerId)) {
-  //       map.current.setLayoutProperty(
-  //         layerId,
-  //         'visibility',
-  //         showOldLocations ? 'none' : 'visible'
-  //       );
-  //     }
-  //   });
-  // };
-
   // Save selected location to API
   const handleSaveLocation = async () => {
     const token = localStorage.getItem('token');
@@ -409,7 +384,7 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
     try {
       setLoading(true);
 
-      // Removed name field from the API request
+      // Save the location
       await postData(
         `owner/locations`,
         {
@@ -434,9 +409,12 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
         setSelectedLocation(null);
       }
 
-      // Call onUpdate function
-      if (onUpdate) {
-        onUpdate();
+      // Call the appropriate callback function to refresh data
+      // Priority: refetch > onUpdate
+      if (refetch) {
+        refetch(); // ✅ This will refresh the property data including new location
+      } else if (onUpdate) {
+        onUpdate(); // ✅ Fallback to onUpdate if refetch is not available
       }
 
     } catch (error) {
@@ -531,7 +509,7 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate }) 
 
         console.log('Creating marker with coordinates:', [lng, lat]);
 
-new mapboxgl.Marker(el)
+        new mapboxgl.Marker(el)
           .setLngLat([lng, lat])
           .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`
             <div style="padding: 10px;">
@@ -591,21 +569,7 @@ new mapboxgl.Marker(el)
 
       {/* Action Buttons */}
       <div className="flex justify-end items-center mb-4">
-        {/* <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-          {t("Property Locations")}
-        </h3> */}
         <div className="flex gap-2">
-          {/* <button
-            onClick={toggleOldLocations}
-            className={`${showOldLocations
-              ? 'bg-blue-600 hover:bg-blue-700'
-              : 'bg-gray-600 hover:bg-gray-700'
-              } text-white font-medium px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2`}
-          >
-            {showOldLocations ? <Eye size={20} /> : <EyeOff size={20} />}
-            {showOldLocations ? t('Hide Old Locations') : t('Show Old Locations')}
-          </button> */}
-
           {selectedLocation && (
             <button
               onClick={handleSaveLocation}

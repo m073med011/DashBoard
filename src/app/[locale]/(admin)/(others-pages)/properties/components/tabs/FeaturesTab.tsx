@@ -6,7 +6,6 @@ import { deleteData, postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import ModalForm from '@/components/tables/ModalTableForm';
 import { useTranslations } from 'next-intl';
-// import { PropertyFeature } from '@/types/PropertyTypes';
 
 interface PropertyFeature {
   id: number;
@@ -38,11 +37,11 @@ interface PropertyFeature {
 interface FeaturesTabProps {
   property: PropertyData;
   onUpdate?: () => void; // Callback to refresh property data
+  refetch?: () => void; // ✅ Added refetch prop
 }
 
 interface FeatureFormData {
   property_listing_id: string;
-  
   type: string;
   'key[en]': string;
   'key[ar]': string;
@@ -57,10 +56,10 @@ const FEATURE_TYPES = [
   { value: 'indoor_feature', label: 'Indoor Feature' }
 ];
 
-export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) => {
+export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate, refetch }) => {
   const params = useParams();
   const propertyId = params?.id as string;
-  const  t  = useTranslations("features");
+  const t = useTranslations("features");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -78,7 +77,6 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
   const resetFormData = () => {
     setFormData({
       property_listing_id: propertyId || '',
-     
       type: 'property_feature',
       'key[en]': '',
       'key[ar]': '',
@@ -95,7 +93,6 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
   const handleEditClick = (feature: PropertyFeature) => {
     setFormData({
       property_listing_id: propertyId || '',
-      
       type: feature?.type || 'property_feature',
       'key[en]': feature?.key || '',
       'key[ar]': feature?.key || '', // Assuming key is the same for both languages based on JSON structure
@@ -124,6 +121,9 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
       
       setShowDeleteModal(false);
       setSelectedFeatureId(null);
+      
+      // ✅ Refetch data to update the UI after deleting feature
+      refetch?.();
       
       // Call the update callback to refresh the property data
       if (onUpdate) {
@@ -157,6 +157,9 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
       
       setShowAddModal(false);
       resetFormData();
+      
+      // ✅ Refetch data to update the UI after adding new feature
+      refetch?.();
       
       // Call the update callback to refresh the property data
       if (onUpdate) {
@@ -194,6 +197,9 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate }) 
       setShowEditModal(false);
       setSelectedFeatureId(null);
       resetFormData();
+      
+      // ✅ Refetch data to update the UI after editing feature
+      refetch?.();
       
       // Call the update callback to refresh the property data
       if (onUpdate) {

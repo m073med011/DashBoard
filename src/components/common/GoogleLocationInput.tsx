@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { MapPin } from 'lucide-react';
+import { useLocale } from 'next-intl';
 
 /// <reference types="@types/google.maps" />
 
@@ -46,6 +47,7 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
   t = (key: string) => key,
 }) => {
   const [locationQuery, setLocationQuery] = useState(value);
+  const locale=useLocale()
   const [locationSuggestions, setLocationSuggestions] = useState<
     google.maps.places.AutocompletePrediction[]
   >([]);
@@ -99,6 +101,7 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
       const request: google.maps.places.AutocompletionRequest = {
         input: query,
         types: ['establishment', 'geocode'],
+        componentRestrictions: { country: 'EG' }, // 🇪🇬 restrict to Egypt
       };
 
       autocompleteService.current.getPlacePredictions(request, (predictions, status) => {
@@ -172,7 +175,7 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
       {/* Label */}
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-dark dark:text-white mb-2"
+        className={`block text-sm ${locale=== "ar"?"text-right":""} font-medium text-dark dark:text-white mb-2`}
         dir={dir}
       >
         {label}

@@ -146,6 +146,7 @@ export default function OwnersPage() {
         payload.append('_method', 'PUT');
         payload.append('name', formData.get('name') as string);
         payload.append('email', formData.get('email') as string);
+        payload.append('phone', formData.get('phone') as string);
 
         const password = formData.get('password') as string;
         if (password) {
@@ -157,7 +158,7 @@ export default function OwnersPage() {
 
       fetchOwners(token);
       setModalState({ type: null });
-      showToast(t('Owner saved successfully'), 'success');  
+      showToast(t('agent saved successfully'), 'success');  
     } catch (error) {
       if (error instanceof AxiosError) {
         showToast('error', 'error');
@@ -210,7 +211,11 @@ export default function OwnersPage() {
             {
               key: 'email',
               label: 'Email',
-              render: (item) => item.email || '-',
+               render: (item) => (
+    <div className="max-w-[clamp(10.00px,10vw,100.00px)] w-full truncate overflow-hidden whitespace-nowrap">
+      {item.email || '-'}
+    </div>
+  ),
             },
             {
               key: 'phone',
@@ -332,12 +337,24 @@ export default function OwnersPage() {
               </>
             )}
             {modalState.type === 'edit' && (
+              <>
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder={t('Phone Number')}
+              defaultValue={modalState.item?.phone || ''}
+              className="w-full border p-2 rounded"
+              required
+                />
               <input
                 type="password"
                 name="password"
                 placeholder={t('New Password (leave blank to keep current)')}
                 className="w-full border p-2 rounded"
               />
+              {/* // phone */}
+            
+                </>
             )}
 
             <button

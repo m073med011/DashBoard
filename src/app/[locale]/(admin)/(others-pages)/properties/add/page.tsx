@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { postData, getData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
 import { useRouter } from "@/i18n/routing";
-import { useTranslations } from "next-intl";
+import { useTranslations,useLocale } from "next-intl";
 import Toast from "@/components/Toast";
 import RichTextEditor from "@/components/RichTextEditor";
 import { ChevronDown, ChevronUp, DollarSign, Home, FileText, Globe, Camera, Check, X } from "lucide-react";
@@ -94,6 +94,7 @@ type ImagePreview = {
 
 const CreatePropertyPage = () => {
   const t = useTranslations("properties");
+  const locale=useLocale();
   const router = useRouter();
 
   const {
@@ -188,8 +189,8 @@ const CreatePropertyPage = () => {
 
       try {
         const [typesResponse, areasResponse, agentsResponse] = await Promise.all([
-          getData("owner/types", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` })),
-          getData("owner/areas", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` })),
+          getData("owner/types", {}, new AxiosHeaders({ Authorization: `Bearer ${token}`,lang:locale })),
+          getData("owner/areas", {}, new AxiosHeaders({ Authorization: `Bearer ${token}`,lang:locale })),
           getData("owner/agents", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` }))
         ]);
 
@@ -215,7 +216,7 @@ const CreatePropertyPage = () => {
     }
 
     if (!imagePreview) {
-      showToast(t("please_select_an_image"), "error");
+      showToast("please_select_an_image", "error");
       return;
     }
 
@@ -261,11 +262,11 @@ const CreatePropertyPage = () => {
 
     try {
       const response = await postData("owner/property_listings", formData, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
-      showToast(t("property_added_successfully"), "success");
+      showToast("property_added_successfully", "success");
       router.push(`/properties/view/${response?.data?.id}`);
     } catch (error) {
       console.error("Failed to create property:", error);
-      showToast(t("failed_to_add_property"), "error");
+      showToast("failed_to_add_property", "error");
     }
   };
 
@@ -429,7 +430,7 @@ const CreatePropertyPage = () => {
                   required
                   options={areas.map(area => ({ 
                     value: area.id.toString(), 
-                    label: `${area.description.en.name} / ${area.description.ar.name}` 
+                    label: `${area?.name}` 
                   }))}
                   placeholder={t("select_area")}
                 />

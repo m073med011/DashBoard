@@ -1,4 +1,5 @@
 {
+  "Loading":"جاري التحميل",
   "header": {
     "home": "الصفحة الرئيسية",
     "logout": "تسجيل الخروج",
@@ -124,10 +125,30 @@
     "edit": "تعديل",
     "Link": "الرابط"
   },
-  "types":{
-
+  "types": {
+    "Create Type": "إنشاء نوع",
+    "Edit Type": "تعديل النوع",
+    "View Type": "عرض النوع",
+    "Type Details": "تفاصيل النوع",
+    "Title": "العنوان",
+    "Image": "الصورة",
+    "No Image": "لا توجد صورة",
+    "Close": "إغلاق",
+    "Submit": "إرسال",
+    "Loading": "جاري التحميل...",
+    "Title (EN)": "العنوان (الإنجليزية)",
+    "Title (AR)": "العنوان (العربية)",
+    "Current image will be removed": "ستتم إزالة الصورة الحالية",
+    "Failed to fetch types": "فشل في جلب الأنواع",
+    "Token not found in localStorage": "لم يتم العثور على الرمز المميز في التخزين المحلي",
+    "Type deleted successfully": "تم حذف النوع بنجاح",
+    "Delete failed": "فشل في الحذف",
+    "Type saved successfully": "تم حفظ النوع بنجاح",
+    "Save failed": "فشل في الحفظ"
   },
   "areas": {
+    "Loading area details":"جاري التحميل",
+    "Loading":"جاري التحميل",
     "Image Preview": "معاينة الصورة",
     "Name (AR)": "الاسم (عربي)",
     "Name (EN)": "الاسم (انجليزي)",
@@ -197,11 +218,14 @@
     "welcome": "مرحبا"
   },
   "blogs": {
-
+  "Current cover": "الغلاف الحالي",
+  "Current image": "الصورة الحالية",
+  "Leave empty to keep current cover": "اتركه فارغًا للاحتفاظ بالغلاف الحالي",
+  "Leave empty to keep current image": "اتركه فارغًا للاحتفاظ بالصورة الحالية",
     "Loading": "جاري التحميل",
     "Images": "الصور",
     "No data": "لا يوجد بيانات",
-    "Meta Information": "معلومات CEO",
+    "SEO Information": "معلومات SEO",
     "SEO Meta Information & Keywords": "SEO معلومات و الكلمات المفتاحية",
     "CEO Content": "محتوى CEO",
     "Go Back": "العودة",
@@ -263,11 +287,13 @@
     "Edit Content": "تعديل المحتوى"
   },
   "toast": {
+  "please_select_an_image": "يرجى اختيار صورة",
+  "failed_to_add_property": "فشل في إضافة الخاصية",
+  "property_added_successfully": "تمت إضافة الخاصية بنجاح",
     "Failed to fetch areas": "فشل في جلب المناطق",
     "Area deleted successfully": "تم حذف المنطقة بنجاح",
     "Area updated successfully": "تم تعديل المنطقة بنجاح",
-
-
+  "Property deleted successfully": "تم الحذف بنجاح",
     "Type deleted successfully": "تم حذف النوع بنجاح",
     "Delete failed": "فشل حذف النوع",
     "Type saved successfully": "تم حفظ النوع بنجاح",
@@ -307,6 +333,7 @@
       "Banner not found": "البانر غير موجود"
     },
     "Tables": {
+            "agent saved successfully":"تم حفظ العميل بنجاح",
       "Owner saved successfully": "تم حفظ المالك بنجاح",
       "Owner deleted successfully": "تم حذف المالك بنجاح",
       "Opening edit form": "فتح صفحة تعديل",
@@ -338,6 +365,7 @@
     }
   },
   "banners": {
+     "Back": "العودة",
     "View Banner": "عرض البانر",
     "Current Image:": "الصورة الحالية",
     "Edit Banner": "تعديل البانر",
@@ -441,7 +469,9 @@
     "cancel": "إلغاء"
   },
   "properties": {
-    "select_agent": "Select Agent",
+        "Save Location": "حفظ الموقع",
+  "Updating Status": "جاري تحديث الحالة...",
+    "select_agent": "اختر وكيل",
     "Agent": "وكيل",
     "enter_your_location": "أدخل موقعك",
     "location": "الموقع",

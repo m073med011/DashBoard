@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { postData, getData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
 import { useRouter, useParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations,useLocale } from "next-intl";
 import Toast from "@/components/Toast";
 import RichTextEditor from "@/components/RichTextEditor";
 import Image from "next/image";
@@ -75,6 +75,7 @@ const EditContentPage = () => {
   const params = useParams();
   const id = params?.id as string;
   const isEditing = !!id;
+  const local =useLocale()
 
   const {
     register,
@@ -118,7 +119,7 @@ const EditContentPage = () => {
         return;
       }
       try {
-        const response = await getData("owner/types", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` }));  
+        const response = await getData("owner/types", {}, new AxiosHeaders({ Authorization: `Bearer ${token}`,lang:local }));  
         if (response.status) {
           setTypes(response.data);
         } else {
@@ -131,7 +132,7 @@ const EditContentPage = () => {
     };
 
     fetchTypes();
-  }, [t]);
+  }, [local]);
 
   // Fetch blog data for editing
   useEffect(() => {
@@ -380,7 +381,7 @@ const EditContentPage = () => {
             />
             <TabButton
               tab="meta"
-              label={t("Meta Information")}
+              label={t("SEO Information")}
               isActive={activeTab === "meta"}
               onClick={() => setActiveTab("meta")}
             />

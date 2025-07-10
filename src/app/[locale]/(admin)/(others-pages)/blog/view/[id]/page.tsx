@@ -100,25 +100,25 @@ const ViewContentPage = () => {
 
   // Arabic fields (without meta and keywords fields)
   const arabicFields: { name: string; label: string; value: string }[] = [
-    { name: "title_ar", label: "Title (AR)", value: blogData?.descriptions.ar.title || "" },
-    { name: "slug_ar", label: "Slug (AR)", value: blogData?.descriptions.ar.slug || "" },
-    { name: "user_ar", label: "User (AR)", value: blogData?.descriptions.ar.user || "" },
+    { name: "title_ar", label: "Title (AR)", value: blogData?.descriptions?.ar?.title || "" },
+    { name: "slug_ar", label: "Slug (AR)", value: blogData?.descriptions?.ar?.slug || "" },
+    { name: "user_ar", label: "User (AR)", value: blogData?.descriptions?.ar?.user || "" },
   ];
 
   // English fields (without meta and keywords fields)
   const englishFields: { name: string; label: string; value: string }[] = [
-    { name: "title_en", label: "Title (EN)", value: blogData?.descriptions.en.title || "" },
-    { name: "slug_en", label: "Slug (EN)", value: blogData?.descriptions.en.slug || "" },
-    { name: "user_en", label: "User (EN)", value: blogData?.descriptions.en.user || "" },
+    { name: "title_en", label: "Title (EN)", value: blogData?.descriptions?.en?.title || "" },
+    { name: "slug_en", label: "Slug (EN)", value: blogData?.descriptions?.en?.slug || "" },
+    { name: "user_en", label: "User (EN)", value: blogData?.descriptions?.en?.user || "" },
   ];
 
   // Meta fields for both languages (including keywords)
   const metaFields: { name: string; label: string; value: string; isRtl?: boolean }[] = [
-    { name: "meta_title_en", label: "Meta Title (EN)", value: blogData?.descriptions.en.meta_title || "" },
-    { name: "meta_description_en", label: "Meta Description (EN)", value: blogData?.descriptions.en.meta_description || "" },
-    { name: "meta_keywords_en", label: "Meta Keywords (EN)", value: blogData?.descriptions.en.meta_keywords || "" },
-    { name: "keywords_en", label: "Keywords (EN)", value: blogData?.descriptions.en.keywords || "" },
-    { name: "meta_title_ar", label: "Meta Title (AR)", value: blogData?.descriptions.ar.meta_title || "", isRtl: true },
+    { name: "meta_title_en", label: "Meta Title (EN)", value: blogData?.descriptions?.en?.meta_title || "" },
+    { name: "meta_description_en", label: "Meta Description (EN)", value: blogData?.descriptions?.en?.meta_description || "" },
+    { name: "meta_keywords_en", label: "Meta Keywords (EN)", value: blogData?.descriptions?.en?.meta_keywords || "" },
+    { name: "keywords_en", label: "Keywords (EN)", value: blogData?.descriptions?.en?.keywords || "" },
+    { name: "meta_title_ar", label: "Meta Title (AR)", value: blogData?.descriptions?.ar?.meta_title || "", isRtl: true },
     { name: "meta_description_ar", label: "Meta Description (AR)", value: blogData?.descriptions.ar.meta_description || "", isRtl: true },
     { name: "meta_keywords_ar", label: "Meta Keywords (AR)", value: blogData?.descriptions.ar.meta_keywords || "", isRtl: true },
     { name: "keywords_ar", label: "Keywords (AR)", value: blogData?.descriptions.ar.keywords || "", isRtl: true },
@@ -240,7 +240,7 @@ const ViewContentPage = () => {
             />
             <TabButton
               tab="meta"
-              label={t("Meta Information")}
+              label={t("SEO Information")}
               isActive={activeTab === "meta"}
               onClick={() => setActiveTab("meta")}
             />
