@@ -14,6 +14,8 @@ interface PropertyFeature {
   value: string;
   description: {
     en: {
+      key: string | null;
+      value: string | null;
       title: string | null;
       description: string | null;
       keywords: string | null;
@@ -23,6 +25,8 @@ interface PropertyFeature {
       meta_keywords: string | null;
     };
     ar: {
+      key: string | null;
+      value: string | null;
       title: string | null;
       description: string | null;
       keywords: string | null;
@@ -94,10 +98,10 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate, re
     setFormData({
       property_listing_id: propertyId || '',
       type: feature?.type || 'property_feature',
-      'key[en]': feature?.key || '',
-      'key[ar]': feature?.key || '', // Assuming key is the same for both languages based on JSON structure
-      'value[en]': feature?.value || '',
-      'value[ar]': feature.value || '' // Assuming value is the same for both languages based on JSON structure
+      'key[en]': feature?.description?.en?.key || '',
+      'key[ar]': feature?.description?.ar?.key || '', // Assuming key is the same for both languages based on JSON structure
+      'value[en]': feature?.description?.en?.value|| '',
+      'value[ar]': feature?.description?.ar?.value || '' // Assuming value is the same for both languages based on JSON structure
     });
     setSelectedFeatureId(feature.id.toString());
     setShowEditModal(true);
@@ -224,13 +228,13 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate, re
     <form onSubmit={isEdit ? handleEditSubmit : handleAddSubmit}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t("Feature Type")}
           </label>
           <select
             value={formData.type}
             onChange={(e) => handleInputChange('type', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             required
           >
             {FEATURE_TYPES.map((type) => (
@@ -242,53 +246,53 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate, re
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t("Key (English)")}
           </label>
           <input
             type="text"
             value={formData['key[en]']}
             onChange={(e) => handleInputChange('key[en]', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             required
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t("Key (Arabic)")}
           </label>
           <input
             type="text"
             value={formData['key[ar]']}
             onChange={(e) => handleInputChange('key[ar]', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             required
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t("Value (English)")}
           </label>
           <input
             type="text"
             value={formData['value[en]']}
             onChange={(e) => handleInputChange('value[en]', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             required
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t("Value (Arabic)")}
           </label>
           <input
             type="text"
             value={formData['value[ar]']}
             onChange={(e) => handleInputChange('value[ar]', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             required
           />
         </div>
@@ -305,14 +309,14 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate, re
             }
             resetFormData();
           }}
-          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition duration-200"
           disabled={loading}
         >
           {t("Cancel")}
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 disabled:opacity-50"
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md transition duration-200 disabled:opacity-50"
           disabled={loading}
         >
           {loading ? (isEdit ? t('Updating') : t('Adding')) : (isEdit ? t('Update Feature') : t('Add Feature'))}
@@ -343,10 +347,11 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate, re
                   <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                   <div>
                     <span className="text-gray-800 dark:text-gray-200 font-medium">
-                      {feature?.key}:
+                      {t("key")} : {feature?.key}
                     </span>
+                    <br/>
                     <span className="text-gray-600 dark:text-gray-300 ml-2">
-                      {feature?.value}
+                         {t("value")} : {feature?.value}
                     </span>
                   </div>
                 </div>
@@ -412,7 +417,7 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate, re
           setSelectedFeatureId(null);
         }}
       >
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-300 mb-6">
           {t("Are you sure you want to delete this feature? This action cannot be undone")}
         </p>
         <div className="flex justify-end space-x-3">
@@ -421,14 +426,14 @@ export const FeaturesTab: React.FC<FeaturesTabProps> = ({ property, onUpdate, re
               setShowDeleteModal(false);
               setSelectedFeatureId(null);
             }}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition duration-200"
             disabled={loading}
           >
             {t("Cancel")}
           </button>
           <button
             onClick={handleDeleteConfirm}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition duration-200 disabled:opacity-50"
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white rounded-md transition duration-200 disabled:opacity-50"
             disabled={loading}
           >
             {loading ? t('Deleting') : t('Delete')}

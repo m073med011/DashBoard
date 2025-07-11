@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Table from '@/components/tables/Table';
 import ModalForm from '@/components/tables/ModalTableForm';
-import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
+import { getData, postData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import Toast from '@/components/Toast';
 import { useLocale } from 'next-intl';
@@ -151,6 +151,11 @@ export default function TypesPage() {
     payload.append('title[en]', formData.get('title[en]') as string);
     payload.append('title[ar]', formData.get('title[ar]') as string);
 
+    // Add _method field for edit operations
+    if (modalState.type === 'edit') {
+      payload.append('_method', 'PUT');
+    }
+
     if (selectedFile) {
       payload.append('image', selectedFile);
     } else if (removeExistingImage && modalState.type === 'edit') {
@@ -161,7 +166,7 @@ export default function TypesPage() {
       if (modalState.type === 'create') {
         await postData('owner/types', payload, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
       } else if (modalState.type === 'edit' && modalState.item) {
-        await patchData(`owner/types/${modalState.item.id}`, payload, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
+        await postData(`owner/types/${modalState.item.id}`, payload, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
       }
 
       fetchTypes(token);
@@ -289,6 +294,11 @@ export default function TypesPage() {
             }}
             className="space-y-3"
           >
+            {/* Add hidden _method field for edit operations */}
+            {modalState.type === 'edit' && (
+              <input type="hidden" name="_method" value="PUT" />
+            )}
+            
             <input
               type="text"
               name="title[en]"

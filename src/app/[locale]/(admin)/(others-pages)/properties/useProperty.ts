@@ -2,8 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { getData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import { PropertyData, ToastState,PropertyStatistics } from '@/types/PropertyTypes';
-
-
+import { useLocale } from 'next-intl';
 export const useProperty = (propertyId: string) => {
   const [property, setProperty] = useState<PropertyData | null>(null);
   const [propertystat, setPropertystat] = useState<PropertyStatistics | null>(null);
@@ -14,7 +13,7 @@ export const useProperty = (propertyId: string) => {
     type: 'info',
     show: false
   });
-
+const locale=useLocale();
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToast({ message, type, show: true });
     setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
@@ -24,7 +23,7 @@ export const useProperty = (propertyId: string) => {
     try {
       setLoading(true);
       const res = await getData(`owner/property_listings/${id}`, {}, new AxiosHeaders({
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${authToken}`,lang: locale,
       }));
       if (res.data) {
         setProperty(res.data);
@@ -41,9 +40,7 @@ export const useProperty = (propertyId: string) => {
 
   const fetchPropertyStatistics = useCallback(async (authToken: string, id: string) => {
     try {
-      const res = await getData(`owner/property/${id}/statistics`, {}, new AxiosHeaders({
-        Authorization: `Bearer ${authToken}`,
-      }));
+      const res = await getData(`owner/property/${id}/statistics`, {}, new AxiosHeaders({Authorization: `Bearer ${authToken}`,}));
       if (res.data) {
         setPropertystat(res.data);
       } else {

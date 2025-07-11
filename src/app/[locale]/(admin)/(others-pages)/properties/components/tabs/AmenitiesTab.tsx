@@ -179,27 +179,27 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate, 
   const renderAmenityForm = (isEdit: boolean = false) => (
     <form onSubmit={isEdit ? handleEditSubmit : handleAddSubmit}>
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {t("title(EN)")} 
         </label>
         <input
           type="text"
           value={formData['title[en]']}
           onChange={(e) => handleInputChange('title[en]', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
           placeholder={t("e.g., Swimming Pool, Gym")}
           required
         />
       </div>
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {t("title(AR)")} 
         </label>
         <input
           type="text"
           value={formData['title[ar]']}
           onChange={(e) => handleInputChange('title[ar]', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 bg-white text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
           placeholder={t("e.g., Swimming Pool, Gym")}
           required
         />
@@ -215,14 +215,14 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate, 
             }
             resetFormData();
           }}
-          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition duration-200"
           disabled={loading}
         >
           {t("Cancel")}  
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 disabled:opacity-50"
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md transition duration-200 disabled:opacity-50"
           disabled={loading}
         >
           {loading ? (isEdit ? t("Updating") : t("Adding")) : (isEdit ? t("Update Amenity") : t("Add Amenity"))}  
@@ -319,7 +319,7 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate, 
           setSelectedAmenityId(null);
         }}
       >
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-300 mb-6">
           {t("Are you sure you want to delete this amenity? This action cannot be undone")}
         </p>
         <div className="flex justify-end space-x-3">
@@ -328,14 +328,14 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate, 
               setShowDeleteModal(false);
               setSelectedAmenityId(null);
             }}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-200"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition duration-200"
             disabled={loading}
           >
             {t("Cancel")}
           </button>
           <button
             onClick={handleDeleteConfirm}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition duration-200 disabled:opacity-50"
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white rounded-md transition duration-200 disabled:opacity-50"
             disabled={loading}
           >
             {loading ? t("Deleting") : t("Delete")}
