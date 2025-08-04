@@ -179,6 +179,7 @@
     "Leave empty to keep current image": "اتركه فارغًا للحفاظ على الصورة الحالية"
   },
   "sidebar": {
+    "amenities": "الميزات",
     "agents": "الوكلاء",
     "owners": "المديرين",
     "dashboard": "الرئيسية",

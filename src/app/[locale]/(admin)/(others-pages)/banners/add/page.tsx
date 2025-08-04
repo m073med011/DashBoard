@@ -7,7 +7,9 @@ import { AxiosHeaders } from "axios";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Toast from "@/components/Toast";
-import Image from "next/image";
+import ImageUploadField from "@/components/ImageUploadField";
+
+import { BANNER_IMAGE_SIZE } from "@/libs/constants/imageSizes";
 
 type FormInputs = {
   link: string;
@@ -63,53 +65,41 @@ const CreateBannerPage = () => {
   };
 
   // Handle English image selection
-  const handleImageEnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+  const handleImageEnChange = (file: File | null) => {
     setImageEn(file);
     
     if (file) {
+      // Clean up previous preview URL
+      if (imageEnPreview) {
+        URL.revokeObjectURL(imageEnPreview);
+      }
       const previewUrl = URL.createObjectURL(file);
       setImageEnPreview(previewUrl);
     } else {
+      if (imageEnPreview) {
+        URL.revokeObjectURL(imageEnPreview);
+      }
       setImageEnPreview(null);
     }
   };
 
   // Handle Arabic image selection
-  const handleImageArChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+  const handleImageArChange = (file: File | null) => {
     setImageAr(file);
     
     if (file) {
+      // Clean up previous preview URL
+      if (imageArPreview) {
+        URL.revokeObjectURL(imageArPreview);
+      }
       const previewUrl = URL.createObjectURL(file);
       setImageArPreview(previewUrl);
     } else {
+      if (imageArPreview) {
+        URL.revokeObjectURL(imageArPreview);
+      }
       setImageArPreview(null);
     }
-  };
-
-  // Remove English image
-  const removeImageEn = () => {
-    setImageEn(null);
-    if (imageEnPreview) {
-      URL.revokeObjectURL(imageEnPreview);
-      setImageEnPreview(null);
-    }
-    // Reset the input value
-    const imageInput = document.getElementById('image-en-input') as HTMLInputElement;
-    if (imageInput) imageInput.value = '';
-  };
-
-  // Remove Arabic image
-  const removeImageAr = () => {
-    setImageAr(null);
-    if (imageArPreview) {
-      URL.revokeObjectURL(imageArPreview);
-      setImageArPreview(null);
-    }
-    // Reset the input value
-    const imageInput = document.getElementById('image-ar-input') as HTMLInputElement;
-    if (imageInput) imageInput.value = '';
   };
 
   // Cleanup preview URLs on component unmount
@@ -121,6 +111,12 @@ const CreateBannerPage = () => {
   }, [imageEnPreview, imageArPreview]);
 
   const onSubmit = async (data: FormInputs) => {
+    // Validate that both images are selected since they're required for creation
+    if (!imageEn || !imageAr) {
+      showToast(t("Both English and Arabic images are required"), "error");
+      return;
+    }
+
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     if (!token) {
       showToast("Authentication token not found", "error");
@@ -243,38 +239,19 @@ const CreateBannerPage = () => {
                   ))}
                 </div>
                 
-                {/* Arabic Image Upload */}
+                {/* Arabic Image Upload using ImageUploadField */}
                 <div className="mt-6">
-                  <label className="block mb-1 font-medium">{t("Image (AR)")}</label>
-                  <input
-                    id="image-ar-input"
-                    type="file"
-                    accept="image/*"
+                  <ImageUploadField
+                    label="Image (AR)"
+                    id="image-ar"
+                    value={null}
+                    preview={imageArPreview}
                     onChange={handleImageArChange}
-                    className="w-full border px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-sm"
-                    required
+                    required={true}
+                    allowedSizes={`${BANNER_IMAGE_SIZE.width}x${BANNER_IMAGE_SIZE.height}`} // e.g., "1200x630"
+                    accept="image/*"
+                    name="image_ar"
                   />
-                  
-                  {/* Arabic Image Preview */}
-                  {imageArPreview && (
-                    <div className="mt-3 relative">
-                      <Image
-                      width={100}
-                      height={100}
-                        src={imageArPreview}
-                        alt="Arabic image preview"
-                        className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
-                      />
-                      <button
-                        type="button"
-                        onClick={removeImageAr}
-                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors duration-200"
-                        title="Remove Arabic image"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
             )}
@@ -305,38 +282,19 @@ const CreateBannerPage = () => {
                   ))}
                 </div>
                 
-                {/* English Image Upload */}
+                {/* English Image Upload using ImageUploadField */}
                 <div className="mt-6">
-                  <label className="block mb-1 font-medium">{t("Image (EN)")}</label>
-                  <input
-                    id="image-en-input"
-                    type="file"
-                    accept="image/*"
+                  <ImageUploadField
+                    label="Image (EN)"
+                    id="image-en"
+                    value={null}
+                    preview={imageEnPreview}
                     onChange={handleImageEnChange}
-                    className="w-full border px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-sm"
-                    required
+                    required={true}
+                    allowedSizes={`${BANNER_IMAGE_SIZE.width}x${BANNER_IMAGE_SIZE.height}`} // e.g., "1200x630"
+                    accept="image/*"
+                    name="image_en"
                   />
-                  
-                  {/* English Image Preview */}
-                  {imageEnPreview && (
-                    <div className="mt-3 relative">
-                      <Image
-                      width={100}
-                      height={100}
-                        src={imageEnPreview}
-                        alt="English image preview"
-                        className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
-                      />
-                      <button
-                        type="button"
-                        onClick={removeImageEn}
-                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors duration-200"
-                        title="Remove English image"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
             )}

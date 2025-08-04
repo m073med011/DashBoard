@@ -10,6 +10,10 @@ import { useLocale } from 'next-intl';
 import ImageWithFallback from '@/components/ImageWithFallback';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
+import ImageUploadField from "@/components/ImageUploadField";
+
+
+import { TYPE_IMAGE_SIZE } from "@/libs/constants/imageSizes";
 
 type TypeItem = {
   id: number;
@@ -42,8 +46,9 @@ export default function TypesPage() {
     show: false,
   });
 
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  // Image upload states for the ImageUploadField component
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
 
   const [modalState, setModalState] = useState<{
@@ -62,32 +67,20 @@ export default function TypesPage() {
     setRemoveExistingImage(false);
   };
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  // Handle image upload from ImageUploadField component
+  const handleImageUpload = (file: File | null) => {
+    setSelectedFile(file);
+    setRemoveExistingImage(false);
+    
     if (file) {
-      setSelectedFile(file);
-      setRemoveExistingImage(false);
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreviewImage(e.target?.result as string);
       };
       reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(null);
     }
-  };
-
-  const removeSelectedImage = () => {
-    setSelectedFile(null);
-    setPreviewImage(null);
-    const fileInput = document.querySelector('input[name="image"]') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-  };
-
-  const removeExistingImageHandler = () => {
-    setRemoveExistingImage(true);
-    setPreviewImage(null);
-    setSelectedFile(null);
-    const fileInput = document.querySelector('input[name="image"]') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
   };
 
   const fetchTypes = useCallback(async (authToken: string) => {
@@ -292,84 +285,68 @@ export default function TypesPage() {
               const formData = new FormData(e.currentTarget);
               handleSubmit(formData);
             }}
-            className="space-y-3"
+            className="space-y-4"
           >
             {/* Add hidden _method field for edit operations */}
             {modalState.type === 'edit' && (
               <input type="hidden" name="_method" value="PUT" />
             )}
             
-            <input
-              type="text"
-              name="title[en]"
-              placeholder={t("Title (EN)")}
-              defaultValue={modalState.item?.titleObj.en || ''}
-              className="w-full border p-2 rounded"
-              required
-            />
-            <input
-              type="text"
-              name="title[ar]"
-              placeholder={t("Title (AR)")}
-              defaultValue={modalState.item?.titleObj.ar || ''}
-              className="w-full border p-2 rounded"
-              required
-            />
-            <input
-              type="file"
+            <div>
+              <label className="block mb-2 font-semibold text-gray-800 dark:text-gray-200">
+                {t("Title (EN)")} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="title[en]"
+                placeholder={t("Title (EN)")}
+                defaultValue={modalState.item?.titleObj.en || ''}
+                className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block mb-2 font-semibold text-gray-800 dark:text-gray-200">
+                {t("Title (AR)")} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="title[ar]"
+                placeholder={t("Title (AR)")}
+                defaultValue={modalState.item?.titleObj.ar || ''}
+                className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
+            </div>
+
+            {/* Replace the old file input with ImageUploadField */}
+            <ImageUploadField
+              label="Image"
+              id="type-image"
               name="image"
+              value={modalState.item?.image || null}
+              preview={previewImage}
+              onChange={handleImageUpload}
               accept="image/*"
-              onChange={handleFileSelect}
-              className="w-full border p-2 rounded"
+              allowedSizes={TYPE_IMAGE_SIZE.width + 'x' + TYPE_IMAGE_SIZE.height}
             />
 
-            {modalState.type === 'edit' && modalState.item?.image && !removeExistingImage && !previewImage && (
-              <div className="relative">
-                <ImageWithFallback
-                  src={modalState.item.image}
-                  alt={t("Image")}
-                  width={500}
-                  height={150}
-                  className="rounded-lg border"
-                />
-                <button
-                  type="button"
-                  onClick={removeExistingImageHandler}
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6"
-                >
-                  ×
-                </button>
-              </div>
-            )}
-
-            {previewImage && (
-              <div className="relative">
-                <ImageWithFallback
-                  src={previewImage}
-                  alt={t("Image")}
-                  width={192}
-                  height={144}
-                  className="rounded-lg border"
-                />
-                <button
-                  type="button"
-                  onClick={removeSelectedImage}
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6"
-                >
-                  ×
-                </button>
-              </div>
-            )}
-
-            {removeExistingImage && (
-              <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
-                {t("Current image will be removed")}
-              </div>
-            )}
-
-            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-              {t("Submit")}
-            </button>
+            <div className="flex justify-end gap-2 pt-4">
+              <button
+                type="button"
+                onClick={handleModalClose}
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+              >
+                {t("Cancel")}
+              </button>
+              <button 
+                type="submit" 
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50"
+              >
+                {modalState.type === 'create' ? t("Create") : t("Update")}
+              </button>
+            </div>
           </form>
         )}
       </ModalForm>

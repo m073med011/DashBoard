@@ -41,6 +41,7 @@ const NAV_ITEMS: NavItem[] = [
   { icon: <Newspaper />, name: "blogs", path: "/blog" },
   { icon: <GalleryHorizontal />, name: "banners", path: "/banners" },
   { icon: <Shapes />, name: "types", path: "/types" },
+  { icon: <Shapes />, name: "amenities", path: "/amenities" },
   { icon: <Map />, name: "areas", path: "/areas" },
   {
     icon: <Building2 />, name: "property_listings", path: "/properties"

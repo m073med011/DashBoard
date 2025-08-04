@@ -76,15 +76,15 @@ export default function Table<T extends { id: number }>({
         </div>
       </div>
       <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-        <table className="w-full text-sm  text-gray-700 dark:text-gray-200 transition-colors">
+        <table className="text-sm text-gray-700 dark:text-gray-200 transition-colors" style={{ width: 'fit-content', minWidth: '100%' }}>
           <thead className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase">
             <tr>
               {columns.map((col) => (
-                <th key={String(col.key)} className="px-4 py-3 border border-gray-200 dark:border-gray-700">
+                <th key={String(col.key)} className="px-4 py-3 border border-gray-200 dark:border-gray-700 text-center" style={{ width: 'fit-content', minWidth: '120px', maxWidth: '300px' }}>
                   {t(col.label)}
                 </th>
               ))}
-              <th className="px-4 py-3 border border-gray-200 dark:border-gray-700">{t('Actions')}</th>
+              <th className="px-4 py-3 border border-gray-200 dark:border-gray-700 text-center" style={{ width: 'fit-content', minWidth: '200px', maxWidth: '400px' }}>{t('Actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -94,11 +94,11 @@ export default function Table<T extends { id: number }>({
                 className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition items-center"
               >
                 {columns.map((col) => (
-                  <td key={String(col.key)} className="px-4 py-3 border border-gray-200 dark:border-gray-700">
+                  <td key={String(col.key)} className="px-4 py-3 border border-gray-200 dark:border-gray-700 text-center" style={{ width: 'fit-content', minWidth: '120px', maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {col.render ? col.render(item) : String(item[col.key])}
                   </td>
                 ))}
-                <td className=" p-4 border border-gray-200 dark:border-gray-700 ">
+                <td className=" p-4 border border-gray-200 dark:border-gray-700 " style={{ width: 'fit-content', minWidth: '200px', maxWidth: '400px' }}>
                   <div className="flex gap-2 justify-center w-full items-center">
                     {onViewPage && (
                       <button

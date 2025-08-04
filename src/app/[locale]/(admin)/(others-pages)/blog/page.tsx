@@ -130,7 +130,7 @@ export default function BlogsPage() {
               label: "Image",
               render: (item) =>
                 item.image && (
-                  <Image src={item.image} alt="image" width={100} height={100} className="rounded object-cover" />
+                  <Image src={item.image} alt="image" width={200} height={200} className="rounded object-cover" />
                 ),
             },
             {
@@ -138,7 +138,7 @@ export default function BlogsPage() {
               label: "Cover",
               render: (item) =>
                 item.cover && (
-                  <Image src={item.cover} alt="cover" width={100} height={100} className="rounded object-cover" />
+                  <Image src={item.cover} alt="cover" width={200} height={200} className="rounded  object-cover" />
                 ),
             },
             { key: "slug", label: "Slug" },

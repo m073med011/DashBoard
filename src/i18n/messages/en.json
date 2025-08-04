@@ -233,6 +233,7 @@
     "Leave empty to keep current image": "Leave empty to keep current image"
   },
   "sidebar": {
+    "amenities": "Amenities",
     "agents": "Agents",
     "owners": "Owners",
     "dashboard": "Dashboard",

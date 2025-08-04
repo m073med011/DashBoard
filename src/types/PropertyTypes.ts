@@ -60,6 +60,7 @@ export type PropertyFeature = {
 };
 
 export type PropertyAmenity = {
+  image:string;
   id: number;
   title: string;
   descriptions: {

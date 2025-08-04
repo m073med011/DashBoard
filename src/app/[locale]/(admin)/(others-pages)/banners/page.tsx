@@ -7,6 +7,8 @@ import { getData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import Toast from '@/components/Toast';
 import { useTranslations } from "next-intl";
+// import Image from "next/image";
+import ImageWithFallback from "@/components/ImageWithFallback";
 
 
 type Banner = {
@@ -137,8 +139,25 @@ export default function Page() {
         <Table<Banner>
           data={items}
           columns={[
-            { key: 'id', label: 'ID' },
-            { key: 'link', label: 'Link' },
+            // { key: 'id', label: 'ID' },
+            {
+              key: 'image',
+              label:'Image',
+              render: (item) =>
+                item.image ? (
+                  <ImageWithFallback
+                    src={item.image}
+                    alt={t("Image")}
+                    width={100}
+                    height={150}
+                    className="rounded-lg w-full max-h-40 object-fill"
+                  />
+                ) : (
+                  <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center text-xs">
+                    {t("No Image")}
+                  </div>
+                ),
+            },
             { key: 'type', label: 'Type' },
             { key: 'name', label: 'Name' },
           ]}

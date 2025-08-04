@@ -264,34 +264,7 @@ export default function OwnersPage() {
               label: 'Phone',
               render: (item) => item.phone || '-',
             },
-            // {
-            //   key: 'subscription',
-            //   label: 'Subscription',
-            //   render: (item) => (
-            //     <span className={`px-2 py-1 rounded text-xs ${
-            //       item.subscription === 'yes' 
-            //         ? 'bg-green-100 text-green-800' 
-            //         : 'bg-red-100 text-red-800'
-            //     }`}>
-            //       {item.subscription}
-            //     </span>
-            //   ),
-            // },
-            // {
-            //   key: 'modules',
-            //   label: 'Modules',
-            //   render: (item) => (
-            //     <div className="max-w-xs">
-            //       {item.modules.length > 0 ? (
-            //         <span className="text-sm text-gray-600">
-            //           {item.modules.length} module{item.modules.length !== 1 ? 's' : ''}
-            //         </span>
-            //       ) : (
-            //         <span className="text-sm text-gray-400">No modules</span>
-            //       )}
-            //     </div>
-            //   ),
-            // },
+           
           ]}
           onCreate={() => setModalState({ type: 'create' })}
           onEdit={(item) => setModalState({ type: 'edit', item })}

@@ -3,32 +3,26 @@
 import { useEffect, useState } from 'react';
 import Table from '@/components/tables/Table';
 import ModalForm from '@/components/tables/ModalTableForm';
-import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
+import { getData, postData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
-import Image from 'next/image';
+import ImageWithFallback from '@/components/ImageWithFallback';
 import ImageUploadField from '@/components/ImageUploadField';
 import Toast from '@/components/Toast';
 import { useLocale, useTranslations } from 'next-intl';
+import { AMENITY_IMAGE_SIZE } from '@/libs/constants/imageSizes';
 
-// Add area image size constants
-export const AREA_IMAGE_SIZE = {
-  width: 800,
-  height: 600
-};
-
-type Area = {
+type Amenity = {
   id: number;
-  name: string;
-  description: {
+  title: string;
+  descriptions: {
     en: {
-      name: string;
+      title: string;
     };
     ar: {
-      name: string;
+      title: string;
     };
   };
-  image: string;
-  count_of_properties: number;
+  image?: string;
 };
 
 type ToastState = {
@@ -37,16 +31,16 @@ type ToastState = {
   show: boolean;
 };
 
-export default function AreasPage() {
+export default function AmenitiesPage() {
   const locale = useLocale();
-  const t = useTranslations("areas");
-  const [items, setItems] = useState<Area[]>([]);
+  const t = useTranslations("amenities");
+  const [items, setItems] = useState<Amenity[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalLoading, setModalLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-  const [currentArea, setCurrentArea] = useState<Area | null>(null);
+  const [currentAmenity, setCurrentAmenity] = useState<Amenity | null>(null);
   const [toast, setToast] = useState<ToastState>({
     message: '',
     type: 'info',
@@ -60,7 +54,7 @@ export default function AreasPage() {
 
   const [modalState, setModalState] = useState<{
     type: 'create' | 'edit' | 'view' | 'quick' | null;
-    item?: Area;
+    item?: Amenity;
   }>({ type: null });
 
   useEffect(() => {
@@ -73,74 +67,74 @@ export default function AreasPage() {
   }, [t]);
 
   useEffect(() => {
-    if (token) fetchAreas(token);
-  }, [token,locale]);
+    if (token) fetchAmenities(token);
+  }, [token, locale]);
 
   // Reset image preview when modal closes or opens
   useEffect(() => {
     if (!modalState.type) {
       setImagePreview(null);
       setSelectedImageFile(null);
-      setCurrentArea(null);
+      setCurrentAmenity(null);
     } else if (modalState.type === 'create') {
       setImagePreview(null);
       setSelectedImageFile(null);
-      setCurrentArea(null);
+      setCurrentAmenity(null);
     } else if (modalState.item && (modalState.type === 'edit' || modalState.type === 'view')) {
-      fetchSingleArea(modalState.item.id);
+      fetchSingleAmenity(modalState.item.id);
     }
   }, [modalState]);
 
-  const fetchAreas = async (authToken: string) => {
+  const fetchAmenities = async (authToken: string) => {
     try {
-      const res = await getData('owner/areas', {}, new AxiosHeaders({
+      const res = await getData('owner/amenities', {}, new AxiosHeaders({
         lang: locale,
         Authorization: `Bearer ${authToken}`,
       }));
       setItems(res.data ?? []);
     } catch (error) {
-      console.error('Failed to fetch areas', error);
-      showToast("Failed to fetch areas", 'error');
+      console.error('Failed to fetch amenities', error);
+      showToast("Failed to fetch amenities", 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchSingleArea = async (areaId: number) => {
+  const fetchSingleAmenity = async (amenityId: number) => {
     if (!token) return;
     
     setModalLoading(true);
     try {
-      const res = await getData(`owner/areas/${areaId}`, {}, new AxiosHeaders({
+      const res = await getData(`owner/amenities/${amenityId}`, {}, new AxiosHeaders({
         lang: locale,
         Authorization: `Bearer ${token}`,
       }));
       
       if (res.status === 200 && res.data) {
-        setCurrentArea(res.data);
+        setCurrentAmenity(res.data);
         // Set image preview for edit mode
         if (modalState.type === 'edit' && res.data.image) {
           setImagePreview(res.data.image);
         }
-        // Reset selected file when loading existing area
+        // Reset selected file when loading existing amenity
         setSelectedImageFile(null);
       }
     } catch (error) {
-      console.error('Failed to fetch single area', error);
-      showToast("Failed to fetch area details", 'error');
+      console.error('Failed to fetch single amenity', error);
+      showToast("Failed to fetch amenity details", 'error');
     } finally {
       setModalLoading(false);
     }
   };
 
-  const handleDelete = async (item: Area) => {
+  const handleDelete = async (item: Amenity) => {
     if (!token) return;
     try {
-      await deleteData(`owner/areas/${item.id}`, new AxiosHeaders({
+      await deleteData(`owner/amenities/${item.id}`, new AxiosHeaders({
         Authorization: `Bearer ${token}`,
       }));
-      fetchAreas(token);
-      showToast("Area deleted successfully", 'success');
+      fetchAmenities(token);
+      showToast("Amenity deleted successfully", 'success');
     } catch (error) {
       console.error('Delete failed', error);
       showToast("Delete failed", 'error');
@@ -158,8 +152,8 @@ export default function AreasPage() {
       reader.readAsDataURL(file);
     } else {
       // If no file selected, reset to current image (for edit mode) or null (for create mode)
-      if (modalState.type === 'edit' && currentArea?.image) {
-        setImagePreview(currentArea.image);
+      if (modalState.type === 'edit' && currentAmenity?.image) {
+        setImagePreview(currentAmenity.image);
       } else {
         setImagePreview(null);
       }
@@ -170,9 +164,8 @@ export default function AreasPage() {
     if (!token) return;
 
     const payload = new FormData();
-    payload.append('name[en]', formData.get('name[en]') as string);
-    payload.append('name[ar]', formData.get('name[ar]') as string);
-    payload.append('count_of_properties', formData.get('count_of_properties') as string);
+    payload.append('title[en]', formData.get('title[en]') as string);
+    payload.append('title[ar]', formData.get('title[ar]') as string);
 
     // Use the selected image file from ImageUploadField
     if (selectedImageFile) {
@@ -181,19 +174,19 @@ export default function AreasPage() {
 
     try {
       if (modalState.type === 'create') {
-        await postData('owner/areas', payload, new AxiosHeaders({
+        await postData('owner/amenities', payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
-        showToast("Area created successfully", 'success');
-      } else if (modalState.type === 'edit' && currentArea) {
+        showToast("Amenity created successfully", 'success');
+      } else if (modalState.type === 'edit' && currentAmenity) {
         payload.append('_method', 'PATCH');
-        await patchData(`owner/areas/${currentArea.id}`, payload, new AxiosHeaders({
+        await postData(`owner/amenities/${currentAmenity.id}`, payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
-        showToast("Area updated successfully", 'success');
+        showToast("Amenity updated successfully", 'success');
       }
 
-      fetchAreas(token);
+      fetchAmenities(token);
       setModalState({ type: null });
     } catch (error) {
       console.error('Save failed', error);
@@ -212,31 +205,26 @@ export default function AreasPage() {
           <p className="text-lg">{t("Loading")}</p>
         </div>
       ) : (
-        <Table<Area>
+        <Table<Amenity>
           data={items}
           columns={[
             {
-              key: 'name',
-              label: 'Name',
-              render: (item) => `${item?.name}`,
+              key: 'title',
+              label: 'Title',
+              render: (item) => locale === 'ar' ? item?.descriptions?.ar?.title : item?.descriptions?.en?.title,
             },
             {
               key: 'image',
               label: 'Image',
-              render: (item: Area) => (
-                <Image
-                  src={item.image}
-                  alt={"area"}
+              render: (item: Amenity) => (
+                <ImageWithFallback
+                  src={item.image || '/images/default.png'}
+                  alt={"amenity"}
                   width={100}
                   height={100}
                   className=" max-h-25 rounded object-fill w-full items-center"
                 />
               ),
-            },
-            {
-              key: 'count_of_properties',
-              label: 'Properties',
-              render: (item) => item.count_of_properties.toString(),
             },
           ]}
           onCreate={() => setModalState({ type: 'create' })}
@@ -251,16 +239,16 @@ export default function AreasPage() {
         open={!!modalState.type}
         title={
           modalState.type === 'create'
-            ? t('Create Area')
+            ? t('Create Amenity')
             : modalState.type === 'edit'
-            ? t('Edit Area')
-            : t('View Area')
+            ? t('Edit Amenity')
+            : t('View Amenity')
         }
         onClose={() => setModalState({ type: null })}
       >
         {modalLoading ? (
           <div className="flex justify-center items-center h-32">
-            <p className="text-lg">{t("Loading area details")}</p>
+            <p className="text-lg">{t("Loading amenity details")}</p>
           </div>
         ) : modalState.type === 'view' || modalState.type === 'quick' ? (
           <div className="w-full">
@@ -271,38 +259,30 @@ export default function AreasPage() {
                 <tbody className="divide-y divide-gray-200">
                   <tr>
                     <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                      {t('Name (EN)')}
+                      {t('Title (EN)')}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {currentArea?.description.en.name}
+                      {currentAmenity?.descriptions.en.title}
                     </td>
                   </tr>
                   <tr>
                     <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                      {t('Name (AR)')}
+                      {t('Title (AR)')}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {currentArea?.description.ar.name}
+                      {currentAmenity?.descriptions.ar.title}
                     </td>
                   </tr>
-                  <tr>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                      {t('Properties')}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {currentArea?.count_of_properties}
-                    </td>
-                  </tr>
-                  {currentArea?.image && (
+                  {currentAmenity?.image && (
                     <tr>
                       <td className="px-6 py-4 text-sm font-medium text-gray-800">
                         {t('Image')}
                       </td>
                       <td className="px-6 py-4">
                         <div className="overflow-hidden rounded-lg shadow-sm border border-gray-200 w-full max-w-md">
-                          <Image
-                            src={currentArea.image}
-                            alt={t("Area")}
+                          <ImageWithFallback
+                            src={currentAmenity.image}
+                            alt={t("Amenity")}
                             width={400}
                             height={400}
                             className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105"
@@ -325,62 +305,46 @@ export default function AreasPage() {
             className="space-y-4"
           >
             <div>
-              <label htmlFor="name_en" className="block text-sm font-medium text-gray-700">
-                {t('Area Name (English)')}
+              <label htmlFor="title_en" className="block text-sm font-medium text-gray-700">
+                {t('Amenity Title (English)')}
               </label>
               <input
-                id="name_en"
+                id="title_en"
                 type="text"
-                name="name[en]"
-                placeholder={t('Enter area name in English')}
-                defaultValue={currentArea?.description.en.name ?? ''}
+                name="title[en]"
+                placeholder={t('Enter amenity title in English')}
+                defaultValue={currentAmenity?.descriptions.en.title ?? ''}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
             </div>
             
             <div>
-              <label htmlFor="name_ar" className="block text-sm font-medium text-gray-700">
-                {t('Area Name (Arabic)')}
+              <label htmlFor="title_ar" className="block text-sm font-medium text-gray-700">
+                {t('Amenity Title (Arabic)')}
               </label>
               <input
-                id="name_ar"
+                id="title_ar"
                 type="text"
-                name="name[ar]"
-                placeholder={t('Enter area name in Arabic')}
-                defaultValue={currentArea?.description.ar.name ?? ''}
+                name="title[ar]"
+                placeholder={t('Enter amenity title in Arabic')}
+                defaultValue={currentAmenity?.descriptions.ar.title ?? ''}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="count_properties" className="block text-sm font-medium text-gray-700">
-                {t('Number of Properties')}
-              </label>
-              <input
-                id="count_properties"
-                type="number"
-                name="count_of_properties"
-                placeholder={t('Enter number of properties')}
-                defaultValue={currentArea?.count_of_properties?.toString() ?? ''}
-                className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                min="0"
                 required
               />
             </div>
             
             {/* Replace the old file input with ImageUploadField */}
             <ImageUploadField
-              label="Area Image"
-              id="area-image"
+              label="Amenity Image"
+              id="amenity-image"
               name="image"
-              value={currentArea?.image || null}
+              value={currentAmenity?.image || null}
               preview={imagePreview}
               onChange={handleImageChange}
               required={modalState.type === 'create'}
               accept="image/*"
-              allowedSizes={`${AREA_IMAGE_SIZE.width}x${AREA_IMAGE_SIZE.height}`}
+                    allowedSizes={`${AMENITY_IMAGE_SIZE.width}x${AMENITY_IMAGE_SIZE.height}`} // e.g., "1200x630"
             />
             
             <div className="flex justify-end space-x-3 pt-4">
