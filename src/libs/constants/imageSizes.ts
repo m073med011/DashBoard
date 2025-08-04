@@ -15,3 +15,8 @@ export const AMENITY_IMAGE_SIZE = {
   width: 400,
   height: 400
 };
+
+export const AREA_IMAGE_SIZE = {
+  width: 800,
+  height: 600
+};

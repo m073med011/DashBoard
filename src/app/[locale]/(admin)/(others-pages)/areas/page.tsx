@@ -9,12 +9,10 @@ import Image from 'next/image';
 import ImageUploadField from '@/components/ImageUploadField';
 import Toast from '@/components/Toast';
 import { useLocale, useTranslations } from 'next-intl';
+import { AREA_IMAGE_SIZE } from '@/libs/constants/imageSizes';
 
 // Add area image size constants
-export const AREA_IMAGE_SIZE = {
-  width: 800,
-  height: 600
-};
+
 
 type Area = {
   id: number;
