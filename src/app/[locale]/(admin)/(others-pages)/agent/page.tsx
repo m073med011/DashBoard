@@ -119,7 +119,7 @@ export default function OwnersPage() {
         }),
       );
       fetchOwners(token);
-      showToast('Owner deleted successfully', 'success');
+      showToast('Agent deleted successfully', 'success');
     } catch (error) {
       console.error('Delete failed', error);
       showToast('Delete failed', 'error');

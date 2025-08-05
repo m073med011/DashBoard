@@ -21,6 +21,7 @@ type ToastState = {
   message: string;
   type: "success" | "error" | "info";
   show: boolean;
+  translationValues?: Record<string, number>;
 };
 
 const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
@@ -36,10 +37,18 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
 }) => {
   const t = useTranslations("blogs");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [toast, setToast] = useState<ToastState>({ message: "", type: "success", show: false });
+  const [toast, setToast] = useState<ToastState>({ 
+    message: "", 
+    type: "success", 
+    show: false 
+  });
 
-  const showToast = (message: string, type: "success" | "error" | "info" = "info") => {
-    setToast({ message, type, show: true });
+  const showToast = (
+    message: string, 
+    type: "success" | "error" | "info" = "info",
+    translationValues?: Record<string, number>
+  ) => {
+    setToast({ message, type, show: true, translationValues });
     setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 9000);
   };
 
@@ -53,8 +62,14 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
 
         if (img.width < minWidth || img.height < minHeight) {
           showToast(
-            `Image must be at least ${minWidth}×${minHeight} pixels. Detected: ${img.width}×${img.height}`,
-            "error"
+            "imageValidationError",
+            "error",
+            {
+              minWidth,
+              minHeight,
+              width: img.width,
+              height: img.height
+            }
           );
           // Reset input after validation failure
           if (fileInputRef.current) {
@@ -64,12 +79,13 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
         }
 
         onChange(file);
+        showToast("imageUploadSuccess", "success");
         // Clean up the object URL after successful validation
         URL.revokeObjectURL(img.src);
       };
 
       img.onerror = () => {
-        showToast("Invalid image file.", "error");
+        showToast("invalidImageFile", "error");
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -79,21 +95,29 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
       img.src = URL.createObjectURL(file);
     } else {
       onChange(file);
+      if (file) {
+        showToast("imageUploadSuccess", "success");
+      }
     }
   };
 
   const triggerFileInput = () => {
-    // Don't reset the input here - let it handle naturally
     fileInputRef.current?.click();
   };
-
 
   const displaySrc = preview || value;
   const hasImage = !!displaySrc;
 
   return (
     <div>
-      {toast.show && <Toast message={toast.message} type={toast.type} duration={9000} />}
+      {toast.show && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          duration={9000}
+          translationValues={toast.translationValues}
+        />
+      )}
       
       <label className="block mb-2 font-semibold text-gray-800 dark:text-gray-200">
         {t(label)} {required && <span className="text-red-500">*</span>}
@@ -101,8 +125,8 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
 
       {allowedSizes && (
         <p className="text-xs text-blue-500 mb-2">
-          {`Minimum size: ${allowedSizes}`}
-        </p>
+    {t("Minimum size", { size: allowedSizes })}
+  </p>
       )}
 
       {hasImage ? (
@@ -124,7 +148,7 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
               onClick={triggerFileInput}
               className="text-xs text-blue-600 hover:text-blue-800 underline"
             >
-              {t("Change image")}
+              {t("change image")}
             </button>
           </div>
         </div>
@@ -159,7 +183,7 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
         accept={accept}
         onChange={handleFileChange}
         className="hidden"
-        key={hasImage ? 'with-image' : 'without-image'} // Force re-render when image state changes
+        key={hasImage ? 'with-image' : 'without-image'}
       />
 
       {!value && !preview && required && (

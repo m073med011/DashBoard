@@ -33,7 +33,7 @@ type ToastState = {
 
 export default function AmenitiesPage() {
   const locale = useLocale();
-  const t = useTranslations("amenities");
+  const t = useTranslations("Amenities");
   const [items, setItems] = useState<Amenity[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalLoading, setModalLoading] = useState(false);

@@ -183,7 +183,7 @@ export const AmenitiesTab: React.FC<AmenitiesTabProps> = ({ property, onUpdate, 
       <div>
         {amenitiesListLoading ? (
           <div className="flex justify-center items-center h-32">
-            <p className="text-lg">{t("Loading amenities...")}</p>
+            <p className="text-lg">{t("Loading amenities")}</p>
           </div>
         ) : (
           <div>
