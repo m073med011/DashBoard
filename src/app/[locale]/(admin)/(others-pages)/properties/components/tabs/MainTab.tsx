@@ -19,6 +19,13 @@ interface User {
   avatar?: string;
   created_at?: string;
 }
+interface PropertyType {
+  id?: number;
+  descriptions?: {
+    en?: { title?: string; description?: string };
+    ar?: { title?: string; description?: string };
+  };
+}
 
 interface AreaDescription {
   en?: { name?: string; description?: string };
@@ -41,6 +48,7 @@ interface PropertyData {
   id: number;
   title?: string;
   descriptions?: Description;
+    type?: PropertyType; // Changed from string to PropertyType
   area?: Area;
   price?: number;
   down_price?: number;
@@ -54,7 +62,6 @@ interface PropertyData {
   finishing?: string;
   facing?: string;
   status?: string;
-  type?: string;
   approval_status?: string;
   views?: number;
   priority?: string;
@@ -246,7 +253,7 @@ export const MainTab: React.FC<MainTabProps> = ({ property, propertystat, refetc
                   <Clock className="h-3 w-3" /> {t("State")}: <strong>{displayText(property.status)}</strong>
                 </span>
                 <span className="flex items-center gap-1">
-                  <Building className="h-3 w-3" /> {t("Type")}: <strong>{displayText(property.type)}</strong>
+                  <Building className="h-3 w-3" /> {t("Type")}: <strong>{displayText(property?.type?.descriptions?.en?.title)}</strong>
                 </span>
               </div>
             </div>
