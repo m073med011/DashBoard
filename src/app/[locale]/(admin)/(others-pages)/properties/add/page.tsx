@@ -1,22 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { postData, getData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
 import { useRouter } from "@/i18n/routing";
-import { useTranslations,useLocale } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Toast from "@/components/Toast";
 import RichTextEditor from "@/components/RichTextEditor";
-import { ChevronDown, ChevronUp, DollarSign, Home, FileText, Globe, Camera, Check, X } from "lucide-react";
+import { ChevronDown, ChevronUp, DollarSign, Home, FileText, Globe, Camera, Check, X, Coins, CreditCard } from "lucide-react";
 import Image from "next/image";
-import GoogleLocationSearch from "@/components/common/GoogleLocationInput"
-
+import GoogleLocationSearch from "@/components/common/GoogleLocationInput";
 
 type FormInputs = {
   // General Information
   type_id: string;
-  area_id: string;
+  // area_id: string;
   userId: string;
   price: string;
   down_price: string;
@@ -27,13 +26,17 @@ type FormInputs = {
   status: string;
   type: string;
   immediate_delivery: string;
-  
+  payment_method: string;
+  paid_months?: string;
+  furnishing: string;
+  mortgage?: string;
+
   // English fields
   title_en: string;
   description_en: string;
   keywords_en: string;
   slug_en: string;
-  
+
   // Arabic fields
   title_ar: string;
   description_ar: string;
@@ -63,20 +66,16 @@ type SelectOption = {
   name?: string;
 };
 
-type AreaOption = {
-  id: number;
-  image: string;
-  count_of_properties: number;
-  name: string;
-  description: {
-    en: {
-      name: string;
-    };
-    ar: {
-      name: string;
-    };
-  };
-};
+// type AreaOption = {
+//   id: number;
+//   image: string;
+//   count_of_properties: number;
+//   name: string;
+//   description: {
+//     en: { name: string };
+//     ar: { name: string };
+//   };
+// };
 
 type AgentOption = {
   id: number;
@@ -94,7 +93,7 @@ type ImagePreview = {
 
 const CreatePropertyPage = () => {
   const t = useTranslations("properties");
-  const locale=useLocale();
+  const locale = useLocale();
   const router = useRouter();
 
   const {
@@ -102,6 +101,8 @@ const CreatePropertyPage = () => {
     handleSubmit,
     formState: { errors },
     setValue,
+    control,
+    // watch,
   } = useForm<FormInputs>();
 
   const [descriptionEn, setDescriptionEn] = useState<string>("");
@@ -123,13 +124,16 @@ const CreatePropertyPage = () => {
     details: true,
     arabic: true,
     english: true,
-    images: true
+    images: true,
   });
 
   // State for dropdown options
   const [propertyTypes, setPropertyTypes] = useState<SelectOption[]>([]);
-  const [areas, setAreas] = useState<AreaOption[]>([]);
+  // const [areas, setAreas] = useState<AreaOption[]>([]);
   const [agents, setAgents] = useState<AgentOption[]>([]);
+
+  // Watch payment method
+  const paymentMethod = useWatch({ control, name: "payment_method" }) || "cash";
 
   const showToast = (message: string, type: "success" | "error" | "info" = "info") => {
     setToast({ message, type, show: true });
@@ -139,29 +143,26 @@ const CreatePropertyPage = () => {
   };
 
   const toggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
-  // Handle selecting a single image
   const handleImageSelect = (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    // Clean up previous image URL if exists
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview.url);
     }
 
-    const file = files[0]; // Take only the first file
+    const file = files[0];
     const url = URL.createObjectURL(file);
     const id = `${Date.now()}-${Math.random()}`;
-    
+
     setImagePreview({ file, url, id });
   };
 
-  // Handle removing the image
   const handleRemoveImage = () => {
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview.url);
@@ -169,16 +170,15 @@ const CreatePropertyPage = () => {
     }
   };
 
-  // Cleanup URL when component unmounts
   useEffect(() => {
     return () => {
       if (imagePreview) {
         URL.revokeObjectURL(imagePreview.url);
       }
     };
-  }, []);
+  }, [imagePreview]);
 
-  // Fetch dropdown data on component mount
+  // Fetch dropdown data
   useEffect(() => {
     const fetchDropdownData = async () => {
       const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
@@ -188,25 +188,28 @@ const CreatePropertyPage = () => {
       }
 
       try {
-        const [typesResponse, areasResponse, agentsResponse] = await Promise.all([
-          getData("owner/types", {}, new AxiosHeaders({ Authorization: `Bearer ${token}`,lang:locale })),
-          getData("owner/areas", {}, new AxiosHeaders({ Authorization: `Bearer ${token}`,lang:locale })),
-          getData("owner/agents", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` }))
+        const [typesResponse, agentsResponse] = await Promise.all([
+          getData("owner/types", {}, new AxiosHeaders({ Authorization: `Bearer ${token}`, lang: locale })),
+          // getData("owner/areas", {}, new AxiosHeaders({ Authorization: `Bearer ${token}`, lang: locale })),
+          getData("owner/agents", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` })),
         ]);
 
         if (typesResponse.status) setPropertyTypes(typesResponse.data);
-        if (areasResponse.status) setAreas(areasResponse.data);
+        // if (areasResponse.status) setAreas(areasResponse.data);
         setAgents(agentsResponse);
-        console.log(agents, "agents data fetched successfully");
-
       } catch (error) {
-        console.error("Error fetching dropdown data:", error);
+        console.error("Error fetching dropdown ", error);
         showToast(t("error_fetching_dropdown_data"), "error");
       }
     };
 
     fetchDropdownData();
-  }, []);
+  }, [locale, t]);
+
+  // Set default payment method
+  useEffect(() => {
+    setValue("payment_method", "cash");
+  }, [setValue]);
 
   const onSubmit = async (data: FormInputs) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
@@ -216,18 +219,17 @@ const CreatePropertyPage = () => {
     }
 
     if (!imagePreview) {
-      showToast("please_select_an_image", "error");
+      showToast(t("please_select_an_image"), "error");
       return;
     }
 
     const formData = new FormData();
-    
-    // Add general fields
+
+    // General fields
     formData.append("type_id", data.type_id);
-    formData.append("area_id", data.area_id);
+    // formData.append("area_id", data.area_id);
     formData.append("user_id", data.userId);
     formData.append("price", data.price);
-    formData.append("down_price", data.down_price);
     formData.append("sqt", data.sqt);
     formData.append("bedroom", data.bedroom);
     formData.append("bathroom", data.bathroom);
@@ -235,38 +237,50 @@ const CreatePropertyPage = () => {
     formData.append("status", data.status);
     formData.append("type", data.type);
     formData.append("immediate_delivery", data.immediate_delivery);
-    
-    // Add location data
+    formData.append("furnishing", data.furnishing);
+    formData.append("payment_method", data.payment_method);
+
+    // Conditional fields (installment)
+    if (data.payment_method === "installment") {
+      if (data.down_price) formData.append("down_price", data.down_price);
+      if (data.paid_months) formData.append("paid_months", data.paid_months);
+    }
+
+    // Mortgage (optional)
+    if (data.mortgage) {
+      formData.append("mortgage", data.mortgage);
+    }
+
+    // Location
     formData.append("location", locationValue);
     if (locationData) {
-      // formData.append("location_data", JSON.stringify(locationData));
       formData.append("location_place_id", locationData.placeId);
       if (locationData.lat) formData.append("location_lat", locationData.lat.toString());
       if (locationData.lng) formData.append("location_lng", locationData.lng.toString());
     }
 
-    // Add English fields
+    // English
     formData.append("title[en]", data.title_en);
     formData.append("description[en]", descriptionEn);
     formData.append("keywords[en]", data.keywords_en);
     formData.append("slug[en]", data.slug_en);
-    
-    // Add Arabic fields
+
+    // Arabic
     formData.append("title[ar]", data.title_ar);
     formData.append("description[ar]", descriptionAr);
     formData.append("keywords[ar]", data.keywords_ar);
     formData.append("slug[ar]", data.slug_ar);
 
-    // Add single image
+    // Cover image
     formData.append("cover", imagePreview.file);
 
     try {
       const response = await postData("owner/property_listings", formData, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
-      showToast("property_added_successfully", "success");
+      showToast(t("property_added_successfully"), "success");
       router.push(`/properties/view/${response?.data?.id}`);
     } catch (error) {
       console.error("Failed to create property:", error);
-      showToast("failed_to_add_property", "error");
+      showToast(t("failed_to_add_property"), "error");
     }
   };
 
@@ -297,7 +311,7 @@ const CreatePropertyPage = () => {
         </div>
       </div>
       <div className="flex items-center space-x-2">
-        <div className={`w-3 h-3 rounded-full ${expandedSections[sectionKey] ? 'bg-green-500' : 'bg-slate-300'} transition-colors duration-200`}></div>
+        <div className={`w-3 h-3 rounded-full ${expandedSections[sectionKey] ? 'bg-[#F26A3F]' : 'bg-slate-300'} transition-colors duration-200`}></div>
         {expandedSections[sectionKey] ? 
           <ChevronUp className="w-5 h-5 text-slate-600 dark:text-slate-400" /> : 
           <ChevronDown className="w-5 h-5 text-slate-600 dark:text-slate-400" />
@@ -331,7 +345,7 @@ const CreatePropertyPage = () => {
       {type === "select" ? (
         <select
           {...register(name, { required })}
-          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
           dir={dir}
         >
           <option value="">{placeholder || `${t("select")} ${label}`}</option>
@@ -345,7 +359,7 @@ const CreatePropertyPage = () => {
         <input
           {...register(name, { required })}
           type={type}
-          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
           dir={dir}
           placeholder={placeholder}
         />
@@ -366,10 +380,10 @@ const CreatePropertyPage = () => {
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full mb-4 shadow-lg">
             <Home className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-700 to-red-600 dark:from-orange-500 dark:to-red-500 bg-clip-text text-transparent mb-2">
             {t("create_property")}
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-lg">
@@ -382,12 +396,11 @@ const CreatePropertyPage = () => {
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <SectionHeader 
               title={t("basic_information")} 
-              icon={<Home className="w-5 h-5 text-blue-600" />}
+              icon={<Home className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="basic"
               description={t("property_type_location_details")}
             />
             {expandedSections.basic && (
-              
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
                   <GoogleLocationSearch
@@ -395,16 +408,10 @@ const CreatePropertyPage = () => {
                     name="location"
                     value={locationValue}
                     onChange={(value, googleLocationData) => {
-                      // Update the location text value
                       setLocationValue(value);
-
-                      // Update react-hook-form value
                       setValue("location", value);
-
-                      // Update the location data if provided
                       if (googleLocationData) {
                         setLocationData(googleLocationData);
-                        console.log('Location data:', googleLocationData);
                       }
                     }}
                     placeholder={t("enter_your_location")}
@@ -414,37 +421,36 @@ const CreatePropertyPage = () => {
                     errorMessage={errors.location ? t("field_required") : undefined}
                     t={t}
                   />
-                  </div>
+                </div>
                 <InputField
                   label={t("property_type")}
                   name="type_id"
                   type="select"
                   required
-                  options={propertyTypes.map(type => ({ value: type.id, label: type.title || '' }))}
+                  options={propertyTypes.map((type) => ({ value: type.id, label: type.title || "" }))}
                   placeholder={t("select_type")}
                 />
-                <InputField
+                {/* <InputField
                   label={t("area")}
                   name="area_id"
                   type="select"
                   required
-                  options={areas.map(area => ({ 
-                    value: area.id.toString(), 
-                    label: `${area?.name}` 
+                  options={areas.map((area) => ({
+                    value: area.id.toString(),
+                    label: area.name,
                   }))}
                   placeholder={t("select_area")}
-                />
-                
+                /> */}
                 <InputField
                   label={t("Agent")}
                   name="userId"
                   type="select"
                   required
-                  options={agents?.map(agent => ({
+                  options={agents.map((agent) => ({
                     value: agent.id.toString(),
-                    label: agent.name
+                    label: agent.name,
                   }))}
-                  placeholder={t(`select_agent`)}
+                  placeholder={t("select_agent")}
                 />
               </div>
             )}
@@ -454,7 +460,7 @@ const CreatePropertyPage = () => {
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <SectionHeader 
               title={t("pricing_financial_details")} 
-              icon={<DollarSign className="w-5 h-5 text-green-600" />}
+              icon={<DollarSign className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="pricing"
               description={t("property_pricing_payment_info")}
             />
@@ -467,12 +473,75 @@ const CreatePropertyPage = () => {
                   required
                   placeholder={t("enter_property_price")}
                 />
+
+                {/* Payment Method Toggle */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-dark dark:text-white">
+                    {t("payment_method")}
+                    <span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <div className="flex rounded-lg overflow-hidden shadow-sm border border-slate-300 dark:border-slate-600">
+                    <button
+                      type="button"
+                      onClick={() => setValue("payment_method", "cash")}
+                      className={`flex-1 py-3 px-4 text-center font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                        paymentMethod === "cash"
+                          ? "bg-[#F26A3F] text-white shadow-inner"
+                          : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
+                      }`}
+                    >
+                      <Coins className="w-4 h-4" />
+                      {t("cash")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setValue("payment_method", "installment")}
+                      className={`flex-1 py-3 px-4 text-center font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                        paymentMethod === "installment"
+                          ? "bg-[#F26A3F] text-white shadow-inner"
+                          : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
+                      }`}
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      {t("installment")}
+                    </button>
+                  </div>
+                  {errors.payment_method && (
+                    <p className="text-red-500 text-sm flex items-center mt-1">
+                      <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+                      {t("field_required")}
+                    </p>
+                  )}
+                </div>
+
+                {/* Down Payment & Paid Months (only if installment) */}
+                {paymentMethod === "installment" && (
+                  <>
+                    <InputField
+                      label={t("down_price")}
+                      name="down_price"
+                      type="number"
+                      required
+                      placeholder={t("enter_down_payment_amount")}
+                    />
+                    <InputField
+                      label={t("number_of_months")}
+                      name="paid_months"
+                      type="number"
+                      required
+                      placeholder={t("enter_number_of_installment_months")}
+                    />
+                  </>
+                )}
+
+                {/* Mortgage Input */}
                 <InputField
-                  label={t("down_price")}
-                  name="down_price"
-                  type="number"
-                  required
-                  placeholder={t("enter_down_payment_amount")}
+                  label={t("mortgage")}
+                  name="mortgage"
+                  type="boolean"
+
+                  required={false}
+                  placeholder={t("mortgage_placeholder")}
                 />
               </div>
             )}
@@ -482,7 +551,7 @@ const CreatePropertyPage = () => {
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <SectionHeader 
               title={t("room_configuration")} 
-              icon={<Home className="w-5 h-5 text-orange-600" />}
+              icon={<Home className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="rooms"
               description={t("bedrooms_bathrooms_kitchen_details")}
             />
@@ -524,12 +593,12 @@ const CreatePropertyPage = () => {
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <SectionHeader 
               title={t("property_details")} 
-              icon={<FileText className="w-5 h-5 text-purple-600" />}
+              icon={<FileText className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="details"
               description={t("status_type_delivery_info")}
             />
             {expandedSections.details && (
-              <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 <InputField
                   label={t("status")}
                   name="status"
@@ -537,7 +606,7 @@ const CreatePropertyPage = () => {
                   required
                   options={[
                     { value: "rent", label: t("rent") },
-                    { value: "sale", label: t("sale") }
+                    { value: "sale", label: t("sale") },
                   ]}
                   placeholder={t("select_status")}
                 />
@@ -548,7 +617,7 @@ const CreatePropertyPage = () => {
                   required
                   options={[
                     { value: "apartment", label: t("apartment") },
-                    { value: "office", label: t("office") }
+                    { value: "office", label: t("office") },
                   ]}
                   placeholder={t("select_type")}
                 />
@@ -559,9 +628,21 @@ const CreatePropertyPage = () => {
                   required
                   options={[
                     { value: "yes", label: t("yes") },
-                    { value: "no", label: t("no") }
+                    { value: "no", label: t("no") },
                   ]}
                   placeholder={t("select_option")}
+                />
+                <InputField
+                  label={t("furnishing")}
+                  name="furnishing"
+                  type="select"
+                  required
+                  options={[
+                    { value: "furnished", label: t("furnished") },
+                    { value: "unfurnished", label: t("unfurnished") },
+                    { value: "partly_furnished", label: t("partly_furnished") },
+                  ]}
+                  placeholder={t("select_furnishing")}
                 />
               </div>
             )}
@@ -571,7 +652,7 @@ const CreatePropertyPage = () => {
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <SectionHeader 
               title={t("arabic_content")} 
-              icon={<Globe className="w-5 h-5 text-emerald-600" />}
+              icon={<Globe className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="arabic"
               description={t("arabic_title_description_seo")}
             />
@@ -620,7 +701,7 @@ const CreatePropertyPage = () => {
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <SectionHeader 
               title={t("english_content")} 
-              icon={<Globe className="w-5 h-5 text-blue-600" />}
+              icon={<Globe className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="english"
               description={t("english_title_description_seo")}
             />
@@ -662,20 +743,18 @@ const CreatePropertyPage = () => {
             )}
           </div>
 
-         {/* Single Image Upload */}
-         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+          {/* Single Image Upload */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <SectionHeader 
               title={t("property_image")}
-              icon={<Camera className="w-5 h-5 text-pink-600" />}
+              icon={<Camera className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="images"
               description={t("upload_high_quality_photo")}
             />
             {expandedSections.images && (
               <div className="p-6 space-y-6">
-                {/* Upload Area with Preview */}
-                <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200">
+                <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden hover:border-orange-400 dark:hover:border-orange-500 transition-colors duration-200">
                   {!imagePreview ? (
-                    // Upload prompt when no image
                     <div className="p-8 text-center">
                       <Camera className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                       <label className="cursor-pointer">
@@ -694,7 +773,6 @@ const CreatePropertyPage = () => {
                       </p>
                     </div>
                   ) : (
-                    // Image preview with overlay controls
                     <div className="relative group">
                       <Image
                         width={800}
@@ -703,12 +781,9 @@ const CreatePropertyPage = () => {
                         alt={t("property_preview")}
                         className="w-full h-64 md:h-80 object-cover"
                       />
-                      
-                      {/* Overlay controls */}
-                      <div className="absolute inset-0  group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-3">
-                          {/* Change image button */}
-                          <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transform hover:scale-110 transition-all duration-200">
+                          <label className="cursor-pointer bg-[#F26A3F] hover:bg-orange-600 text-white rounded-full p-3 shadow-lg transform hover:scale-110 transition-all duration-200">
                             <Camera className="w-5 h-5" />
                             <input
                               type="file"
@@ -717,8 +792,6 @@ const CreatePropertyPage = () => {
                               className="hidden"
                             />
                           </label>
-                          
-                          {/* Remove image button */}
                           <button
                             type="button"
                             onClick={handleRemoveImage}
@@ -729,24 +802,16 @@ const CreatePropertyPage = () => {
                           </button>
                         </div>
                       </div>
-                      
-                      {/* Success indicator */}
-                      <div className="absolute top-4 right-4 bg-green-500 text-white rounded-full p-2 shadow-lg">
+                      <div className="absolute top-4 right-4 bg-[#F26A3F] text-white rounded-full p-2 shadow-lg">
                         <Check className="w-4 h-4" />
                       </div>
-                      
-                      {/* Image info overlay */}
                       <div className="absolute bottom-4 left-4 bg-black bg-opacity-60 text-white px-3 py-2 rounded-lg">
                         <p className="text-sm font-medium">{imagePreview.file.name}</p>
-                        <p className="text-xs opacity-90">
-                          {(imagePreview.file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
+                        <p className="text-xs opacity-90">{(imagePreview.file.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
                     </div>
                   )}
                 </div>
-
-                {/* Helper text */}
                 <div className="text-center">
                   <p className="text-sm text-slate-500 dark:text-slate-400">
                     {imagePreview 
@@ -770,7 +835,7 @@ const CreatePropertyPage = () => {
             </button>
             <button
               type="submit"
-              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-2"
+              className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-2"
             >
               <Check className="w-5 h-5" />
               <span>{t("create_property")}</span>

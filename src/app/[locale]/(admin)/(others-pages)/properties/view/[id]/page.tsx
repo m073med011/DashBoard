@@ -25,8 +25,8 @@ export default function PropertyDetailsPage() {
   // Update page title when property loads
   useEffect(() => {
     if (property) {
-      const title = property.descriptions?.en?.title || 'Property Details';
-      const propertyType = property.type?.descriptions?.en?.title || '';
+      const title = property?.title || 'Property Details';
+      const propertyType = property.type?.title || '';
       document.title = `${title} ${propertyType ? '- ' + propertyType : ''} | Real Estate`;
     } else if (!loading) {
       document.title = 'Property Not Found';

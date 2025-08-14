@@ -498,6 +498,19 @@
     "No English content available for this banner": "No English Content Available for this Banner"
   },
   "properties": {
+    "mortgage": "Mortgage Amount",
+"mortgage_placeholder": "Enter mortgage loan amount (optional)",
+    "furnishing": "Furnishing",
+"furnished": "Furnished",
+"unfurnished": "Unfurnished",
+"partly_furnished": "Partly Furnished",
+"select_furnishing": "Select Furnishing",
+  "payment_method": "Payment Method",
+  "cash": "Cash",
+  "installment": "Installment",
+  "select_payment_method": "Select Payment Method",
+  "number_of_months": "Number of Months",
+  "enter_number_of_installment_months": "Enter number of installment months",
     "Updating Status": "Updating Status...",
     "select_agent": "Select Agent",
     "Agent": "Agent",
@@ -697,6 +710,9 @@
     "e.g., Swimming Pool, Gym": "e.g., Swimming Pool, Gym"
   },
   "Amenities": {
+    "Property Not Found": "Property Not Found",
+    "Property could not be loaded": "The requested property could not be loaded.",
+    "No data": "No data",
     "Loading amenities": "Loading amenities",
      "Loading amenities...": "Loading amenities...",
     "Select amenities for this property:": "Select amenities for this property:",

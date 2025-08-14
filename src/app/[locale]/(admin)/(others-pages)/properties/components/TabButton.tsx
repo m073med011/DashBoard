@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 export const TabButton = ({ label, isActive, onClick }: {
   label: string;
@@ -32,14 +33,18 @@ export const ReadOnlyField = ({ label, value }: {
   </div>
 );
 
-export const LoadingSpinner = () => (
-  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-      <p className="text-gray-600 dark:text-gray-400">Loading property details...</p>
+export const LoadingSpinner = () => {
+  const t = useTranslations('Amenities');
+  
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">{t('Loading amenities')}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const NotFoundMessage = () => (
   <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">

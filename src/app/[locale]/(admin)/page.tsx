@@ -4,7 +4,7 @@ import { getData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import {
   TrendingUp, Users, UserCheck, Home, Clock, CheckCircle,
-  XCircle, DollarSign, MapPin, Building2, Loader2,
+  XCircle, DollarSign, Building2, Loader2,
   AlertCircle, ArrowUpRight, ArrowDownRight, BarChart3, PieChart
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -19,20 +19,37 @@ interface StatisticsData {
   for_sale: number;
   for_rent: number;
   immediate_delivery: number;
-  average_price: number;
-  total_price_for_sale: number;
-  total_price_for_rent: number;
-  by_area: Array<{ area_name: string; count: number }>;
+  average_price: string | number;
+  total_price_for_sale: string | number;
+  total_price_for_rent: string | number;
   by_type: Array<{ type_name: string; count: number }>;
 }
 
-const formatCurrency = (amount: number) => {
+// Default values for statistics
+const defaultStatistics: StatisticsData = {
+  total_customers: 0,
+  total_agents: 0,
+  total: 0,
+  cancelled: 0,
+  pending: 0,
+  accepted: 0,
+  for_sale: 0,
+  for_rent: 0,
+  immediate_delivery: 0,
+  average_price: 0,
+  total_price_for_sale: 0,
+  total_price_for_rent: 0,
+  by_type: []
+};
+
+const formatCurrency = (amount: string | number) => {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) || 0 : amount || 0;
   return new Intl.NumberFormat('en-EG', {
     style: 'currency',
     currency: 'EGP',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(numAmount);
 };
 
 const StatCard = ({ 
@@ -124,7 +141,7 @@ const ModernChartCard = ({
           </div>
         ))}
       </div>
-    ) : (
+    ) : data && data.length > 0 ? (
       <div className="space-y-4">
         {data.map((item: { name: string; count: number }, index: number) => {
           const maxCount = Math.max(...data.map((d: { count: number }) => d.count));
@@ -139,11 +156,11 @@ const ModernChartCard = ({
           return (
             <div key={index} className="group">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{item.name}</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{item.name || 'N/A'}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-bold text-gray-900 dark:text-white">{item.count}</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">{item.count || 0}</span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {data.length > 0 ? ((item.count / data.reduce((sum: number, d: { count: number }) => sum + d.count, 0)) * 100).toFixed(1) : 0}%
+                    {data.length > 0 ? ((item.count / data.reduce((sum: number, d: { count: number }) => sum + (d.count || 0), 0)) * 100).toFixed(1) : '0.0'}%
                   </span>
                 </div>
               </div>
@@ -153,6 +170,13 @@ const ModernChartCard = ({
             </div>
           );
         })}
+      </div>
+    ) : (
+      <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
+        <div className="p-3 bg-gray-100 dark:bg-gray-700 rounded-full mb-3">
+          <Icon className="w-6 h-6" />
+        </div>
+        <p className="text-sm font-medium">No data available</p>
       </div>
     )}
   </div>
@@ -181,7 +205,7 @@ const ErrorCard = ({ message, onRetry, t }: { message: string; onRetry: () => vo
 );
 
 export default function DashBoard() {
-  const [statistics, setStatistics] = useState<StatisticsData | null>(null);
+  const [statistics, setStatistics] = useState<StatisticsData>(defaultStatistics);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations('Home');
@@ -192,12 +216,26 @@ export default function DashBoard() {
       setError(null);
       const token = localStorage.getItem('token');
       if (!token) throw new Error(t('authenticationTokenNotFound'));
+      
       const response = await getData('owner/statistics', {}, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
-      if (response.data && response.status) setStatistics(response.data);
-      else throw new Error(response.msg || t('failedToFetchStatistics'));
+      
+      if (response.status && response.data) {
+        // Merge response data with defaults to ensure all fields exist
+        const mergedData = {
+          ...defaultStatistics,
+          ...response.data,
+          // Ensure by_type exists with default empty array if not provided
+          by_type: response.data.by_type || []
+        };
+        setStatistics(mergedData);
+      } else {
+        throw new Error(response.msg || t('failedToFetchStatistics'));
+      }
     } catch (error) {
       setError(t('failedToLoadData'));
       console.error(t('failedToFetchStatistics'), error);
+      // Set default statistics on error
+      setStatistics(defaultStatistics);
     } finally {
       setLoading(false);
     }
@@ -217,6 +255,17 @@ export default function DashBoard() {
     );
   }
 
+  // Calculate total portfolio value safely
+  const totalForSalePrice = typeof statistics.total_price_for_sale === 'string' 
+    ? parseFloat(statistics.total_price_for_sale) || 0 
+    : statistics.total_price_for_sale || 0;
+  
+  const totalForRentPrice = typeof statistics.total_price_for_rent === 'string' 
+    ? parseFloat(statistics.total_price_for_rent) || 0 
+    : statistics.total_price_for_rent || 0;
+
+  const totalPortfolioValue = totalForSalePrice + totalForRentPrice;
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="grid grid-cols-12 gap-6">
@@ -224,16 +273,40 @@ export default function DashBoard() {
         <div className="col-span-12 lg:col-span-8">
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-12 sm:col-span-6 lg:col-span-6">
-              <StatCard title={t('totalProperties')} value={statistics?.total ?? 0} icon={Home} gradient="bg-gradient-to-br from-blue-600 to-cyan-600" isLoading={loading} />
+              <StatCard 
+                title={t('totalProperties')} 
+                value={statistics.total || 0} 
+                icon={Home} 
+                gradient="bg-gradient-to-br from-blue-600 to-cyan-600" 
+                isLoading={loading} 
+              />
             </div>
             <div className="col-span-12 sm:col-span-6 lg:col-span-6">
-              <StatCard title={t('totalCustomers')} value={statistics?.total_customers ?? 0} icon={Users} gradient="bg-gradient-to-br from-emerald-600 to-green-600" isLoading={loading} />
+              <StatCard 
+                title={t('totalCustomers')} 
+                value={statistics.total_customers || 0} 
+                icon={Users} 
+                gradient="bg-gradient-to-br from-emerald-600 to-green-600" 
+                isLoading={loading} 
+              />
             </div>
             <div className="col-span-12 sm:col-span-6 lg:col-span-6">
-              <StatCard title={t('totalAgents')} value={statistics?.total_agents ?? 0} icon={UserCheck} gradient="bg-gradient-to-br from-purple-600 to-pink-600" isLoading={loading} />
+              <StatCard 
+                title={t('totalAgents')} 
+                value={statistics.total_agents || 0} 
+                icon={UserCheck} 
+                gradient="bg-gradient-to-br from-purple-600 to-pink-600" 
+                isLoading={loading} 
+              />
             </div>
             <div className="col-span-12 sm:col-span-6 lg:col-span-6">
-              <StatCard title={t('averagePrice')} value={statistics ? formatCurrency(statistics.average_price) : "EGP 0"} icon={DollarSign} gradient="bg-gradient-to-br from-orange-600 to-red-600" isLoading={loading} />
+              <StatCard 
+                title={t('averagePrice')} 
+                value={formatCurrency(statistics.average_price || 0)} 
+                icon={DollarSign} 
+                gradient="bg-gradient-to-br from-orange-600 to-red-600" 
+                isLoading={loading} 
+              />
             </div>
           </div>
         </div>
@@ -249,10 +322,10 @@ export default function DashBoard() {
             </div>
             <div className="space-y-4">
               {[
-                { label: t('accepted'), value: statistics?.accepted ?? 0, color: 'bg-emerald-500', icon: CheckCircle },
-                { label: t('pending'), value: statistics?.pending ?? 0, color: 'bg-orange-500', icon: Clock },
-                { label: t('cancelled'), value: statistics?.cancelled ?? 0, color: 'bg-red-500', icon: XCircle },
-                { label: t('immediate'), value: statistics?.immediate_delivery ?? 0, color: 'bg-blue-500', icon: TrendingUp }
+                { label: t('accepted'), value: statistics.accepted || 0, color: 'bg-emerald-500', icon: CheckCircle },
+                { label: t('pending'), value: statistics.pending || 0, color: 'bg-orange-500', icon: Clock },
+                { label: t('cancelled'), value: statistics.cancelled || 0, color: 'bg-red-500', icon: XCircle },
+                { label: t('immediate'), value: statistics.immediate_delivery || 0, color: 'bg-blue-500', icon: TrendingUp }
               ].map((item, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 dark:bg-gray-800 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                   <div className="flex items-center space-x-3">
@@ -270,24 +343,48 @@ export default function DashBoard() {
 
         {/* Property Types */}
         <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-          <StatCard title={t('forSale')} value={statistics?.for_sale ?? 0} icon={Home} gradient="bg-gradient-to-br from-indigo-600 to-blue-600" subtitle={statistics ? formatCurrency(statistics.total_price_for_sale) : undefined} isLoading={loading} />
+          <StatCard 
+            title={t('forSale')} 
+            value={statistics.for_sale || 0} 
+            icon={Home} 
+            gradient="bg-gradient-to-br from-indigo-600 to-blue-600" 
+            subtitle={formatCurrency(statistics.total_price_for_sale || 0)} 
+            isLoading={loading} 
+          />
         </div>
 
         <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-          <StatCard title={t('forRent')} value={statistics?.for_rent ?? 0} icon={Building2} gradient="bg-gradient-to-br from-pink-600 to-rose-600" subtitle={statistics ? formatCurrency(statistics.total_price_for_rent) : undefined} isLoading={loading} />
+          <StatCard 
+            title={t('forRent')} 
+            value={statistics.for_rent || 0} 
+            icon={Building2} 
+            gradient="bg-gradient-to-br from-pink-600 to-rose-600" 
+            subtitle={formatCurrency(statistics.total_price_for_rent || 0)} 
+            isLoading={loading} 
+          />
         </div>
 
         <div className="col-span-12 lg:col-span-4">
-          <StatCard title={t('totalPortfolioValue')} value={statistics ? formatCurrency(statistics.total_price_for_sale + statistics.total_price_for_rent) : "EGP 0"} icon={DollarSign} gradient="bg-gradient-to-br from-green-600 to-emerald-600" isLoading={loading} />
+          <StatCard 
+            title={t('totalPortfolioValue')} 
+            value={formatCurrency(totalPortfolioValue)} 
+            icon={DollarSign} 
+            gradient="bg-gradient-to-br from-green-600 to-emerald-600" 
+            isLoading={loading} 
+          />
         </div>
 
         {/* Charts */}
-        <div className="col-span-12 lg:col-span-6">
-          <ModernChartCard title={t('propertiesByArea')} data={statistics?.by_area.map(area => ({ name: area.area_name, count: area.count })) ?? []} isLoading={loading} icon={MapPin} />
-        </div>
-
-        <div className="col-span-12 lg:col-span-6">
-          <ModernChartCard title={t('propertiesByType')} data={statistics?.by_type.map(type => ({ name: type.type_name, count: type.count })) ?? []} isLoading={loading} icon={PieChart} />
+        <div className="col-span-12">
+          <ModernChartCard 
+            title={t('propertiesByType')} 
+            data={statistics.by_type?.map(type => ({ 
+              name: type.type_name || 'Unknown Type', 
+              count: type.count || 0 
+            })) || []} 
+            isLoading={loading} 
+            icon={PieChart} 
+          />
         </div>
       </div>
     </div>

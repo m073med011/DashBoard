@@ -166,8 +166,8 @@ export default function PropertyListingsPage() {
                   <ImageWithFallback
   src={item.cover|| ''}
   alt="User Avatar"
-  width={100}
-  height={75}
+  width={50}
+  height={15}
   className="rounded-lg w-full object-cover"
 />
                 ) : (

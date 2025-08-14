@@ -483,6 +483,19 @@
     "cancel": "إلغاء"
   },
   "properties": {
+    "mortgage": "مبلغ الرهن العقاري",
+"mortgage_placeholder": "أدخل مبلغ القرض العقاري (اختياري)",
+    "furnishing": "التأثيث",
+"furnished": "مُفروش بالكامل",
+"unfurnished": "غير مفروش",
+"partly_furnished": "مُفروش جزئيًا",
+"select_furnishing": "اختر حالة التأثيث",
+  "payment_method": "طريقة الدفع",
+  "cash": "نقدي",
+  "installment": "أقساط",
+  "select_payment_method": "اختر طريقة الدفع",
+  "number_of_months": "عدد الشهور",
+  "enter_number_of_installment_months": "أدخل عدد الشهور للتقسيط",
     "Save Location": "حفظ الموقع",
     "Updating Status": "جاري تحديث الحالة...",
     "select_agent": "اختر وكيل",
@@ -682,6 +695,9 @@
     "e.g., Swimming Pool, Gym": "مثلا: بركة سباحة، صالة رياضية"
   },
   "Amenities": {
+    "Property Not Found": "العقار غير موجود", 
+    "Property could not be loaded": "لا يمكن تحميل العقار المطلوب.",
+    "No data": "لا توجد بيانات",
     "Loading amenities": "جاري تحميل المرافق",
     "Loading amenities...": "جاري تحميل المرافق...",
     "Select amenities for this property:": "اختر المرافق لهذا العقار:",
