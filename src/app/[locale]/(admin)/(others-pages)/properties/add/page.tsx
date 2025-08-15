@@ -102,7 +102,7 @@ const CreatePropertyPage = () => {
     formState: { errors },
     setValue,
     control,
-    // watch,
+    watch,
   } = useForm<FormInputs>();
 
   const [descriptionEn, setDescriptionEn] = useState<string>("");
@@ -535,14 +535,50 @@ const CreatePropertyPage = () => {
                 )}
 
                 {/* Mortgage Input */}
-                <InputField
-                  label={t("mortgage")}
-                  name="mortgage"
-                  type="boolean"
-
-                  required={false}
-                  placeholder={t("mortgage_placeholder")}
-                />
+               <div className="space-y-3" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+  <label className="block text-sm font-medium text-dark dark:text-white">
+    {t("mortgage")}
+  </label>
+  <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+    <div className="flex items-center gap-3">
+      <div className="p-2 bg-white dark:bg-slate-600 rounded-lg shadow-sm">
+        <Home className="w-4 h-4 text-[#F26A3F]" />
+      </div>
+      <div>
+        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+          {t("mortgage_available")}
+        </p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          {t("mortgage_placeholder")}
+        </p>
+      </div>
+    </div>
+    <button
+      type="button"
+      onClick={() => {
+        const currentValue = watch("mortgage") === "yes";
+        setValue("mortgage", currentValue ? "no" : "yes");
+      }}
+      className={`relative inline-flex items-center h-7 rounded-full w-12 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transform hover:scale-105 ${
+        watch("mortgage") === "yes"
+          ? "bg-gradient-to-r from-orange-500 to-red-500 shadow-lg shadow-orange-200/50"
+          : "bg-gray-300 dark:bg-gray-600"
+      }`}
+    >
+      <span
+        className={`inline-block w-5 h-5 transform bg-white rounded-full transition-all duration-300 ease-in-out shadow-lg ${
+          watch("mortgage") === "yes"
+            ? locale === 'ar' ? "-translate-x-1" : "translate-x-6 shadow-orange-200/50"
+            : locale === 'ar' ? "-translate-x-6" : "translate-x-1"
+        }`}
+      >
+        {watch("mortgage") === "yes" && (
+          <Check className="w-3 h-3 text-[#F26A3F] absolute inset-0 m-auto" />
+        )}
+      </span>
+    </button>
+  </div>
+</div>
               </div>
             )}
           </div>
@@ -633,14 +669,16 @@ const CreatePropertyPage = () => {
                   placeholder={t("select_option")}
                 />
                 <InputField
+                // vaues is ==>'all-furnished','unfurnished','partly-furnished'
                   label={t("furnishing")}
                   name="furnishing"
                   type="select"
                   required
                   options={[
-                    { value: "furnished", label: t("furnished") },
+                    { value: "all-furnished", label: t("furnished") },
                     { value: "unfurnished", label: t("unfurnished") },
-                    { value: "partly_furnished", label: t("partly_furnished") },
+                    { value: "partly-furnished", label: t("partly_furnished") },
+
                   ]}
                   placeholder={t("select_furnishing")}
                 />

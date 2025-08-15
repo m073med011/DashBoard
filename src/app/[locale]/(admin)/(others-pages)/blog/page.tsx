@@ -125,22 +125,46 @@ export default function BlogsPage() {
           columns={[
             { key: "title", label: "Title" },
             { key: "user", label: "User" },
-            {
-              key: "image",
-              label: "Image",
-              render: (item) =>
-                item.image && (
-                  <Image src={item.image} alt="image" width={200} height={200} className="rounded object-cover" />
-                ),
-            },
-            {
-              key: "cover",
-              label: "Cover",
-              render: (item) =>
-                item.cover && (
-                  <Image src={item.cover} alt="cover" width={200} height={200} className="rounded  object-cover" />
-                ),
-            },
+           {
+  key: "image",
+  label: "Image",
+  render: (item) =>
+    item.image ? (
+      <div className="flex items-center justify-center">
+        <Image 
+          src={item.image} 
+          alt="image" 
+          width={200} 
+          height={200} 
+          className="rounded object-cover" 
+        />
+      </div>
+    ) : (
+      <div className="flex items-center justify-center text-gray-400">
+        No Image
+      </div>
+    )
+},
+{
+  key: "cover",
+  label: "Cover",
+  render: (item) =>
+    item.cover ? (
+      <div className="flex items-center justify-center">
+        <Image 
+          src={item.cover} 
+          alt="cover" 
+          width={200} 
+          height={200} 
+          className="rounded object-cover" 
+        />
+      </div>
+    ) : (
+      <div className="flex items-center justify-center text-gray-400">
+        No Cover
+      </div>
+    )
+},
             { key: "slug", label: "Slug" },
           ]}
           onCreatePage={()=>{}}

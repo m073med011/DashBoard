@@ -104,7 +104,7 @@ export default function TypesPage() {
       setItems(normalized);
     } catch (error) {
       console.error('Failed to fetch types', error);
-      showToast(t("Failed to fetch types"), "error");
+      showToast("Failed to fetch types", "error");
     } finally {
       setLoading(false);
     }
@@ -115,7 +115,7 @@ export default function TypesPage() {
     if (storedToken) {
       setToken(storedToken);
     } else {
-      showToast(t("Token not found in localStorage"), "error");
+      showToast("Token not found in localStorage", "error");
     }
   }, [locale, t]);
 
@@ -130,10 +130,10 @@ export default function TypesPage() {
         Authorization: `Bearer ${token}`,
       }));
       fetchTypes(token);
-      showToast(t("Type deleted successfully"), 'success');
+      showToast("Type deleted successfully", 'success');
     } catch (error) {
       console.error('Delete failed', error);
-      showToast(t("Delete failed"), 'error');
+      showToast("Delete failed", 'error');
     }
   };
 
@@ -161,15 +161,15 @@ export default function TypesPage() {
       } else if (modalState.type === 'edit' && modalState.item) {
         await postData(`owner/types/${modalState.item.id}`, payload, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
       }
-
-      fetchTypes(token);
+      
+      window.location.reload();
       setModalState({ type: null });
       resetImageStates();
-      showToast(t("Type saved successfully"), 'success');
+      showToast("Type saved successfully", 'success');
       router.refresh();
     } catch (error) {
       console.error('Save failed', error);
-      showToast(t("Save failed"), 'error');
+      showToast("Save failed", 'error');
     }
   };
 
@@ -210,10 +210,11 @@ export default function TypesPage() {
                     alt={t("Image")}
                     width={100}
                     height={100}
-                    className="rounded-lg w-full max-h-20 object-fill"
+                    className="rounded-full w-full max-h-25 object-contain"
+
                   />
                 ) : (
-                  <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center text-xs">
+                  <div className="h-15 w-15 bg-gray-200 rounded flex items-center justify-center text-xs">
                     {t("No Image")}
                   </div>
                 ),

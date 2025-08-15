@@ -179,30 +179,27 @@ export default function OwnersPage() {
           data={items}
           columns={[
             {
-              key: 'avatar',
-              label: 'Avatar',
-              render: (item) =>
-                item.avatar ? (
-                  // <Image
-                  //   width={50}
-                  //   height={50}
-                  //   src={item.avatar}
-                  //   alt="owner avatar"
-                  //   className="h-12 w-12 object-cover rounded-full"
-                  // />
-                  <ImageWithFallback
-  src={item?.avatar || ''}
-  alt="User Avatar"
-  width={80}
-  height={80}
-  className="rounded-xl object-cover"
-/>
-                ) : (
-                  <div className="h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center text-xs">
-                    No Avatar
-                  </div>
-                ),
-            },
+  key: 'avatar',
+  label: 'Avatar',
+  render: (item) =>
+    item.avatar ? (
+      <div className="flex items-center justify-center">
+        <ImageWithFallback 
+          src={item?.avatar || ''} 
+          alt="User Avatar" 
+          width={400} 
+          height={400} 
+          className="rounded-xl w-[100px] h-[100px] object-cover" 
+        />
+      </div>
+    ) : (
+      <div className="flex items-center justify-center">
+        <div className="w-[100px] h-[100px] bg-gray-200 rounded-xl flex items-center justify-center">
+          No Image
+        </div>
+      </div>
+    )
+},
             {
               key: 'name',
               label: 'Name',
@@ -212,7 +209,7 @@ export default function OwnersPage() {
               key: 'email',
               label: 'Email',
                render: (item) => (
-    <div className="max-w-[clamp(10.00px,10vw,100.00px)] w-full truncate overflow-hidden whitespace-nowrap">
+    <div className="max-w-[clamp(10.00px,10vw,100.00px)] w-full  mx-1">
       {item.email || '-'}
     </div>
   ),
@@ -222,19 +219,6 @@ export default function OwnersPage() {
               label: 'Phone',
               render: (item) => item.phone || '-',
             },
-            // {
-            //   key: 'subscription',
-            //   label: 'Subscription',
-            //   render: (item) => (
-            //     <span className={`px-2 py-1 rounded text-xs ${
-            //       item.subscription === 'yes' 
-            //         ? 'bg-green-100 text-green-800' 
-            //         : 'bg-red-100 text-red-800'
-            //     }`}>
-            //       {item.subscription}
-            //     </span>
-            //   ),
-            // },
           ]}
           onCreate={() => setModalState({ type: 'create' })}
           onEdit={(item) => setModalState({ type: 'edit', item })}

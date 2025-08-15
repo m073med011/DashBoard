@@ -220,35 +220,28 @@ export default function OwnersPage() {
         <Table<OwnerItem>
           data={items}
           columns={[
-            {
-              key: 'avatar',
-              label: 'Avatar',
-              render: (item) =>
-                item.avatar ? (
-                  // <Image
-                  //   width={50}
-                  //   height={50}
-                  //   src={item.avatar}
-                  //   alt="owner avatar"
-                  //   className="h-12 w-12 object-cover rounded-full"
-                  // />
-                  <ImageWithFallback
-  src={item?.avatar || ''}
-  alt="User Avatar"
-  width={80}
-  height={80}
-  className="rounded-xl object-cover"
-/>
-                ) : (
-                  <ImageWithFallback
-  src={item?.avatar || ''}
-  alt="User Avatar"
-  width={80}
-  height={80}
-  className="rounded-xl object-cover"
-/>
-                ),
-            },
+             {
+  key: 'avatar',
+  label: 'Avatar',
+  render: (item) =>
+    item.avatar ? (
+      <div className="flex items-center justify-center">
+        <ImageWithFallback 
+          src={item?.avatar || ''} 
+          alt="User Avatar" 
+          width={400} 
+          height={400} 
+          className="rounded-xl w-[100px] h-[100px] object-cover" 
+        />
+      </div>
+    ) : (
+      <div className="flex items-center justify-center">
+        <div className="w-[100px] h-[100px] bg-gray-200 rounded-xl flex items-center justify-center">
+          No Image
+        </div>
+      </div>
+    )
+},
             {
               key: 'name',
               label: 'Name',

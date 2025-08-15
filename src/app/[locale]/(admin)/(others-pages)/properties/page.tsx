@@ -151,29 +151,26 @@ export default function PropertyListingsPage() {
 
 },
 
-            {
-              key: "title",
-              label: "images", 
-              render: (item) =>
-                item ? (
-                  // <Image
-                  //   src={item.cover}
-                  //   alt={item.title}
-                  //   width={100}
-                  //   height={75}
-                  //   className="rounded object-cover"
-                  // />
-                  <ImageWithFallback
-  src={item.cover|| ''}
-  alt="User Avatar"
-  width={50}
-  height={15}
-  className="rounded-lg w-full object-cover"
-/>
-                ) : (
-                  "No image"
-                ),
-            },
+             {
+  key: "title",
+  label: "Image",
+  render: (item) =>
+    item.cover ? (
+      <div className="flex items-center justify-center">
+        <ImageWithFallback
+          src={item.cover} 
+          alt="cover" 
+          width={250} 
+          height={250} 
+          className="rounded object-cover" 
+        />
+      </div>
+    ) : (
+      <div className="flex items-center justify-center text-gray-400">
+        No Cover
+      </div>
+    )
+},
           ]}
           onCreatePage={()=>{}}
           onViewPage={handleView}

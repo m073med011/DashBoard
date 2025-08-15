@@ -1,86 +1,42 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
-  Phone, Mail, MessageCircle, Home, Bed, Bath,
-  ChefHat, Ruler, MapPin, User, CheckCircle, Clock, ChevronDown,
-  Calendar, Hash,Building, Eye,Search
-} from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { postData } from '@/libs/axios/server';
-import { AxiosHeaders } from 'axios';
-import Toast from '@/components/Toast';
-
-// --- Inline TypeScript Types ---
-interface User {
-  id?: number;
-  name?: string;
-  email?: string;
-  phone?: string;
-  avatar?: string;
-  created_at?: string;
-}
-interface PropertyType {
-  id?: number;
-  descriptions?: {
-    en?: { title?: string; description?: string };
-    ar?: { title?: string; description?: string };
-  };
-}
-
-interface AreaDescription {
-  en?: { name?: string; description?: string };
-  ar?: { name?: string; description?: string };
-}
-
-interface Area {
-  id?: number;
-  description?: AreaDescription;
-  governorate_id?: number;
-  city_id?: number;
-}
-
-interface Description {
-  en?: { title?: string; description?: string; meta_title?: string; meta_description?: string };
-  ar?: { title?: string; description?: string; meta_title?: string; meta_description?: string };
-}
-
-interface PropertyData {
-  id: number;
-  title?: string;
-  descriptions?: Description;
-    type?: PropertyType; // Changed from string to PropertyType
-  area?: Area;
-  price?: number;
-  down_price?: number;
-  rent_price?: number;
-  bedroom?: number;
-  bathroom?: number;
-  kitichen?: number;
-  sqt?: number;
-  floor?: string | number;
-  elevator?: boolean;
-  finishing?: string;
-  facing?: string;
-  status?: string;
-  approval_status?: string;
-  views?: number;
-  priority?: string;
-  created_at?: string;
-  updated_at?: string;
-  meta_title?: string;
-  meta_description?: string;
-  meta_keywords?: string;
-  keywords?: string;
-  slug?: string;
-  user?: User;
-}
-
-interface PropertyStatistics {
-  data?: {
-    count_call?: number;
-    count_whatsapp?: number;
-  };
-}
+  Phone,
+  Mail,
+  MessageCircle,
+  Home,
+  Bed,
+  Bath,
+  ChefHat,
+  Ruler,
+  CheckCircle,
+  Clock,
+  ChevronDown,
+  // Calendar,
+  Hash,
+  Eye,
+  Edit,
+  Save,
+  X,
+  FileText,
+  DollarSign,
+  Globe,
+  ChevronUp,
+} from "lucide-react";
+import {
+  PropertyData,
+  PropertyStatistics,
+  PropertyUser,
+  PropertyType,
+} from "@/types/PropertyTypes";
+import { useTranslations, useLocale } from "next-intl";
+import { postData, getData } from "@/libs/axios/server";
+import { AxiosHeaders } from "axios";
+import Toast from "@/components/Toast";
+import RichTextEditor from "@/components/RichTextEditor";
+import GoogleLocationSearch from "@/components/common/GoogleLocationInput";
 
 interface MainTabProps {
   propertystat: PropertyStatistics;
@@ -90,356 +46,716 @@ interface MainTabProps {
 
 type ToastState = {
   message: string;
-  type: 'success' | 'error' | 'info';
+  type: "success" | "error" | "info";
   show: boolean;
 };
 
-// --- Main Component ---
 export const MainTab: React.FC<MainTabProps> = ({ property, propertystat, refetch }) => {
+  const t = useTranslations("properties");
+  const locale = useLocale();
   const [loading, setLoading] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState(property.approval_status || 'pending');
-  const [toast, setToast] = useState<ToastState>({ message: '', type: 'info', show: false });
-  const t = useTranslations("properties");
+  const [selectedStatus, setSelectedStatus] = useState(property.approval_status || "pending");
+  const [mounted, setMounted] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<PropertyData>(property);
+  const [toast, setToast] = useState<ToastState>({ message: "", type: "info", show: false });
+
+  // Collapsible sections
+  const [expandedSections, setExpandedSections] = useState({
+    basic: true,
+    pricing: true,
+    rooms: true,
+    details: true,
+    arabic: true,
+    english: true,
+    images: true,
+  });
+
+  // Dropdown options
+  const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
+  const [agents, setAgents] = useState<PropertyUser[]>([]);
+
+  // Location state
+  const [locationValue, setLocationValue] = useState<string>(property.location || "");
+  const [locationData, setLocationData] = useState<{ address: string; placeId: string; lat?: number; lng?: number } | null>(null);
+
+  // Rich text content
+  const [descriptionEn, setDescriptionEn] = useState<string>(property.descriptions?.en?.description || "");
+  const [descriptionAr, setDescriptionAr] = useState<string>(property.descriptions?.ar?.description || "");
+
+  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    setEditData({
+      ...property,
+      descriptions: property.descriptions || { en: {}, ar: {} },
+      type: property.type || { id: 0, title: "Unknown", descriptions: { en: { title: "Unknown" }, ar: { title: "مجهول" } } },
+      user: property.user || { id: 0, name: "Unknown", email: "", phone: "", avatar: "" },
+    });
+    setDescriptionEn(property.descriptions?.en?.description || "");
+    setDescriptionAr(property.descriptions?.ar?.description || "");
+    setLocationValue(property.location || "");
+  }, [property]);
+
+  // Fetch dropdown data
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const headers = new AxiosHeaders({ Authorization: `Bearer ${token}`, lang: locale });
+
+      try {
+        const [typesRes, agentsRes] = await Promise.all([
+          getData("owner/types", {}, headers),
+          getData("owner/agents", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` })),
+        ]);
+        if (typesRes.status) setPropertyTypes(typesRes.data);
+        setAgents(agentsRes);
+      } catch (err) {
+        console.error("Failed to fetch dropdown data", err);
+      }
+    };
+    fetchOptions();
+  }, [locale]);
 
   const statusOptions = [
-    { value: 'accepted', label: 'Accepted', color: 'text-green-600', bgColor: 'bg-green-50 hover:bg-green-100' },
-    { value: 'pending', label: 'Pending', color: 'text-yellow-600', bgColor: 'bg-yellow-50 hover:bg-yellow-100' },
-    { value: 'cancelled', label: 'Cancelled', color: 'text-red-600', bgColor: 'bg-red-50 hover:bg-red-100' }
+    { value: "accepted", label: "Accepted", color: "text-emerald-600", bgColor: "bg-emerald-50 hover:bg-emerald-100" },
+    { value: "pending", label: "Pending", color: "text-amber-600", bgColor: "bg-amber-50 hover:bg-amber-100" },
+    { value: "cancelled", label: "Cancelled", color: "text-rose-600", bgColor: "bg-rose-50 hover:bg-rose-100" },
   ];
 
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const getOptions = (key: string) => {
+    switch (key) {
+      case "status": return ["rent", "sale"];
+      case "type": return ["apartment", "office"];
+      case "immediate_delivery": return ["yes", "no"];
+      case "furnishing": return ["all-furnished", "partly-furnished", "unfurnished"];
+      default: return [];
+    }
+  };
+
+  const showToast = (message: string, type: "success" | "error" | "info" = "info") => {
     setToast({ message, type, show: true });
-    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
-  };
-
-  const getStatusColor = (status: string) => {
-    return statusOptions.find(opt => opt.value === status)?.color || 'text-gray-600';
-  };
-
-  const getStatusBgColor = (status: string) => {
-    return statusOptions.find(opt => opt.value === status)?.bgColor.split(' ')[0] || 'bg-gray-50';
+    setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
   };
 
   const handleApprovalStatusChange = async (newStatus: string) => {
     setLoading(true);
     setIsDropdownOpen(false);
-
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
-      const headers: AxiosHeaders = new AxiosHeaders();
-      if (token) headers.set('Authorization', `Bearer ${token}`);
+      const token = localStorage.getItem("token");
+      const headers = new AxiosHeaders();
+      if (token) headers.set("Authorization", `Bearer ${token}`);
 
-      const response = await postData(
-        `/owner/property_listings/${property.id}/change-status`,
-        { approval_status: newStatus },
-        headers
-      );
-
+      const response = await postData(`/owner/property_listings/${property.id}/change-status`, { approval_status: newStatus }, headers);
       if (response.status === 200) {
         setSelectedStatus(newStatus);
-        showToast(t('Status updated successfully'), 'success');
-        refetch?.();
+        showToast(t("Status updated successfully"), "success");
+        window.location.reload();
       } else {
-        showToast(response.message || t('Update failed'), 'error');
+        showToast(response.message || t("Update failed"), "error");
       }
-    } catch (error: unknown) {
-      console.error('Status update error:', error);
-      // const message = (error as any)?.response?.data?.message || t('An error occurred');
-      showToast("Status updated failed", 'error');
+    } catch (error) {
+      console.error("Status update error:", error);
+      showToast(t("Status update failed"), "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const headers = new AxiosHeaders();
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+
+      const formData = new FormData();
+      formData.append("_method", "PUT");
+
+      // Basic Fields
+      formData.append("type_id", editData.type.id.toString());
+      formData.append("user_id", editData.user.id.toString());
+      formData.append("price", editData.price.toString());
+      formData.append("down_price", editData.down_price.toString());
+      formData.append("sqt", editData.sqt.toString());
+      formData.append("bedroom", editData.bedroom.toString());
+      formData.append("bathroom", editData.bathroom.toString());
+      formData.append("kitichen", editData.kitichen.toString());
+      formData.append("status", editData.status);
+      formData.append("immediate_delivery", editData.immediate_delivery);
+      formData.append("furnishing", editData.furnishing || "");
+      formData.append("payment_method", editData.payment_method);
+      formData.append("mortgage", editData.mortgage);
+      if (editData.paid_months) formData.append("paid_months", editData.paid_months.toString());
+
+      // Location
+      formData.append("location", locationValue);
+      if (locationData) {
+        formData.append("location_place_id", locationData.placeId);
+        if (locationData.lat) formData.append("location_lat", locationData.lat.toString());
+        if (locationData.lng) formData.append("location_lng", locationData.lng.toString());
+      }
+
+      // Descriptions
+      formData.append("title[en]", editData.descriptions?.en?.title || "");
+      formData.append("description[en]", descriptionEn);
+      formData.append("keywords[en]", editData.descriptions?.en?.keywords || "");
+      formData.append("slug[en]", editData.descriptions?.en?.slug || "");
+
+      formData.append("title[ar]", editData.descriptions?.ar?.title || "");
+      formData.append("description[ar]", descriptionAr);
+      formData.append("keywords[ar]", editData.descriptions?.ar?.keywords || "");
+      formData.append("slug[ar]", editData.descriptions?.ar?.slug || "");
+
+      const response = await postData(`/owner/property_listings/${property.id}`, formData, headers);
+      if (response.status === 200) {
+        showToast(t("Property updated successfully"), "success");
+        setIsEditing(false);
+        refetch?.();
+      } else {
+        showToast(response.message || t("Update failed"), "error");
+      }
+    } catch (error) {
+      console.error("Update error:", error);
+      showToast(t("Update failed"), "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const displayText = (text?: string) => text || '—';
+  // const displayText = (text?: string) => text || "—";
   const displayNumber = (num?: number) => num || 0;
 
+  // Reusable Components
+  const SectionHeader = ({ title, icon, sectionKey, description }: { title: string; icon: React.ReactNode; sectionKey: keyof typeof expandedSections; description?: string }) => (
+    <div
+      className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition"
+      onClick={() => setExpandedSections((prev) => ({ ...prev, [sectionKey]: !prev[sectionKey] }))}
+    >
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-[#F26A3F] text-white rounded-lg">{icon}</div>
+        <div>
+          <h3 className="font-semibold">{title}</h3>
+          {description && <p className="text-sm text-gray-600">{description}</p>}
+        </div>
+      </div>
+      {expandedSections[sectionKey] ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+    </div>
+  );
+
+  const InputField = ({ label, value, onChange, type = "text", dir = "ltr", placeholder }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; dir?: string; placeholder?: string }) => (
+    <div className="space-y-1">
+      <label className="block text-sm font-medium">{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        dir={dir}
+        placeholder={placeholder}
+        className="w-full px-4 py-3 border rounded-lg dark:bg-gray-800"
+      />
+    </div>
+  );
+
   return (
-    <div className="space-y-8 px-4 py-6 max-w-7xl mx-auto">
+    <div className="space-y-10 px-4 py-8 max-w-7xl mx-auto font-sans relative">
       {toast.show && <Toast message={toast.message} type={toast.type} />}
 
-      {/* Status Dropdown */}
-      <div className="flex justify-end">
-        <div className="relative inline-block text-left">
+      {/* === Header: Status & Edit Button === */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="relative inline-block text-left w-64">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             disabled={loading}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60 disabled:cursor-not-allowed
-              ${getStatusBgColor(selectedStatus)} ${getStatusColor(selectedStatus)} hover:shadow-lg`}
+            className="flex items-center justify-between w-full px-6 py-3 rounded-2xl font-semibold text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-f26a3f focus:outline-none focus:ring-4 focus:ring-f26a3f/30"
+            style={{ borderColor: "#F26A3F20", boxShadow: "0 1px 3px #F26A3F10" }}
           >
             {loading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"></div>
-                {t("Updating Status")}
+                <span>{t("Updating")}</span>
               </>
             ) : (
               <>
-                {t("Change Status")}:
-                <span className="font-bold capitalize">{t(selectedStatus)}</span>
-                <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <span>{t("Status")}:</span>
+                <span
+                  className="capitalize font-bold"
+                  style={{
+                    color: selectedStatus === "accepted" ? "#059669" : selectedStatus === "pending" ? "#D97706" : "#DC2626",
+                  }}
+                >
+                  {t(selectedStatus)}
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
               </>
             )}
           </button>
 
           {isDropdownOpen && !loading && (
-            <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700 z-50">
-              <div className="py-1">
-                {statusOptions.map((option) => (
+            <ul className="absolute right-0 mt-2 w-full rounded-2xl bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700 z-50">
+              {statusOptions.map((option) => (
+                <li key={option.value}>
                   <button
-                    key={option.value}
                     onClick={() => handleApprovalStatusChange(option.value)}
                     disabled={selectedStatus === option.value}
-                    className={`w-full flex items-center px-4 py-3 text-sm font-medium gap-3 transition-colors
-                      ${option.bgColor} ${option.color} ${selectedStatus === option.value ? 'opacity-70 cursor-not-allowed' : 'hover:bg-opacity-80'}`}
+                    className={`w-full flex items-center px-5 py-4 text-sm gap-3 ${option.bgColor} ${option.color} border-b border-gray-100 dark:border-gray-700 last:border-0 text-left`}
                   >
-                    <div className={`w-2 h-2 rounded-full ${option.value === 'accepted' ? 'bg-green-500' : option.value === 'pending' ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                    <div className={`w-2 h-2 rounded-full ${option.value === "accepted" ? "bg-emerald-500" : option.value === "pending" ? "bg-amber-500" : "bg-rose-500"}`}></div>
                     {t(option.label)}
-                    {selectedStatus === option.value && <CheckCircle className="ml-auto h-4 w-4" />}
+                    {selectedStatus === option.value && <CheckCircle className="ml-auto h-4 w-4 opacity-70" />}
                   </button>
-                ))}
-              </div>
-            </div>
+                </li>
+              ))}
+            </ul>
           )}
+        </div>
+
+        <div className="flex gap-2">
+          {isEditing && (
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              disabled={loading}
+              className="px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition"
+            >
+              <X className="h-4 w-4 inline mr-1" /> {t("Cancel")}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
+            disabled={loading}
+            className="px-5 py-2 bg-f26a3f text-black dark:text-white rounded-xl hover:bg-f26a3f/90 transition flex items-center gap-1 disabled:opacity-70"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-black dark:border-white border-t-transparent"></div>
+                {t("Saving...")}
+              </>
+            ) : isEditing ? (
+              <>
+                <Save className="h-4 w-4" /> {t("Save")}
+              </>
+            ) : (
+              <>
+                <Edit className="h-4 w-4" /> {t("Edit")}
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      {/* Statistics Cards - Modern Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {isDropdownOpen && (
+        <div className="fixed inset-0 z-40 bg-transparent" onClick={() => setIsDropdownOpen(false)} aria-hidden="true"></div>
+      )}
+
+      {/* === Statistics Cards === */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { icon: Phone, label: t("Phone Calls"), value: displayNumber(propertystat?.data?.count_call), color: "blue" },
-          { icon: MessageCircle, label: t("WhatsApp Messages"), value: displayNumber(propertystat?.data?.count_whatsapp), color: "green" },
-          { icon: Eye, label: t("Total Views"), value: displayNumber(property.views), color: "purple" }
+          { icon: Phone, label: t("Phone Calls"), value: displayNumber(propertystat?.data?.count_call) },
+          { icon: MessageCircle, label: t("WhatsApp Messages"), value: displayNumber(propertystat?.data?.count_whatsapp) },
+          { icon: Eye, label: t("Total Views"), value: displayNumber(property.views) },
         ].map((stat, i) => (
-          <div key={i} className={`bg-gradient-to-br from-${stat.color}-50 to-${stat.color}-100 dark:from-${stat.color}-900/20 dark:to-${stat.color}-800/20 rounded-xl p-6 border border-${stat.color}-200 dark:border-${stat.color}-700 shadow-sm`}>
+          <div
+            key={i}
+            className={`bg-white dark:bg-gray-800 p-6 rounded-2xl border border-f26a3f/10 shadow-sm hover:shadow-lg transform ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+            style={{ transitionDelay: `${300 + i * 100}ms` }}
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-${stat.color}-600 dark:text-${stat.color}-400 text-sm font-medium`}>{stat.label}</p>
-                <p className={`text-2xl font-bold text-${stat.color}-700 dark:text-${stat.color}-300`}>{stat.value}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.label}</p>
+                <p className="text-2xl font-bold" style={{ color: "#F26A3F" }}>{stat.value}</p>
               </div>
-              <div className={`bg-${stat.color}-500 p-3 rounded-lg`}>
-                <stat.icon className="h-6 w-6 text-white" />
+              <div className="p-3 rounded-xl bg-f26a3f text-white">
+                <stat.icon className="h-5 w-5" />
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Property Header */}
-      <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 p-8 text-white">
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
-            <div className="flex-1">
-              <h2 className="text-3xl font-bold mb-2">
-                {displayText(property.descriptions?.en?.title || property.descriptions?.ar?.title)}
-              </h2>
-              <div className="flex items-center gap-2 text-blue-100 mb-3">
-                <MapPin className="h-4 w-4" />
-                <span>{displayText(property.area?.description?.en?.name || property.area?.description?.ar?.name)}</span>
-              </div>
-              <div className="flex flex-wrap gap-4 text-sm text-blue-100">
-                <span className="flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3" /> {t("Status")}: <strong>{selectedStatus}</strong>
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" /> {t("State")}: <strong>{displayText(property.status)}</strong>
-                </span>
-                <span className="flex items-center gap-1">
-                  <Building className="h-3 w-3" /> {t("Type")}: <strong>{displayText(property?.type?.descriptions?.en?.title)}</strong>
-                </span>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-4xl font-extrabold">{displayNumber(property.price).toLocaleString()} EGP</div>
-              {property.down_price && <div className="text-blue-100 mt-1">Down: {property.down_price.toLocaleString()} EGP</div>}
-              {property.rent_price && <div className="text-blue-100 text-sm">Rent: {property.rent_price.toLocaleString()}/mo</div>}
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 space-y-6">
-          {/* Key Details */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { icon: Bed, label: t("bedroom"), value: property.bedroom },
-              { icon: Bath, label: t("bathroom"), value: property.bathroom },
-              { icon: ChefHat, label: t("kitchen"), value: property.kitichen },
-              { icon: Ruler, label: "sq ft", value: property.sqt }
-            ].map((item, i) => (
-              <div key={i} className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 text-center">
-                <item.icon className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                <div className="text-xl font-bold">{displayNumber(item.value)}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{item.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Description */}
-          <div>
-            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center gap-2">
-              <Home className="h-5 w-5 text-blue-600" /> {t("description")}
-            </h3>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-5 border border-gray-200 dark:border-gray-600 prose dark:prose-invert max-w-none">
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: property.descriptions?.en?.description || property.descriptions?.ar?.description || '<p class="text-gray-500">No description available.</p>'
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SEO Section */}
-      <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 p-4 text-white">
-          <h3 className="text-xl font-semibold flex items-center gap-2">
-            <Search className="h-5 w-5" /> {t("SEO Information")}
-          </h3>
-        </div>
-        <div className="p-6 space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Meta Info */}
-            <div className="space-y-5">
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-5">
-                <div className="flex justify-between mb-3">
-                  <label className="font-medium text-gray-700 dark:text-gray-300">{t("Meta Title")}</label>
-                  <span className={`text-xs ${((property.meta_title || '').length) > 60 ? 'text-red-500' : 'text-gray-500'}`}>
-                    {(property.meta_title || '').length}/60
-                  </span>
+      {/* === EDIT MODE === */}
+      {isEditing && (
+        <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
+          {/* Basic Info */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <SectionHeader
+              title={t("basic_information")}
+              icon={<Home className="w-5 h-5" />}
+              sectionKey="basic"
+              description={t("property_type_location_details")}
+            />
+            {expandedSections.basic && (
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div>
+                  <GoogleLocationSearch
+                    name="location"
+                    label={t("location")}
+                    value={locationValue}
+                    onChange={(value, data) => {
+                      setLocationValue(value);
+                      setEditData({ ...editData, location: value });
+                      if (data) setLocationData(data);
+                    }}
+                    placeholder={t("enter_your_location")}
+                    required
+                    t={t}
+                  />
                 </div>
-                <div className="text-gray-900 dark:text-gray-100 mb-2">{displayText(property.meta_title)}</div>
-              </div>
-
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-5">
-                <div className="flex justify-between mb-3">
-                  <label className="font-medium text-gray-700 dark:text-gray-300">{t("Meta Description")}</label>
-                  <span className={`text-xs ${((property.meta_description || '').replace(/<[^>]*>/g, '').length) > 160 ? 'text-red-500' : 'text-gray-500'}`}>
-                    {(property.meta_description || '').replace(/<[^>]*>/g, '').length}/160
-                  </span>
+                <div>
+                  <label className="block text-sm font-medium mb-2">{t("property_type")}</label>
+                  <select
+                    value={editData.type.id}
+                    onChange={(e) => setEditData({
+                      ...editData,
+                      type: { ...editData.type, id: Number(e.target.value) }
+                    })}
+                    className="w-full px-4 py-3 border rounded-lg dark:bg-gray-800"
+                  >
+                    {propertyTypes.map((type) => (
+                      <option key={type.id} value={type.id}>{type.title}</option>
+                    ))}
+                  </select>
                 </div>
-                <div
-                  className="text-gray-900 dark:text-gray-100 mb-2 line-clamp-3"
-                  dangerouslySetInnerHTML={{ __html: property.meta_description || '—' }}
-                ></div>
-                
-              </div>
-            </div>
-
-            {/* Keywords & URL */}
-            <div className="space-y-5">
-              <KeywordsList title={t("Meta Keywords")} keywords={property.meta_keywords} color="indigo" />
-              <KeywordsList title={t("Keywords")} keywords={property.keywords} color="blue" />
-
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-5">
-                <label className="block font-medium text-gray-700 dark:text-gray-300 mb-2">{t("Property Slug/URL")}</label>
-                <code className="text-sm bg-white dark:bg-gray-800 px-3 py-2 rounded border block text-indigo-600 dark:text-indigo-400">
-                  {property.slug ? property.slug : `/properties/${property.id}`}
-                </code>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Owner Info */}
-      <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 text-white">
-          <h3 className="text-xl font-semibold flex items-center gap-2">
-            <User className="h-5 w-5" /> {t("owner_information")}
-          </h3>
-        </div>
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row gap-6">
-            {property.user?.avatar && (
-              <div className="relative">
-                <Image
-                  src={property.user.avatar}
-                  alt={property.user.name || 'Owner'}
-                  width={80}
-                  height={80}
-                  className="rounded-full ring-4 ring-purple-100 dark:ring-purple-900"
-                />
-                <div className="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-2 border-white dark:border-gray-800"></div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">{t("Agent")}</label>
+                  <select
+                    value={editData.user.id}
+                    onChange={(e) => setEditData({
+                      ...editData,
+                      user: agents.find(a => a.id === Number(e.target.value)) || editData.user
+                    })}
+                    className="w-full px-4 py-3 border rounded-lg dark:bg-gray-800"
+                  >
+                    {agents.map((agent) => (
+                      <option key={agent.id} value={agent.id}>{agent.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             )}
-            <div className="flex-1">
-              <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{displayText(property.user?.name)}</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                    <Mail className="h-4 w-4 text-purple-600" />
-                    <span>{displayText(property.user?.email)}</span>
+          </div>
+
+          {/* Pricing */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <SectionHeader
+              title={t("pricing_financial_details")}
+              icon={<DollarSign className="w-5 h-5" />}
+              sectionKey="pricing"
+            />
+            {expandedSections.pricing && (
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InputField
+                  label={t("price")}
+                  value={editData.price.toString()}
+                  onChange={(e) => setEditData({ ...editData, price: Number(e.target.value) })}
+                  type="number"
+                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">{t("payment_method")}</label>
+                  <div className="flex rounded-lg overflow-hidden border">
+                    <button
+                      type="button"
+                      onClick={() => setEditData({ ...editData, payment_method: "cash" })}
+                      className={editData.payment_method === "cash" ? "bg-green-500 text-white flex-1 py-2" : "bg-gray-100 flex-1 py-2"}
+                    >
+                      {t("cash")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditData({ ...editData, payment_method: "installment" })}
+                      className={editData.payment_method === "installment" ? "bg-blue-500 text-white flex-1 py-2" : "bg-gray-100 flex-1 py-2"}
+                    >
+                      {t("installment")}
+                    </button>
                   </div>
-                  {property.user?.phone ? (
-                    <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                      <Phone className="h-4 w-4 text-purple-600" />
-                      <span>{property.user.phone}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3 text-red-500">
-                      <Phone className="h-4 w-4" />
-                      <span>{t("phone_not_found")}</span>
-                    </div>
-                  )}
                 </div>
-                <div className="space-y-2">
-                  {property.user?.id && (
-                    <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                      <Hash className="h-4 w-4 text-purple-600" />
-                      <span>ID: {property.user.id}</span>
+                {editData.payment_method === "installment" && (
+                  <>
+                    <InputField
+                      label={t("down_price")}
+                      value={editData.down_price.toString()}
+                      onChange={(e) => setEditData({ ...editData, down_price: Number(e.target.value) })}
+                      type="number"
+                    />
+                    <InputField
+                      label={t("paid_months")}
+                      value={editData.paid_months?.toString() || ""}
+                      onChange={(e) => setEditData({
+                        ...editData,
+                        paid_months: e.target.value ? parseInt(e.target.value, 10) : null
+                      })}
+                      type="number"
+                    />
+                  </>
+                )}
+                <div className="space-y-3">
+                  <label>{t("mortgage")}</label>
+                  <button
+                    type="button"
+                    onClick={() => setEditData({ ...editData, mortgage: editData.mortgage === "yes" ? "no" : "yes" })}
+                    className={`w-12 h-6 rounded-full transition ${editData.mortgage === "yes" ? "bg-green-500" : "bg-gray-300"}`}
+                  >
+                    <span className={`block w-5 h-5 rounded-full bg-white transform transition ${editData.mortgage === "yes" ? "translate-x-6" : "translate-x-1"}`}></span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Rooms */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <SectionHeader
+              title={t("room_configuration")}
+              icon={<Home className="w-5 h-5" />}
+              sectionKey="rooms"
+            />
+            {expandedSections.rooms && (
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {(["sqt", "bedroom", "bathroom", "kitichen"] as const).map((field) => {
+                  type Field = "sqt" | "bedroom" | "bathroom" | "kitichen";
+                  const value = editData[field as Field];
+                  return (
+                    <div key={field}>
+                      <label className="block text-sm font-medium mb-1">{t(field)}</label>
+                      <input
+                        type="number"
+                        value={value.toString()}
+                        onChange={(e) => setEditData({
+                          ...editData,
+                          [field]: Number(e.target.value)
+                        })}
+                        className="w-full px-4 py-3 border rounded-lg dark:bg-gray-800"
+                      />
                     </div>
-                  )}
-                  {property.user?.created_at && (
-                    <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                      <Calendar className="h-4 w-4 text-purple-600" />
-                      <span>Member since: {formatDate(property.user.created_at)}</span>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Details */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <SectionHeader
+              title={t("property_details")}
+              icon={<FileText className="w-5 h-5" />}
+              sectionKey="details"
+            />
+            {expandedSections.details && (
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                {(["status", "type", "immediate_delivery", "furnishing"] as const).map((key) => {
+                  const value = editData[key as keyof PropertyData];
+                  return (
+                    <div key={key}>
+                      <label>{t(key)}</label>
+                      <select
+                        value={value as string}
+                        onChange={(e) => setEditData({ ...editData, [key]: e.target.value })}
+                        className="w-full px-4 py-3 border rounded-lg dark:bg-gray-800"
+                      >
+                        {getOptions(key).map((opt) => (
+                          <option key={opt} value={opt}>{t(opt)}</option>
+                        ))}
+                      </select>
                     </div>
-                  )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Arabic Content */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <SectionHeader
+              title={t("arabic_content")}
+              icon={<Globe className="w-5 h-5" />}
+              sectionKey="arabic"
+            />
+            {expandedSections.arabic && (
+              <div className="p-6 space-y-6" dir="rtl">
+                <InputField
+                  label={t("title_ar")}
+                  value={editData.descriptions?.ar?.title || ""}
+                  onChange={(e) => setEditData({
+                    ...editData,
+                    descriptions: {
+                      ...editData.descriptions,
+                      ar: { ...editData.descriptions?.ar, title: e.target.value }
+                    }
+                  })}
+                  dir="rtl"
+                />
+                <InputField
+                  label={t("keywords_ar")}
+                  value={editData.descriptions?.ar?.keywords || ""}
+                  onChange={(e) => setEditData({
+                    ...editData,
+                    descriptions: {
+                      ...editData.descriptions,
+                      ar: { ...editData.descriptions?.ar, keywords: e.target.value }
+                    }
+                  })}
+                  dir="rtl"
+                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">{t("description_ar")}</label>
+                  <RichTextEditor value={descriptionAr} onChange={setDescriptionAr} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* English Content */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <SectionHeader
+              title={t("english_content")}
+              icon={<Globe className="w-5 h-5" />}
+              sectionKey="english"
+            />
+            {expandedSections.english && (
+              <div className="p-6 space-y-6">
+                <InputField
+                  label={t("title_en")}
+                  value={editData.descriptions?.en?.title || ""}
+                  onChange={(e) => setEditData({
+                    ...editData,
+                    descriptions: {
+                      ...editData.descriptions,
+                      en: { ...editData.descriptions?.en, title: e.target.value }
+                    }
+                  })}
+                />
+                <InputField
+                  label={t("keywords_en")}
+                  value={editData.descriptions?.en?.keywords || ""}
+                  onChange={(e) => setEditData({
+                    ...editData,
+                    descriptions: {
+                      ...editData.descriptions,
+                      en: { ...editData.descriptions?.en, keywords: e.target.value }
+                    }
+                  })}
+                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">{t("description_en")}</label>
+                  <RichTextEditor value={descriptionEn} onChange={setDescriptionEn} />
+                </div>
+              </div>
+            )}
+          </div>
+        </form>
+      )}
+
+      {/* === VIEW MODE === */}
+      {!isEditing && (
+        <>
+          <section
+            className={`bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+            style={{ transitionDelay: "500ms" }}
+          >
+            <div className="p-8 text-white" style={{ background: "linear-gradient(135deg, #1e1e1e, #333)" }}>
+              <div className="flex flex-col lg:flex-row lg:justify-between gap-6">
+                <div>
+                <h2 className="text-3xl lg:text-4xl font-bold mb-2">
+  {editData.descriptions?.[locale]?.title ||
+   editData.descriptions?.en?.title ||
+   editData.descriptions?.ar?.title ||
+   editData.title ||
+   "Untitled Property"}
+</h2>
+                  <div className="flex flex-wrap gap-4 text-sm text-orange-100">
+                    <StatusBadge label={t("Status")} value={selectedStatus} color="text-f26a3f" />
+                    <StatusBadge label={t("State")} value={editData.status} color="text-blue-200" />
+                    <StatusBadge label={t("Type")} value={editData?.type?.descriptions?.en?.title} color="text-purple-200" />
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-4xl font-extrabold text-white">{displayNumber(editData.price).toLocaleString()} EGP</div>
+                  {editData.down_price > 0 && <div className="text-orange-200 mt-1">Down: {displayNumber(editData.down_price).toLocaleString()} EGP</div>}
+                  {/* Rent not in your type */}
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      
+            <div className="p-8 space-y-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { icon: Bed, label: t("bedroom"), value: editData.bedroom },
+                  { icon: Bath, label: t("bathroom"), value: editData.bathroom },
+                  { icon: ChefHat, label: t("kitchen"), value: editData.kitichen },
+                  { icon: Ruler, label: "Sq Ft", value: editData.sqt },
+                ].map((item, i) => (
+                  <div key={i} className="flex flex-col items-center text-center">
+                    <item.icon className="h-6 w-6 mb-2" style={{ color: "#F26A3F" }} />
+                    <div className="text-xl font-bold text-gray-800 dark:text-gray-100">{item.value}</div>
+                    <div className="text-sm text-gray-500">{item.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
 
-      {/* Click Outside Overlay */}
-      {isDropdownOpen && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setIsDropdownOpen(false)}
-        ></div>
+          <OwnerInfo user={editData.user} t={t} />
+        </>
       )}
     </div>
   );
 };
 
-const KeywordsList = ({ title, keywords, color }: { title: string; keywords?: string; color: string }) => (
-  <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-5">
-    <label className="block font-medium text-gray-700 dark:text-gray-300 mb-3">{title}</label>
-    {keywords ? (
-      <div className="flex flex-wrap gap-2">
-        {keywords.split(',').map((kw, i) => (
-          <span
-            key={i}
-            className={`px-2 py-1 bg-${color}-100 dark:bg-${color}-900 text-${color}-800 dark:text-${color}-200 text-xs rounded-full`}
-          >
-            {kw.trim()}
-          </span>
-        ))}
+// === Reusable Components ===
+const StatusBadge = ({ label, value, color }: { label: string; value: string; color: string }) => (
+  <span className="flex items-center gap-1 text-xs">
+    <Clock className="h-3 w-3 opacity-70" />
+    <strong>{label}:</strong>
+    <span className={color} style={{ color: color === "text-f26a3f" ? "#F26A3F" : undefined }}>
+      {value}
+    </span>
+  </span>
+);
+
+const OwnerInfo: React.FC<{ user?: PropertyUser; t: (key: string) => string }> = ({ user, t }) => (
+  <section className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700">
+    <div className="p-5 text-white" style={{ background: 'linear-gradient(135deg, #333, #1e1e1e)' }}>
+      <h3 className="text-xl font-semibold flex items-center gap-2">
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
+        {t('Owner Information')}
+      </h3>
+    </div>
+    <div className="p-8">
+      <div className="flex flex-col md:flex-row gap-8 items-start">
+        {user?.avatar && (
+          <div className="relative">
+            <Image src={user.avatar} alt={user.name} width={96} height={96} className="rounded-2xl ring-4 ring-slate-100 dark:ring-slate-900" />
+            <div className="absolute -bottom-1 -right-1 bg-f26a3f w-6 h-6 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">
+              <CheckCircle className="h-3 w-3 text-white" />
+            </div>
+          </div>
+        )}
+        <div className="flex-1">
+          <h4 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{user?.name || '—'}</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                <Mail className="h-4 w-4" style={{ color: '#F26A3F' }} /> {user?.email || '—'}
+              </div>
+              <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                <Phone className="h-4 w-4" style={{ color: '#F26A3F' }} /> {user?.phone || t('phone_not_found')}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                <Hash className="h-4 w-4" style={{ color: '#F26A3F' }} /> ID: {user?.id}
+              </div>
+              {/* <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                <Calendar className="h-4 w-4" style={{ color: '#F26A3F' }} /> {t('Joined')}: {new Date(user?.created_at || '').toLocaleDateString()}
+              </div> */}
+            </div>
+          </div>
+        </div>
       </div>
-    ) : (
-      <div className="text-gray-500 dark:text-gray-400 text-sm">{title} {("not set")}</div>
-    )}
-  </div>
+    </div>
+  </section>
 );

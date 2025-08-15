@@ -10,6 +10,7 @@ import ImageUploadField from '@/components/ImageUploadField';
 import Toast from '@/components/Toast';
 import { useLocale, useTranslations } from 'next-intl';
 import { AMENITY_IMAGE_SIZE } from '@/libs/constants/imageSizes';
+import Image from 'next/image';
 
 type Amenity = {
   id: number;
@@ -178,6 +179,8 @@ export default function AmenitiesPage() {
           Authorization: `Bearer ${token}`,
         }));
         showToast("Amenity created successfully", 'success');
+        fetchAmenities(token);
+
       } else if (modalState.type === 'edit' && currentAmenity) {
         payload.append('_method', 'PATCH');
         await postData(`owner/amenities/${currentAmenity.id}`, payload, new AxiosHeaders({
@@ -214,18 +217,25 @@ export default function AmenitiesPage() {
               render: (item) => locale === 'ar' ? item?.descriptions?.ar?.title : item?.descriptions?.en?.title,
             },
             {
-              key: 'image',
-              label: 'Image',
-              render: (item: Amenity) => (
-                <ImageWithFallback
-                  src={item.image || '/images/default.png'}
-                  alt={"amenity"}
-                  width={100}
-                  height={100}
-                  className=" max-h-25 rounded object-fill w-full items-center"
-                />
-              ),
-            },
+  key: "image",
+  label: "Image",
+  render: (item) =>
+    item.image ? (
+      <div className="flex items-center justify-center">
+        <Image
+          src={item.image} 
+          alt="cover" 
+          width={80} 
+          height={80} 
+          className="rounded object-cover" 
+        />
+      </div>
+    ) : (
+      <div className="flex items-center justify-center text-gray-400">
+        No Cover
+      </div>
+    )
+},
           ]}
           onCreate={() => setModalState({ type: 'create' })}
           onEdit={(item) => setModalState({ type: 'edit', item })}

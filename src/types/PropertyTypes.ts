@@ -1,5 +1,8 @@
+// src/types/PropertyTypes.ts
+
 export type TabType = 'main' | 'amenities' | 'features' | 'locations' | 'images' | 'floorplan';
 
+// Full user with role, subscription, etc.
 export type PropertyUser = {
   modules: PropertyModule[];
   id: number;
@@ -11,14 +14,7 @@ export type PropertyUser = {
   role: string;
 };
 
-
-export type PropertyStatistics = {
-  data: {
-  count_call: number;
-  count_whatsapp: number;
-  }
-}
-
+// Property type (e.g., Apartment, Villa)
 export type PropertyType = {
   id: number;
   title: string;
@@ -29,6 +25,7 @@ export type PropertyType = {
   };
 };
 
+// Area (district/region)
 export type PropertyArea = {
   id: number;
   image: string;
@@ -40,6 +37,25 @@ export type PropertyArea = {
   };
 };
 
+// Localized content for descriptions, SEO
+export interface LocalizedContent {
+  title?: string;
+  description?: string;
+  keywords?: string;
+  slug?: string;
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+}
+
+// Descriptions wrapper
+export interface Description {
+  en?: LocalizedContent;
+  ar?: LocalizedContent;
+  [key: string]: LocalizedContent | undefined;
+}
+
+// Features (key-value pairs like "Balcony: Yes")
 export type PropertyFeature = {
   id: number;
   type: string;
@@ -59,8 +75,9 @@ export type PropertyFeature = {
   };
 };
 
+// Amenities (e.g., Pool, Gym)
 export type PropertyAmenity = {
-  image:string;
+  image: string;
   id: number;
   title: string;
   descriptions: {
@@ -69,20 +86,25 @@ export type PropertyAmenity = {
   };
 };
 
+// Images
 export type PropertyImage = {
   id: number;
   image: string;
 };
 
+// Floor Plans
 export type PropertyFloorPlan = {
   id: number;
   image: string;
 };
 
+// Location Points (polygon)
 export type LocationPoint = {
   latitude: number;
   longitude: number;
 };
+
+// Property Location (Google Place)
 export interface PropertyLocation {
   id: number;
   name: string;
@@ -93,45 +115,45 @@ export interface PropertyLocation {
   location_points?: LocationPoint[];
 }
 
+// Module access
 export type PropertyModule = {
   module: string;
 };
+
+// Statistics
+export type PropertyStatistics = {
+  data: {
+    count_call: number;
+    count_whatsapp: number;
+  };
+};
+
+// Main Property Data
 export type PropertyData = {
-  locations: PropertyLocation[];
-  approval_status: string;
-  title: string;
   id: number;
-  user: PropertyUser;
-  type: PropertyType;
-  area: PropertyArea;
+  title: string;
+  approval_status: string;
   price: number;
   down_price: number;
   sqt: number;
-  bathroom: number;
   bedroom: number;
+  bathroom: number;
   kitichen: number;
   status: string;
   immediate_delivery: string;
-  descriptions: {
-    en: {
-      title: string;
-      description: string;
-      keywords: string;
-      slug: string;
-      meta_title: string;
-      meta_description: string;
-      meta_keywords: string;
-    };
-    ar: {
-      title: string;
-      description: string;
-      keywords: string;
-      slug: string;
-      meta_title: string;
-      meta_description: string;
-      meta_keywords: string;
-    };
-  };
+  furnishing?: string;
+  payment_method: string;
+  mortgage: string;
+  paid_months: number | null;
+  location?: string;
+  created_at: string;
+  views?: number;
+
+  // Relations
+  user: PropertyUser;
+  type: PropertyType;
+  area?: PropertyArea;
+  descriptions?: Description;
   features: PropertyFeature[];
   amenities: PropertyAmenity[];
   property_listing_images: PropertyImage[];
@@ -139,6 +161,7 @@ export type PropertyData = {
   property_locations: PropertyLocation[];
 };
 
+// Toast
 export type ToastState = {
   message: string;
   type: 'success' | 'error' | 'info';
