@@ -130,6 +130,10 @@ export type PropertyStatistics = {
 
 // Main Property Data
 export type PropertyData = {
+  property_id: number;
+  cover: string;
+
+  property_type: PropertyType;
   id: number;
   title: string;
   approval_status: string;
@@ -166,4 +170,48 @@ export type ToastState = {
   message: string;
   type: 'success' | 'error' | 'info';
   show: boolean;
+};
+
+// Form inputs - Updated to match usage in component
+export type FormInputs = {
+  property_id?: string;
+  userId: string;
+  type: string;
+  type_id: string;
+  area_id?: string;
+  price: string;
+  down_price?: string;
+  sqt: string;
+  bedroom: string;
+  bathroom: string;
+  kitchen: string;
+  status: string;
+  immediate_delivery: string;
+  payment_method: string;
+  paid_months?: string;
+  furnishing: string;
+  mortgage?: string;
+  location?: string;
+  title_en: string;
+  description_en: string;
+  keywords_en: string;
+  slug_en: string;
+  title_ar: string;
+  description_ar: string;
+  keywords_ar: string;
+  slug_ar: string;
+};
+
+export interface LocationData {
+  address: string;
+  placeId: string;
+  lat?: number;
+  lng?: number;
+}
+
+export type ImagePreview = {
+  file?: File;
+  url: string;
+  id: string;
+  isExisting?: boolean;
 };
