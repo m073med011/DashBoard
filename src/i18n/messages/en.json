@@ -81,6 +81,8 @@
   },
   "Comming Soon": "Coming Soon",
   "Tables": {
+    "contact": "Contact",
+
     "Agents": "Agents",
     "Owners": "Owners",
     "Blogs": "Blogs",
@@ -238,6 +240,7 @@
     "Leave empty to keep current image": "Leave empty to keep current image"
   },
   "sidebar": {
+    "contact": "Contact",
     "amenities": "Amenities",
     "agents": "Agents",
     "owners": "Owners",

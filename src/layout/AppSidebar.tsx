@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -8,11 +7,13 @@ import { useTranslations, useLocale } from "next-intl";
 import {
   LayoutDashboard,
   Newspaper,
-  Shapes,
+  Tag,
   Building2,
-  GalleryHorizontal,
-  UserCheck,
-  Headset,
+  Images,
+  Users,
+  Headphones,
+  Phone,
+  Puzzle,
 } from "lucide-react";
 import { ChevronDownIcon, HorizontaLDots } from "../icons/index";
 
@@ -33,13 +34,13 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { icon: <LayoutDashboard />, name: "dashboard", path: "/" },
-  { icon: <Headset />, name: "agents", path: "/agent" },
-  { icon: <UserCheck />, name: "owners", path: "/owner" },
-    { icon: <UserCheck />, name: "contacts", path: "/contact" },
+  { icon: <Headphones />, name: "agents", path: "/agent" },
+  { icon: <Users />, name: "owners", path: "/owner" },
+  { icon: <Phone />, name: "contact", path: "/contact" },
   { icon: <Newspaper />, name: "blogs", path: "/blog" },
-  { icon: <GalleryHorizontal />, name: "banners", path: "/banners" },
-  { icon: <Shapes />, name: "types", path: "/types" },
-  { icon: <Shapes />, name: "amenities", path: "/amenities" },
+  { icon: <Images />, name: "banners", path: "/banners" },
+  { icon: <Tag />, name: "types", path: "/types" },
+  { icon: <Puzzle />, name: "amenities", path: "/amenities" },
   {
     icon: <Building2 />,
     name: "property_listings",

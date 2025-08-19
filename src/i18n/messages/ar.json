@@ -185,6 +185,7 @@
     "Leave empty to keep current image": "اتركه فارغًا للحفاظ على الصورة الحالية"
   },
   "sidebar": {
+    "contact": "التواصل",
     "amenities": "الميزات",
     "agents": "الوكلاء",
     "owners": "المديرين",
@@ -358,6 +359,7 @@
       "Banner not found": "البانر غير موجود"
     },
     "Tables": {
+      "contact": "التواصل",
       "agent saved successfully": "تم حفظ العميل بنجاح",
       "Owner saved successfully": "تم حفظ المالك بنجاح",
       "Owner deleted successfully": "تم حذف المالك بنجاح",
