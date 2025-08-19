@@ -35,6 +35,7 @@ const NAV_ITEMS: NavItem[] = [
   { icon: <LayoutDashboard />, name: "dashboard", path: "/" },
   { icon: <Headset />, name: "agents", path: "/agent" },
   { icon: <UserCheck />, name: "owners", path: "/owner" },
+    { icon: <UserCheck />, name: "contacts", path: "/contact" },
   { icon: <Newspaper />, name: "blogs", path: "/blog" },
   { icon: <GalleryHorizontal />, name: "banners", path: "/banners" },
   { icon: <Shapes />, name: "types", path: "/types" },

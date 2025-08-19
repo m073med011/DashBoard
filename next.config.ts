@@ -32,6 +32,11 @@ const nextConfig: NextConfig = {
       {
         hostname: "fantasticegypt.com",
       },
+      // https://proplix.shop/storage/files/3817217
+      {
+        hostname: "proplix.shop",
+      },
+
     ],
   },
 };

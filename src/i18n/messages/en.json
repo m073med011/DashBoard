@@ -508,6 +508,10 @@
     "No English content available for this banner": "No English Content Available for this Banner"
   },
   "properties": {
+    "current_image":"Current Image",
+    "update_property":"Update Property",
+    "view":"View",
+    "edit":"Edit",
     "state": "State",
     "rent_price": "Rent Price",
     "sq_ft": "Sq Ft",
@@ -934,5 +938,40 @@
     "Save All Points": "Save All Points",
     "cancel": "Cancel",
     "": ""
+  },
+  "contact": {
+    "title": "Contact Management",
+    "subtitle": "Manage and search through your contacts with ease",
+    "tabs": {
+      "allContacts": "All Contacts",
+      "search": "Search"
+    },
+    "search": {
+      "placeholder": "Search contacts by ID...",
+      "button": "Search",
+      "searching": "Searching...",
+      "readyTitle": "Ready to search",
+      "readySubtitle": "Enter a contact ID above to find specific contact"
+    },
+    "contactCard": {
+      "idLabel": "ID:",
+      "propertyLabel": "Property:"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch contacts",
+      "searchFailed": "Failed to search contact",
+      "invalidId": "Please enter a valid contact ID (number)",
+      "notFound": "Contact not found",
+      "unauthorized": "Unauthorized access",
+      "somethingWrong": "Oops! Something went wrong",
+      "searchError": "Search Error"
+    },
+    "emptyStates": {
+      "noContacts": {
+        "title": "No contacts found",
+        "subtitle": "Your contact list is empty. Contacts will appear here once available."
+      }
+    },
+    "loading": "Loading contacts..."
   }
 }
