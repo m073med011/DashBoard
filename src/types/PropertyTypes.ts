@@ -132,8 +132,6 @@ export type PropertyStatistics = {
 export type PropertyData = {
   property_id: number;
   cover: string;
-
-  property_type: PropertyType;
   id: number;
   title: string;
   approval_status: string;
@@ -142,7 +140,7 @@ export type PropertyData = {
   sqt: number;
   bedroom: number;
   bathroom: number;
-  kitichen: number;
+  kitichen: number; // Note: This is the correct spelling used in the backend
   status: string;
   immediate_delivery: string;
   furnishing?: string;
@@ -152,9 +150,12 @@ export type PropertyData = {
   location?: string;
   created_at: string;
   views?: number;
+  starting_day: string | null; // Added starting_day
+  landing_space: number | null; // Added landing_space
 
   // Relations
   user: PropertyUser;
+  property_type: PropertyType;
   type: PropertyType;
   area?: PropertyArea;
   descriptions?: Description;
@@ -174,7 +175,7 @@ export type ToastState = {
 
 // Form inputs - Updated to match usage in component
 export type FormInputs = {
-  property_id?: string;
+  id?: string; // Changed from property_id to id
   userId: string;
   type: string;
   type_id: string;
@@ -184,13 +185,15 @@ export type FormInputs = {
   sqt: string;
   bedroom: string;
   bathroom: string;
-  kitchen: string;
+  kitchen: string; // This is used in the form, but maps to kitichen in backend
   status: string;
   immediate_delivery: string;
   payment_method: string;
   paid_months?: string;
   furnishing: string;
   mortgage?: string;
+  starting_day: string; // Changed from number to string
+  landing_space: string; // Added landing_space as string for form input
   location?: string;
   title_en: string;
   description_en: string;
@@ -213,5 +216,5 @@ export type ImagePreview = {
   file?: File;
   url: string;
   id: string;
-  isExisting?: boolean;
+  isExisting?: boolean; // Added isExisting property
 };

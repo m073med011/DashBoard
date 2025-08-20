@@ -1,21 +1,33 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import React, { useState, useEffect,useRef } from "react";
+import { useForm, useWatch, useController } from "react-hook-form";
 import { postData, getData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations, useLocale } from "next-intl";
 import Toast from "@/components/Toast";
 import RichTextEditor from "@/components/RichTextEditor";
-import { ChevronDown, ChevronUp, DollarSign, Home, FileText, Globe, Camera, Check, X, Coins, CreditCard } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  DollarSign,
+  Home,
+  FileText,
+  Globe,
+  Camera,
+  Check,
+  X,
+  Coins,
+  CreditCard,
+Calendar, ChevronLeft, ChevronRight
+} from "lucide-react";
 import Image from "next/image";
 import GoogleLocationSearch from "@/components/common/GoogleLocationInput";
 
 type FormInputs = {
   // General Information
   type_id: string;
-  // area_id: string;
   userId: string;
   price: string;
   down_price: string;
@@ -30,6 +42,8 @@ type FormInputs = {
   paid_months?: string;
   furnishing: string;
   mortgage?: string;
+  starting_day: string; // New field
+  landing_space: string; // New field
 
   // English fields
   title_en: string;
@@ -65,17 +79,6 @@ type SelectOption = {
   title?: string;
   name?: string;
 };
-
-// type AreaOption = {
-//   id: number;
-//   image: string;
-//   count_of_properties: number;
-//   name: string;
-//   description: {
-//     en: { name: string };
-//     ar: { name: string };
-//   };
-// };
 
 type AgentOption = {
   id: number;
@@ -127,9 +130,365 @@ const CreatePropertyPage = () => {
     images: true,
   });
 
+  // Reusable InputField Component
+  const InputField = ({
+    label,
+    name,
+    type = "text",
+    required = false,
+    options = [],
+    dir = "ltr",
+    placeholder = "",
+  }: {
+    label: string;
+    name: keyof FormInputs;
+    type?: string;
+    required?: boolean;
+    options?: { value: string; label: string }[];
+    dir?: string;
+    placeholder?: string;
+  }) => (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-dark dark:text-white">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      {type === "select" ? (
+        <select
+          {...register(name, { required })}
+          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
+          dir={dir}
+        >
+          <option value="">{placeholder || `${t("select")} ${label}`}</option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <input
+          {...register(name, { required })}
+          type={type}
+          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
+          dir={dir}
+          placeholder={placeholder}
+        />
+      )}
+      {errors[name] && (
+        <p className="text-red-500 text-sm flex items-center">
+          <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+          {t("field_required")}
+        </p>
+      )}
+    </div>
+  );
+
+  // Reusable Formatted Number Input
+  const FormattedNumberInput = ({
+    label,
+    name,
+    required = false,
+    placeholder = "",
+    error,
+  }: {
+    label: string;
+    name: keyof FormInputs;
+    required?: boolean;
+    placeholder?: string;
+    error?: boolean;
+  }) => {
+    const { field } = useController({ name, control });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      const digits = value.replace(/\D/g, "");
+      field.onChange(digits ? Number(digits) : "");
+    };
+
+    const displayValue = field.value
+      ? Number(field.value).toLocaleString('en').replace(/,/g, '  ')
+      : '';
+
+    return (
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-dark dark:text-white">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        <input
+          type="text"
+          value={displayValue}
+          onChange={handleChange}
+          placeholder={placeholder}
+          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
+          inputMode="numeric"
+          pattern="[0-9 ]*"
+        />
+        {error && (
+          <p className="text-red-500 text-sm flex items-center">
+            <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+            {t("field_required")}
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  // Date Input Component
+
+const DateInput = ({
+  label,
+  name,
+  required = false,
+}: {
+  label: string;
+  name: keyof FormInputs;
+  required?: boolean;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  // Get the field value from react-hook-form
+  const fieldValue = watch(name);
+
+  // Initialize selected date from form value
+  useEffect(() => {
+    if (fieldValue) {
+      setSelectedDate(new Date(fieldValue));
+    }
+  }, [fieldValue]);
+
+  // Close calendar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const formatDate = (date: Date): string => {
+    return date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+  };
+
+  const formatDisplayDate = (date: Date): string => {
+    return date.toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    setValue(name, formatDate(date));
+    setIsOpen(false);
+  };
+
+  const getDaysInMonth = (date: Date): Date[] => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    
+    const days: Date[] = [];
+    
+    // Add previous month's trailing days
+    const firstDayOfWeek = firstDay.getDay();
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+      days.push(new Date(year, month, -i));
+    }
+    
+    // Add current month's days
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(new Date(year, month, day));
+    }
+    
+    // Add next month's leading days
+    const totalDays = Math.ceil(days.length / 7) * 7;
+    const remainingDays = totalDays - days.length;
+    for (let day = 1; day <= remainingDays; day++) {
+      days.push(new Date(year, month + 1, day));
+    }
+    
+    return days;
+  };
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    setCurrentMonth(prev => {
+      const newMonth = new Date(prev);
+      if (direction === 'prev') {
+        newMonth.setMonth(prev.getMonth() - 1);
+      } else {
+        newMonth.setMonth(prev.getMonth() + 1);
+      }
+      return newMonth;
+    });
+  };
+
+  const isToday = (date: Date): boolean => {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const isSelected = (date: Date): boolean => {
+    return selectedDate ? date.toDateString() === selectedDate.toDateString() : false;
+  };
+
+  const isCurrentMonth = (date: Date): boolean => {
+    return date.getMonth() === currentMonth.getMonth();
+  };
+
+  const monthNames = locale === 'ar' 
+    ? ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const dayNames = locale === 'ar'
+    ? ['أح', 'إث', 'ثل', 'أر', 'خم', 'جم', 'سب']
+    : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  return (
+    <div className="space-y-2" ref={calendarRef}>
+      <label className="block text-sm font-medium text-dark dark:text-white">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      
+      {/* Date Input Field */}
+      <div className="relative">
+        <input
+          {...register(name, { required })}
+          type="text"
+          readOnly
+          value={selectedDate ? formatDisplayDate(selectedDate) : ''}
+          onClick={() => setIsOpen(!isOpen)}
+          placeholder={t("select_date")}
+          className="w-full px-4 py-3 pr-12 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30 cursor-pointer"
+          dir={locale === 'ar' ? 'rtl' : 'ltr'}
+        />
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-orange-500 transition-colors"
+        >
+          <Calendar className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Calendar Dropdown */}
+      {isOpen && (
+        <div className="absolute z-50 mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg p-4 min-w-[300px]">
+          {/* Calendar Header */}
+          <div className="flex items-center justify-between mb-4">
+            <button
+              type="button"
+              onClick={() => navigateMonth('prev')}
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+              {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+            </h3>
+            
+            <button
+              type="button"
+              onClick={() => navigateMonth('next')}
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Day Names Header */}
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            {dayNames.map((day) => (
+              <div
+                key={day}
+                className="text-center text-xs font-medium text-slate-500 dark:text-slate-400 py-2"
+              >
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar Days */}
+          <div className="grid grid-cols-7 gap-1">
+            {getDaysInMonth(currentMonth).map((date, index) => {
+              const isCurrentMonthDay = isCurrentMonth(date);
+              const isSelectedDay = isSelected(date);
+              const isTodayDay = isToday(date);
+
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => handleDateSelect(date)}
+                  className={`
+                    w-8 h-8 text-sm rounded-lg transition-all duration-200 hover:bg-orange-100 dark:hover:bg-orange-900/30
+                    ${isSelectedDay 
+                      ? 'bg-[#F26A3F] text-white shadow-lg transform scale-105' 
+                      : isCurrentMonthDay
+                        ? 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
+                        : 'text-slate-400 dark:text-slate-500'
+                    }
+                    ${isTodayDay && !isSelectedDay 
+                      ? 'ring-2 ring-orange-300 dark:ring-orange-600' 
+                      : ''
+                    }
+                  `}
+                  disabled={!isCurrentMonthDay}
+                >
+                  {date.getDate()}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex justify-between mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
+            <button
+              type="button"
+              onClick={() => {
+                const today = new Date();
+                handleDateSelect(today);
+                setCurrentMonth(today);
+              }}
+              className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors"
+            >
+              {t("today")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+            >
+              {t("close")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {errors[name] && (
+        <p className="text-red-500 text-sm flex items-center">
+          <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+          {t("field_required")}
+        </p>
+      )}
+    </div>
+  );
+};
+
   // State for dropdown options
   const [propertyTypes, setPropertyTypes] = useState<SelectOption[]>([]);
-  // const [areas, setAreas] = useState<AreaOption[]>([]);
   const [agents, setAgents] = useState<AgentOption[]>([]);
 
   // Watch payment method
@@ -190,12 +549,10 @@ const CreatePropertyPage = () => {
       try {
         const [typesResponse, agentsResponse] = await Promise.all([
           getData("owner/types", {}, new AxiosHeaders({ Authorization: `Bearer ${token}`, lang: locale })),
-          // getData("owner/areas", {}, new AxiosHeaders({ Authorization: `Bearer ${token}`, lang: locale })),
           getData("owner/agents", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` })),
         ]);
 
         if (typesResponse.status) setPropertyTypes(typesResponse.data);
-        // if (areasResponse.status) setAreas(areasResponse.data);
         setAgents(agentsResponse);
       } catch (error) {
         console.error("Error fetching dropdown ", error);
@@ -227,13 +584,12 @@ const CreatePropertyPage = () => {
 
     // General fields
     formData.append("type_id", data.type_id);
-    // formData.append("area_id", data.area_id);
     formData.append("user_id", data.userId);
     formData.append("price", data.price);
     formData.append("sqt", data.sqt);
     formData.append("bedroom", data.bedroom);
     formData.append("bathroom", data.bathroom);
-    formData.append("kitichen", data.kitchen);
+    formData.append("kitchen", data.kitchen);
     formData.append("status", data.status);
     formData.append("type", data.type);
     formData.append("immediate_delivery", data.immediate_delivery);
@@ -250,6 +606,10 @@ const CreatePropertyPage = () => {
     if (data.mortgage) {
       formData.append("mortgage", data.mortgage);
     }
+
+    // New fields
+    if (data.starting_day) formData.append("starting_day", data.starting_day);
+    formData.append("landing_space", data.landing_space);
 
     // Location
     formData.append("location", locationValue);
@@ -284,18 +644,18 @@ const CreatePropertyPage = () => {
     }
   };
 
-  const SectionHeader = ({ 
-    title, 
-    icon, 
-    sectionKey, 
-    description 
-  }: { 
-    title: string; 
-    icon: React.ReactNode; 
+  const SectionHeader = ({
+    title,
+    icon,
+    sectionKey,
+    description,
+  }: {
+    title: string;
+    icon: React.ReactNode;
     sectionKey: keyof typeof expandedSections;
     description?: string;
   }) => (
-    <div 
+    <div
       className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 rounded-lg cursor-pointer hover:from-slate-100 hover:to-slate-200 dark:hover:from-slate-700 dark:hover:to-slate-600 transition-all duration-200 border border-slate-200 dark:border-slate-600"
       onClick={() => toggleSection(sectionKey)}
     >
@@ -312,71 +672,19 @@ const CreatePropertyPage = () => {
       </div>
       <div className="flex items-center space-x-2">
         <div className={`w-3 h-3 rounded-full ${expandedSections[sectionKey] ? 'bg-[#F26A3F]' : 'bg-slate-300'} transition-colors duration-200`}></div>
-        {expandedSections[sectionKey] ? 
-          <ChevronUp className="w-5 h-5 text-slate-600 dark:text-slate-400" /> : 
+        {expandedSections[sectionKey] ? (
+          <ChevronUp className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+        ) : (
           <ChevronDown className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-        }
+        )}
       </div>
-    </div>
-  );
-
-  const InputField = ({ 
-    label, 
-    name, 
-    type = "text", 
-    required = false, 
-    options = [], 
-    dir = "ltr",
-    placeholder = ""
-  }: {
-    label: string;
-    name: keyof FormInputs;
-    type?: string;
-    required?: boolean;
-    options?: { value: string; label: string }[];
-    dir?: string;
-    placeholder?: string;
-  }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-dark dark:text-white">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-      {type === "select" ? (
-        <select
-          {...register(name, { required })}
-          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
-          dir={dir}
-        >
-          <option value="">{placeholder || `${t("select")} ${label}`}</option>
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <input
-          {...register(name, { required })}
-          type={type}
-          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
-          dir={dir}
-          placeholder={placeholder}
-        />
-      )}
-      {errors[name] && (
-        <p className="text-red-500 text-sm flex items-center">
-          <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
-          {t("field_required")}
-        </p>
-      )}
     </div>
   );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 text-slate-900 dark:text-slate-100">
       {toast.show && <Toast message={toast.message} type={toast.type} duration={3000} />}
-      
+
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -394,8 +702,8 @@ const CreatePropertyPage = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Basic Information */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <SectionHeader 
-              title={t("basic_information")} 
+            <SectionHeader
+              title={t("basic_information")}
               icon={<Home className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="basic"
               description={t("property_type_location_details")}
@@ -430,17 +738,6 @@ const CreatePropertyPage = () => {
                   options={propertyTypes.map((type) => ({ value: type.id, label: type.title || "" }))}
                   placeholder={t("select_type")}
                 />
-                {/* <InputField
-                  label={t("area")}
-                  name="area_id"
-                  type="select"
-                  required
-                  options={areas.map((area) => ({
-                    value: area.id.toString(),
-                    label: area.name,
-                  }))}
-                  placeholder={t("select_area")}
-                /> */}
                 <InputField
                   label={t("Agent")}
                   name="userId"
@@ -458,20 +755,20 @@ const CreatePropertyPage = () => {
 
           {/* Pricing Information */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <SectionHeader 
-              title={t("pricing_financial_details")} 
+            <SectionHeader
+              title={t("pricing_financial_details")}
               icon={<DollarSign className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="pricing"
               description={t("property_pricing_payment_info")}
             />
             {expandedSections.pricing && (
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InputField
+                <FormattedNumberInput
                   label={t("price")}
                   name="price"
-                  type="number"
                   required
                   placeholder={t("enter_property_price")}
+                  error={!!errors.price}
                 />
 
                 {/* Payment Method Toggle */}
@@ -514,112 +811,119 @@ const CreatePropertyPage = () => {
                   )}
                 </div>
 
-                {/* Down Payment & Paid Months (only if installment) */}
+                {/* Down Payment & Paid Months */}
                 {paymentMethod === "installment" && (
                   <>
-                    <InputField
+                    <FormattedNumberInput
                       label={t("down_price")}
                       name="down_price"
-                      type="number"
                       required
                       placeholder={t("enter_down_payment_amount")}
+                      error={!!errors.down_price}
                     />
-                    <InputField
+                    <FormattedNumberInput
                       label={t("number_of_months")}
                       name="paid_months"
-                      type="number"
                       required
                       placeholder={t("enter_number_of_installment_months")}
+                      error={!!errors.paid_months}
                     />
                   </>
                 )}
 
-                {/* Mortgage Input */}
-               <div className="space-y-3" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-  <label className="block text-sm font-medium text-dark dark:text-white">
-    {t("mortgage")}
-  </label>
-  <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
-    <div className="flex items-center gap-3">
-      <div className="p-2 bg-white dark:bg-slate-600 rounded-lg shadow-sm">
-        <Home className="w-4 h-4 text-[#F26A3F]" />
-      </div>
-      <div>
-        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-          {t("mortgage_available")}
-        </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          {t("mortgage_placeholder")}
-        </p>
-      </div>
-    </div>
-    <button
-      type="button"
-      onClick={() => {
-        const currentValue = watch("mortgage") === "yes";
-        setValue("mortgage", currentValue ? "no" : "yes");
-      }}
-      className={`relative inline-flex items-center h-7 rounded-full w-12 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transform hover:scale-105 ${
-        watch("mortgage") === "yes"
-          ? "bg-gradient-to-r from-orange-500 to-red-500 shadow-lg shadow-orange-200/50"
-          : "bg-gray-300 dark:bg-gray-600"
-      }`}
-    >
-      <span
-        className={`inline-block w-5 h-5 transform bg-white rounded-full transition-all duration-300 ease-in-out shadow-lg ${
-          watch("mortgage") === "yes"
-            ? locale === 'ar' ? "-translate-x-1" : "translate-x-6 shadow-orange-200/50"
-            : locale === 'ar' ? "-translate-x-6" : "translate-x-1"
-        }`}
-      >
-        {watch("mortgage") === "yes" && (
-          <Check className="w-3 h-3 text-[#F26A3F] absolute inset-0 m-auto" />
-        )}
-      </span>
-    </button>
-  </div>
-</div>
+                {/* Mortgage Toggle */}
+                <div className="space-y-3" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+                  <label className="block text-sm font-medium text-dark dark:text-white">
+                    {t("mortgage")}
+                  </label>
+                  <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white dark:bg-slate-600 rounded-lg shadow-sm">
+                        <Home className="w-4 h-4 text-[#F26A3F]" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                          {t("mortgage_available")}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {t("mortgage_placeholder")}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentValue = watch("mortgage") === "yes";
+                        setValue("mortgage", currentValue ? "no" : "yes");
+                      }}
+                      className={`relative inline-flex items-center h-7 rounded-full w-12 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transform hover:scale-105 ${
+                        watch("mortgage") === "yes"
+                          ? "bg-gradient-to-r from-orange-500 to-red-500 shadow-lg shadow-orange-200/50"
+                          : "bg-gray-300 dark:bg-gray-600"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block w-5 h-5 transform bg-white rounded-full transition-all duration-300 ease-in-out shadow-lg ${
+                          watch("mortgage") === "yes"
+                            ? locale === 'ar' ? "-translate-x-1" : "translate-x-6 shadow-orange-200/50"
+                            : locale === 'ar' ? "-translate-x-6" : "translate-x-1"
+                        }`}
+                      >
+                        {watch("mortgage") === "yes" && (
+                          <Check className="w-3 h-3 text-[#F26A3F] absolute inset-0 m-auto" />
+                        )}
+                      </span>
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
 
           {/* Room Configuration */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <SectionHeader 
-              title={t("room_configuration")} 
+            <SectionHeader
+              title={t("room_configuration")}
               icon={<Home className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="rooms"
               description={t("bedrooms_bathrooms_kitchen_details")}
             />
             {expandedSections.rooms && (
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <InputField
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                <FormattedNumberInput
                   label={t("square_meters")}
                   name="sqt"
-                  type="number"
                   required
                   placeholder={t("property_size")}
+                  error={!!errors.sqt}
                 />
-                <InputField
+                <FormattedNumberInput
                   label={t("bedroom")}
                   name="bedroom"
-                  type="number"
                   required
                   placeholder={t("number_of_bedrooms")}
+                  error={!!errors.bedroom}
                 />
-                <InputField
+                <FormattedNumberInput
                   label={t("bathroom")}
                   name="bathroom"
-                  type="number"
                   required
                   placeholder={t("number_of_bathrooms")}
+                  error={!!errors.bathroom}
                 />
-                <InputField
+                <FormattedNumberInput
                   label={t("kitchen")}
                   name="kitchen"
-                  type="number"
                   required
                   placeholder={t("number_of_kitchens")}
+                  error={!!errors.kitchen}
+                />
+                <FormattedNumberInput
+                  label={t("landing_space")}
+                  name="landing_space"
+                  required
+                  placeholder={t("enter_landing_space")}
+                  error={!!errors.landing_space}
                 />
               </div>
             )}
@@ -627,8 +931,8 @@ const CreatePropertyPage = () => {
 
           {/* Property Details */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <SectionHeader 
-              title={t("property_details")} 
+            <SectionHeader
+              title={t("property_details")}
               icon={<FileText className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="details"
               description={t("status_type_delivery_info")}
@@ -653,7 +957,15 @@ const CreatePropertyPage = () => {
                   required
                   options={[
                     { value: "apartment", label: t("apartment") },
+                    { value: "villa", label: t("villa") },
+                    { value: "townhouse", label: t("townhouse") },
+                    { value: "stand_alone", label: t("stand_alone") },
+                    { value: "duplex", label: t("duplex") },
+                    { value: "penthouse", label: t("penthouse") },
                     { value: "office", label: t("office") },
+                    { value: "shop", label: t("shop") },
+                    { value: "warehouse", label: t("warehouse") },
+                    { value: "building", label: t("building") },
                   ]}
                   placeholder={t("select_type")}
                 />
@@ -669,7 +981,6 @@ const CreatePropertyPage = () => {
                   placeholder={t("select_option")}
                 />
                 <InputField
-                // vaues is ==>'all-furnished','unfurnished','partly-furnished'
                   label={t("furnishing")}
                   name="furnishing"
                   type="select"
@@ -677,10 +988,15 @@ const CreatePropertyPage = () => {
                   options={[
                     { value: "all-furnished", label: t("furnished") },
                     { value: "unfurnished", label: t("unfurnished") },
+                    { value: "semi-furnished", label: t("semi_furnished") },
                     { value: "partly-furnished", label: t("partly_furnished") },
-
                   ]}
                   placeholder={t("select_furnishing")}
+                />
+                <DateInput
+                  label={t("starting_day")}
+                  name="starting_day"
+                  required
                 />
               </div>
             )}
@@ -688,8 +1004,8 @@ const CreatePropertyPage = () => {
 
           {/* Arabic Content */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <SectionHeader 
-              title={t("arabic_content")} 
+            <SectionHeader
+              title={t("arabic_content")}
               icon={<Globe className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="arabic"
               description={t("arabic_title_description_seo")}
@@ -737,8 +1053,8 @@ const CreatePropertyPage = () => {
 
           {/* English Content */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <SectionHeader 
-              title={t("english_content")} 
+            <SectionHeader
+              title={t("english_content")}
               icon={<Globe className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="english"
               description={t("english_title_description_seo")}
@@ -783,7 +1099,7 @@ const CreatePropertyPage = () => {
 
           {/* Single Image Upload */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <SectionHeader 
+            <SectionHeader
               title={t("property_image")}
               icon={<Camera className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="images"
@@ -852,8 +1168,8 @@ const CreatePropertyPage = () => {
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {imagePreview 
-                      ? t("hover_over_image_to_change_or_remove") 
+                    {imagePreview
+                      ? t("hover_over_image_to_change_or_remove")
                       : t("supported_formats_jpg_png_webp")
                     }
                   </p>

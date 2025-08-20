@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, useController } from "react-hook-form";
 import { postData, getData } from "@/libs/axios/server";
 import { AxiosHeaders } from "axios";
 import { useTranslations, useLocale } from "next-intl";
@@ -8,7 +8,7 @@ import {
   Phone, Mail, MessageCircle, Home, Bed, Bath,
   ChefHat, Ruler, MapPin, User, CheckCircle, Clock, ChevronDown,
   DollarSign, FileText, Globe, Camera, Check, X, Coins, CreditCard, Save,
-  ChevronUp
+  ChevronUp, Calendar, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { 
   PropertyStatistics,
@@ -20,6 +20,7 @@ import {
 import Toast from '@/components/Toast';
 import RichTextEditor from '@/components/RichTextEditor';
 import GoogleLocationSearch from '@/components/common/GoogleLocationInput';
+// import { useRouter } from "@/i18n/routing";
 
 interface MainTabProps {
   propertystat: PropertyStatistics;
@@ -65,7 +66,8 @@ export const MainTab: React.FC<MainTabProps> = ({
   const [toast, setToast] = useState<ToastState>({ message: '', type: 'info', show: false });
   const t = useTranslations("properties");
   const locale = useLocale();
-
+  // const router = useRouter();
+  
   // Edit mode states
   const [descriptionEn, setDescriptionEn] = useState<string>("");
   const [descriptionAr, setDescriptionAr] = useState<string>("");
@@ -74,7 +76,6 @@ export const MainTab: React.FC<MainTabProps> = ({
   const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [propertyTypes, setPropertyTypes] = useState<SelectOption[]>([]);
   const [agents, setAgents] = useState<AgentOption[]>([]);
-
   const [expandedSections, setExpandedSections] = useState({
     basic: true,
     pricing: true,
@@ -94,7 +95,7 @@ export const MainTab: React.FC<MainTabProps> = ({
     watch,
     reset,
   } = useForm<FormInputs>();
-
+  
   const paymentMethod = useWatch({ control, name: "payment_method" }) || "cash";
 
   const statusOptions = [
@@ -134,6 +135,8 @@ export const MainTab: React.FC<MainTabProps> = ({
         paid_months: property.paid_months?.toString() || "",
         furnishing: property.furnishing || "",
         mortgage: property.mortgage || "no",
+        starting_day: property.starting_day || "",
+        landing_space: property.landing_space?.toString() || "",
         title_en: property.descriptions?.en?.title || "",
         description_en: property.descriptions?.en?.description || "",
         keywords_en: property.descriptions?.en?.keywords || "",
@@ -143,12 +146,10 @@ export const MainTab: React.FC<MainTabProps> = ({
         keywords_ar: property.descriptions?.ar?.keywords || "",
         slug_ar: property.descriptions?.ar?.slug || "",
       };
-
       reset(formData);
       setDescriptionEn(property.descriptions?.en?.description || "");
       setDescriptionAr(property.descriptions?.ar?.description || "");
       setLocationValue(property.property_locations?.[0]?.location || "");
-      
       if (property.property_locations?.[0]) {
         setLocationData({
           address: property.property_locations[0].location,
@@ -157,7 +158,6 @@ export const MainTab: React.FC<MainTabProps> = ({
           lng: property.property_locations[0].location_lng,
         });
       }
-
       if (property.cover) {
         setImagePreview({
           url: property.cover,
@@ -174,13 +174,11 @@ export const MainTab: React.FC<MainTabProps> = ({
       const fetchDropdownData = async () => {
         const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
         if (!token) return;
-
         try {
           const [typesResponse, agentsResponse] = await Promise.all([
             getData("owner/types", {}, new AxiosHeaders({ Authorization: `Bearer ${token}`, lang: locale })),
             getData("owner/agents", {}, new AxiosHeaders({ Authorization: `Bearer ${token}` })),
           ]);
-
           if (typesResponse.status) setPropertyTypes(typesResponse.data);
           setAgents(agentsResponse);
         } catch (error) {
@@ -188,7 +186,6 @@ export const MainTab: React.FC<MainTabProps> = ({
           showToast(t("error_fetching_dropdown_data"), "error");
         }
       };
-
       fetchDropdownData();
     }
   }, [isEditMode, locale, t]);
@@ -206,22 +203,18 @@ export const MainTab: React.FC<MainTabProps> = ({
   const handleApprovalStatusChange = async (newStatus: string) => {
     setLoading(true);
     setIsDropdownOpen(false);
-
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
       let headers: AxiosHeaders = new AxiosHeaders();
       if (token) headers = headers.set('Authorization', `Bearer ${token}`);
-
       const response = await postData(
         `/owner/property_listings/${property.id}/change-status`,
         { approval_status: newStatus },
         headers
       );
-
       if (response.status === 200) {
         setSelectedStatus(newStatus);
         showToast(response.message, 'success');
-        
         if (refetch) {
           refetch();
         }
@@ -245,15 +238,12 @@ export const MainTab: React.FC<MainTabProps> = ({
 
   const handleImageSelect = (files: FileList | null) => {
     if (!files || files.length === 0) return;
-
     if (imagePreview && !imagePreview.isExisting) {
       URL.revokeObjectURL(imagePreview.url);
     }
-
     const file = files[0];
     const url = URL.createObjectURL(file);
     const id = `${Date.now()}-${Math.random()}`;
-
     setImagePreview({ file, url, id, isExisting: false });
   };
 
@@ -272,134 +262,15 @@ export const MainTab: React.FC<MainTabProps> = ({
     };
   }, [imagePreview]);
 
-  const onSubmit = async (data: FormInputs) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
-    if (!token) {
-      showToast(t("auth_token_not_found"), "error");
-      return;
-    }
-
-    setSubmitting(true);
-
-    const formData = new FormData();
-
-    // General fields
-    formData.append("_method", "PUT");
-
-    formData.append("type_id", data.type_id);
-    formData.append("user_id", data.userId);
-    formData.append("price", data.price);
-    formData.append("sqt", data.sqt);
-    formData.append("bedroom", data.bedroom);
-    formData.append("bathroom", data.bathroom);
-    formData.append("kitichen", data.kitchen);
-    formData.append("status", data.status);
-    formData.append("type", data.type);
-    formData.append("immediate_delivery", data.immediate_delivery);
-    formData.append("furnishing", data.furnishing);
-    formData.append("payment_method", data.payment_method);
-
-    // Conditional fields (installment)
-    if (data.payment_method === "installment") {
-      if (data.down_price) formData.append("down_price", data.down_price);
-      if (data.paid_months) formData.append("paid_months", data.paid_months);
-    }
-
-    // Mortgage (optional)
-    if (data.mortgage) {
-      formData.append("mortgage", data.mortgage);
-    }
-
-    // Location
-    formData.append("location", locationValue);
-    if (locationData) {
-      formData.append("location_place_id", locationData.placeId);
-      if (locationData.lat) formData.append("location_lat", locationData.lat.toString());
-      if (locationData.lng) formData.append("location_lng", locationData.lng.toString());
-    }
-
-    // English
-    formData.append("title[en]", data.title_en);
-    formData.append("description[en]", descriptionEn);
-    formData.append("keywords[en]", data.keywords_en);
-    formData.append("slug[en]", data.slug_en);
-
-    // Arabic
-    formData.append("title[ar]", data.title_ar);
-    formData.append("description[ar]", descriptionAr);
-    formData.append("keywords[ar]", data.keywords_ar);
-    formData.append("slug[ar]", data.slug_ar);
-
-    // Cover image (only if a new image was selected)
-    if (imagePreview && imagePreview.file) {
-      formData.append("cover", imagePreview.file);
-    }
-
-    try {
-      const response = await postData(
-        `/owner/property_listings/${property.id}`,
-        formData,
-        new AxiosHeaders({ Authorization: `Bearer ${token}` })
-      );
-      
-      showToast(t("property_updated_successfully"), "success");
-      setTimeout(() => {
-        if (onEditSuccess) onEditSuccess();
-      }, 1000);
-      console.log(response);
-
-    } catch (error) {
-      console.error("Failed to update property:", error);
-      showToast(t("failed_to_update_property"), "error");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const SectionHeader = ({ 
-    title, 
-    icon, 
-    sectionKey, 
-    description 
-  }: { 
-    title: string; 
-    icon: React.ReactNode; 
-    sectionKey: keyof typeof expandedSections;
-    description?: string;
-  }) => (
-    <div 
-      className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 rounded-lg cursor-pointer hover:from-slate-100 hover:to-slate-200 dark:hover:from-slate-700 dark:hover:to-slate-600 transition-all duration-200 border border-slate-200 dark:border-slate-600"
-      onClick={() => toggleSection(sectionKey)}
-    >
-      <div className="flex items-center space-x-3">
-        <div className="p-2 bg-white dark:bg-slate-600 rounded-lg shadow-sm">
-          {icon}
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">{title}</h3>
-          {description && (
-            <p className="text-sm text-slate-600 dark:text-slate-400">{description}</p>
-          )}
-        </div>
-      </div>
-      <div className="flex items-center space-x-2">
-        <div className={`w-3 h-3 rounded-full ${expandedSections[sectionKey] ? 'bg-[#F26A3F]' : 'bg-slate-300'} transition-colors duration-200`}></div>
-        {expandedSections[sectionKey] ? 
-          <ChevronUp className="w-5 h-5 text-slate-600 dark:text-slate-400" /> : 
-          <ChevronDown className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-        }
-      </div>
-    </div>
-  );
-
-  const InputField = ({ 
-    label, 
-    name, 
-    type = "text", 
-    required = false, 
-    options = [], 
+  // Reusable InputField Component
+  const InputField = ({
+    label,
+    name,
+    type = "text",
+    required = false,
+    options = [],
     dir = "ltr",
-    placeholder = ""
+    placeholder = "",
   }: {
     label: string;
     name: keyof FormInputs;
@@ -445,12 +316,417 @@ export const MainTab: React.FC<MainTabProps> = ({
     </div>
   );
 
+  // Reusable Formatted Number Input
+  const FormattedNumberInput = ({
+    label,
+    name,
+    required = false,
+    placeholder = "",
+    error,
+  }: {
+    label: string;
+    name: keyof FormInputs;
+    required?: boolean;
+    placeholder?: string;
+    error?: boolean;
+  }) => {
+    const { field } = useController({ name, control });
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      const digits = value.replace(/\D/g, ",");
+      field.onChange(digits ? Number(digits) : ",");
+    };
+    const displayValue = field.value
+      ? Number(field.value).toLocaleString('en').replace(/,/g, ',')
+      : '';
+    return (
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-dark dark:text-white">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        <input
+          type="text"
+          value={displayValue}
+          onChange={handleChange}
+          placeholder={placeholder}
+          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
+          inputMode="numeric"
+          pattern="[0-9 ]*"
+        />
+        {error && (
+          <p className="text-red-500 text-sm flex items-center">
+            <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+            {t("field_required")}
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  // Date Input Component
+  const DateInput = ({
+    label,
+    name,
+    required = false,
+  }: {
+    label: string;
+    name: keyof FormInputs;
+    required?: boolean;
+  }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const calendarRef = useRef<HTMLDivElement>(null);
+    
+    // Get the field value from react-hook-form
+    const fieldValue = watch(name);
+    
+    // Initialize selected date from form value
+    useEffect(() => {
+      if (fieldValue) {
+        setSelectedDate(new Date(fieldValue));
+      }
+    }, [fieldValue]);
+
+    // Close calendar when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+          setIsOpen(false);
+        }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const formatDate = (date: Date): string => {
+      return date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+    };
+
+    const formatDisplayDate = (date: Date): string => {
+      return date.toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    };
+
+    const handleDateSelect = (date: Date) => {
+      setSelectedDate(date);
+      setValue(name, formatDate(date));
+      setIsOpen(false);
+    };
+
+    const getDaysInMonth = (date: Date): Date[] => {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const days: Date[] = [];
+      
+      // Add previous month's trailing days
+      const firstDayOfWeek = firstDay.getDay();
+      for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+        days.push(new Date(year, month, -i));
+      }
+      
+      // Add current month's days
+      for (let day = 1; day <= daysInMonth; day++) {
+        days.push(new Date(year, month, day));
+      }
+      
+      // Add next month's leading days
+      const totalDays = Math.ceil(days.length / 7) * 7;
+      const remainingDays = totalDays - days.length;
+      for (let day = 1; day <= remainingDays; day++) {
+        days.push(new Date(year, month + 1, day));
+      }
+      return days;
+    };
+
+    const navigateMonth = (direction: 'prev' | 'next') => {
+      setCurrentMonth(prev => {
+        const newMonth = new Date(prev);
+        if (direction === 'prev') {
+          newMonth.setMonth(prev.getMonth() - 1);
+        } else {
+          newMonth.setMonth(prev.getMonth() + 1);
+        }
+        return newMonth;
+      });
+    };
+
+    const isToday = (date: Date): boolean => {
+      const today = new Date();
+      return date.toDateString() === today.toDateString();
+    };
+
+    const isSelected = (date: Date): boolean => {
+      return selectedDate ? date.toDateString() === selectedDate.toDateString() : false;
+    };
+
+    const isCurrentMonth = (date: Date): boolean => {
+      return date.getMonth() === currentMonth.getMonth();
+    };
+
+    const monthNames = locale === 'ar' 
+      ? ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+      : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const dayNames = locale === 'ar'
+      ? ['أح', 'إث', 'ثل', 'أر', 'خم', 'جم', 'سب']
+      : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    return (
+      <div className="space-y-2" ref={calendarRef}>
+        <label className="block text-sm font-medium text-dark dark:text-white">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        {/* Date Input Field */}
+        <div className="relative">
+          <input
+            {...register(name, { required })}
+            type="text"
+            readOnly
+            value={selectedDate ? formatDisplayDate(selectedDate) : ''}
+            onClick={() => setIsOpen(!isOpen)}
+            placeholder={t("select_date")}
+            className="w-full px-4 py-3 pr-12 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30 cursor-pointer"
+            dir={locale === 'ar' ? 'rtl' : 'ltr'}
+          />
+          <button
+            type="button"
+            onClick={() => setIsOpen(!isOpen)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-orange-500 transition-colors"
+          >
+            <Calendar className="w-5 h-5" />
+          </button>
+        </div>
+        {/* Calendar Dropdown */}
+        {isOpen && (
+          <div className="absolute z-50 mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg p-4 min-w-[300px]">
+            {/* Calendar Header */}
+            <div className="flex items-center justify-between mb-4">
+              <button
+                type="button"
+                onClick={() => navigateMonth('prev')}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+                {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+              </h3>
+              <button
+                type="button"
+                onClick={() => navigateMonth('next')}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            {/* Day Names Header */}
+            <div className="grid grid-cols-7 gap-1 mb-2">
+              {dayNames.map((day) => (
+                <div
+                  key={day}
+                  className="text-center text-xs font-medium text-slate-500 dark:text-slate-400 py-2"
+                >
+                  {day}
+                </div>
+              ))}
+            </div>
+            {/* Calendar Days */}
+            <div className="grid grid-cols-7 gap-1">
+              {getDaysInMonth(currentMonth).map((date, index) => {
+                const isCurrentMonthDay = isCurrentMonth(date);
+                const isSelectedDay = isSelected(date);
+                const isTodayDay = isToday(date);
+                return (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => handleDateSelect(date)}
+                    className={`
+                      w-8 h-8 text-sm rounded-lg transition-all duration-200 hover:bg-orange-100 dark:hover:bg-orange-900/30
+                      ${isSelectedDay 
+                        ? 'bg-[#F26A3F] text-white shadow-lg transform scale-105' 
+                        : isCurrentMonthDay
+                          ? 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
+                          : 'text-slate-400 dark:text-slate-500'
+                      }
+                      ${isTodayDay && !isSelectedDay 
+                        ? 'ring-2 ring-orange-300 dark:ring-orange-600' 
+                        : ''
+                      }
+                    `}
+                    disabled={!isCurrentMonthDay}
+                  >
+                    {date.getDate()}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Quick Actions */}
+            <div className="flex justify-between mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
+              <button
+                type="button"
+                onClick={() => {
+                  const today = new Date();
+                  handleDateSelect(today);
+                  setCurrentMonth(today);
+                }}
+                className="text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors"
+              >
+                {t("today")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+              >
+                {t("close")}
+              </button>
+            </div>
+          </div>
+        )}
+        {errors[name] && (
+          <p className="text-red-500 text-sm flex items-center">
+            <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+            {t("field_required")}
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  const onSubmit = async (data: FormInputs) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+    if (!token) {
+      showToast(t("auth_token_not_found"), "error");
+      return;
+    }
+    setSubmitting(true);
+    const formData = new FormData();
+    
+    // General fields
+    formData.append("_method", "PUT");
+    formData.append("type_id", data.type_id);
+    formData.append("user_id", data.userId);
+    formData.append("price", data.price);
+    formData.append("sqt", data.sqt);
+    formData.append("bedroom", data.bedroom);
+    formData.append("bathroom", data.bathroom);
+    formData.append("kitichen", data.kitchen);
+    formData.append("status", data.status);
+    formData.append("type", data.type);
+    formData.append("immediate_delivery", data.immediate_delivery);
+    formData.append("furnishing", data.furnishing);
+    formData.append("payment_method", data.payment_method);
+    
+    // Conditional fields (installment)
+    if (data.payment_method === "installment") {
+      if (data.down_price) formData.append("down_price", data.down_price);
+      if (data.paid_months) formData.append("paid_months", data.paid_months);
+    }
+    
+    // Mortgage (optional)
+    if (data.mortgage) {
+      formData.append("mortgage", data.mortgage);
+    }
+    
+    // New fields
+    if (data.starting_day) formData.append("starting_day", data.starting_day);
+    formData.append("landing_space", data.landing_space);
+    
+    // Location
+    formData.append("location", locationValue);
+    if (locationData) {
+      formData.append("location_place_id", locationData.placeId);
+      if (locationData.lat) formData.append("location_lat", locationData.lat.toString());
+      if (locationData.lng) formData.append("location_lng", locationData.lng.toString());
+    }
+    
+    // English
+    formData.append("title[en]", data.title_en);
+    formData.append("description[en]", descriptionEn);
+    formData.append("keywords[en]", data.keywords_en);
+    formData.append("slug[en]", data.slug_en);
+    
+    // Arabic
+    formData.append("title[ar]", data.title_ar);
+    formData.append("description[ar]", descriptionAr);
+    formData.append("keywords[ar]", data.keywords_ar);
+    formData.append("slug[ar]", data.slug_ar);
+    
+    // Cover image (only if a new image was selected)
+    if (imagePreview && imagePreview.file) {
+      formData.append("cover", imagePreview.file);
+    }
+    
+    try {
+      const response = await postData(
+        `/owner/property_listings/${property.id}`,
+        formData,
+        new AxiosHeaders({ Authorization: `Bearer ${token}` })
+      );
+      showToast(t("property_updated_successfully"), "success");
+      setTimeout(() => {
+        if (onEditSuccess) onEditSuccess();
+      }, 1000);
+      console.log(response);
+    } catch (error) {
+      console.error("Failed to update property:", error);
+      showToast(t("failed_to_update_property"), "error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const SectionHeader = ({ 
+    title, 
+    icon, 
+    sectionKey, 
+    description 
+  }: { 
+    title: string; 
+    icon: React.ReactNode; 
+    sectionKey: keyof typeof expandedSections;
+    description?: string;
+  }) => (
+    <div 
+      className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 rounded-lg cursor-pointer hover:from-slate-100 hover:to-slate-200 dark:hover:from-slate-700 dark:hover:to-slate-600 transition-all duration-200 border border-slate-200 dark:border-slate-600"
+      onClick={() => toggleSection(sectionKey)}
+    >
+      <div className="flex items-center space-x-3">
+        <div className="p-2 bg-white dark:bg-slate-600 rounded-lg shadow-sm">
+          {icon}
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">{title}</h3>
+          {description && (
+            <p className="text-sm text-slate-600 dark:text-slate-400">{description}</p>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center space-x-2">
+        <div className={`w-3 h-3 rounded-full ${expandedSections[sectionKey] ? 'bg-[#F26A3F]' : 'bg-slate-300'} transition-colors duration-200`}></div>
+        {expandedSections[sectionKey] ? 
+          <ChevronUp className="w-5 h-5 text-slate-600 dark:text-slate-400" /> : 
+          <ChevronDown className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+        }
+      </div>
+    </div>
+  );
+
   // VIEW MODE COMPONENT
   if (!isEditMode) {
     return (
       <div className="space-y-8">
         {toast.show && <Toast message={toast.message} type={toast.type} />}
-        
         {/* Status Dropdown */}
         <div className="mt-6 flex justify-end">
           <div className="relative inline-block text-left">
@@ -471,7 +747,6 @@ export const MainTab: React.FC<MainTabProps> = ({
                 </>
               )}
             </button>
-
             {isDropdownOpen && !loading && (
               <div className="absolute right-0 mt-2 w-56 z-50 rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-gray-400 ring-opacity-5 focus:outline-none border border-gray-200 dark:border-gray-700">
                 <div className="py-2">
@@ -494,7 +769,6 @@ export const MainTab: React.FC<MainTabProps> = ({
             )}
           </div>
         </div>
-
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-700">
@@ -508,7 +782,6 @@ export const MainTab: React.FC<MainTabProps> = ({
               </div>
             </div>
           </div>
-          
           <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-6 border border-green-200 dark:border-green-700">
             <div className="flex items-center justify-between">
               <div>
@@ -521,7 +794,6 @@ export const MainTab: React.FC<MainTabProps> = ({
             </div>
           </div>
         </div>
-
         {/* Property Header */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
@@ -557,7 +829,6 @@ export const MainTab: React.FC<MainTabProps> = ({
               </div>
             </div>
           </div>
-
           {/* Property Details */}
           <div className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -582,7 +853,6 @@ export const MainTab: React.FC<MainTabProps> = ({
                 <div className="text-sm text-gray-600 dark:text-gray-400">sq ft</div>
               </div>
             </div>
-
             {/* Description */}
             <div className="mb-6">
               <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center gap-2">
@@ -596,7 +866,6 @@ export const MainTab: React.FC<MainTabProps> = ({
             </div>
           </div>
         </div>
-
         {/* Owner Information */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 text-white">
@@ -605,7 +874,6 @@ export const MainTab: React.FC<MainTabProps> = ({
               {t("owner_information")}
             </h3>
           </div>
-          
           <div className="p-6 grid-cols-2 grid">
             <div className="flex items-start gap-6 mb-6 ">
               {property?.user?.avatar && (
@@ -620,18 +888,15 @@ export const MainTab: React.FC<MainTabProps> = ({
                   <div className="absolute -bottom-2 -right-2 bg-green-500 w-6 h-6 rounded-full border-2 border-white dark:border-gray-800"></div>
                 </div>
               )}
-              
               <div className="flex-1">
                 <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                   {property?.user?.name}
                 </h4>
-                
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
                     <Mail className="h-4 w-4 text-purple-600" />
                     <span>{property?.user?.email}</span>
                   </div>
-                  
                   {property?.user?.phone ? (
                     <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
                       <Phone className="h-4 w-4 text-purple-600" />
@@ -646,7 +911,6 @@ export const MainTab: React.FC<MainTabProps> = ({
                 </div>
               </div>
             </div>
-
             {/* Click outside handler */}
             {isDropdownOpen && (
               <div
@@ -664,7 +928,6 @@ export const MainTab: React.FC<MainTabProps> = ({
   return (
     <div className="space-y-6">
       {toast.show && <Toast message={toast.message} type={toast.type} duration={3000} />}
-      
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Information */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -675,7 +938,7 @@ export const MainTab: React.FC<MainTabProps> = ({
             description={t("property_type_location_details")}
           />
           {expandedSections.basic && (
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
                 <GoogleLocationSearch
                   label={t("location")}
@@ -683,7 +946,7 @@ export const MainTab: React.FC<MainTabProps> = ({
                   value={locationValue}
                   onChange={(value, googleLocationData) => {
                     setLocationValue(value);
-                    setValue("location", locationValue);
+                    setValue("location", value);
                     if (googleLocationData) {
                       setLocationData(googleLocationData);
                     }
@@ -718,7 +981,6 @@ export const MainTab: React.FC<MainTabProps> = ({
             </div>
           )}
         </div>
-
         {/* Pricing Information */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           <SectionHeader 
@@ -729,14 +991,13 @@ export const MainTab: React.FC<MainTabProps> = ({
           />
           {expandedSections.pricing && (
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputField
+              <FormattedNumberInput
                 label={t("price")}
                 name="price"
-                type="number"
                 required
                 placeholder={t("enter_property_price")}
+                error={!!errors.price}
               />
-
               {/* Payment Method Toggle */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-dark dark:text-white">
@@ -769,29 +1030,33 @@ export const MainTab: React.FC<MainTabProps> = ({
                     {t("installment")}
                   </button>
                 </div>
+                {errors.payment_method && (
+                  <p className="text-red-500 text-sm flex items-center mt-1">
+                    <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+                    {t("field_required")}
+                  </p>
+                )}
               </div>
-
-              {/* Down Payment & Paid Months (only if installment) */}
+              {/* Down Payment & Paid Months */}
               {paymentMethod === "installment" && (
                 <>
-                  <InputField
+                  <FormattedNumberInput
                     label={t("down_price")}
                     name="down_price"
-                    type="number"
                     required
                     placeholder={t("enter_down_payment_amount")}
+                    error={!!errors.down_price}
                   />
-                  <InputField
+                  <FormattedNumberInput
                     label={t("number_of_months")}
                     name="paid_months"
-                    type="number"
                     required
                     placeholder={t("enter_number_of_installment_months")}
+                    error={!!errors.paid_months}
                   />
                 </>
               )}
-
-              {/* Mortgage Input */}
+              {/* Mortgage Toggle */}
               <div className="space-y-3" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
                 <label className="block text-sm font-medium text-dark dark:text-white">
                   {t("mortgage")}
@@ -839,7 +1104,6 @@ export const MainTab: React.FC<MainTabProps> = ({
             </div>
           )}
         </div>
-
         {/* Room Configuration */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           <SectionHeader 
@@ -849,39 +1113,45 @@ export const MainTab: React.FC<MainTabProps> = ({
             description={t("bedrooms_bathrooms_kitchen_details")}
           />
           {expandedSections.rooms && (
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <InputField
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+              <FormattedNumberInput
                 label={t("square_meters")}
                 name="sqt"
-                type="number"
                 required
                 placeholder={t("property_size")}
+                error={!!errors.sqt}
               />
-              <InputField
+              <FormattedNumberInput
                 label={t("bedroom")}
                 name="bedroom"
-                type="number"
                 required
                 placeholder={t("number_of_bedrooms")}
+                error={!!errors.bedroom}
               />
-              <InputField
+              <FormattedNumberInput
                 label={t("bathroom")}
                 name="bathroom"
-                type="number"
                 required
                 placeholder={t("number_of_bathrooms")}
+                error={!!errors.bathroom}
               />
-              <InputField
+              <FormattedNumberInput
                 label={t("kitchen")}
                 name="kitchen"
-                type="number"
                 required
                 placeholder={t("number_of_kitchens")}
+                error={!!errors.kitchen}
+              />
+              <FormattedNumberInput
+                label={t("landing_space")}
+                name="landing_space"
+                required
+                placeholder={t("enter_landing_space")}
+                error={!!errors.landing_space}
               />
             </div>
           )}
         </div>
-
         {/* Property Details */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           <SectionHeader 
@@ -891,7 +1161,7 @@ export const MainTab: React.FC<MainTabProps> = ({
             description={t("status_type_delivery_info")}
           />
           {expandedSections.details && (
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               <InputField
                 label={t("status")}
                 name="status"
@@ -910,7 +1180,15 @@ export const MainTab: React.FC<MainTabProps> = ({
                 required
                 options={[
                   { value: "apartment", label: t("apartment") },
+                  { value: "villa", label: t("villa") },
+                  { value: "townhouse", label: t("townhouse") },
+                  { value: "stand_alone", label: t("stand_alone") },
+                  { value: "duplex", label: t("duplex") },
+                  { value: "penthouse", label: t("penthouse") },
                   { value: "office", label: t("office") },
+                  { value: "shop", label: t("shop") },
+                  { value: "warehouse", label: t("warehouse") },
+                  { value: "building", label: t("building") },
                 ]}
                 placeholder={t("select_type")}
               />
@@ -933,14 +1211,19 @@ export const MainTab: React.FC<MainTabProps> = ({
                 options={[
                   { value: "all-furnished", label: t("furnished") },
                   { value: "unfurnished", label: t("unfurnished") },
+                  { value: "semi-furnished", label: t("semi_furnished") },
                   { value: "partly-furnished", label: t("partly_furnished") },
                 ]}
                 placeholder={t("select_furnishing")}
               />
+              <DateInput
+                label={t("starting_day")}
+                name="starting_day"
+                required
+              />
             </div>
           )}
         </div>
-
         {/* Arabic Content */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           <SectionHeader 
@@ -989,7 +1272,6 @@ export const MainTab: React.FC<MainTabProps> = ({
             </div>
           )}
         </div>
-
         {/* English Content */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           <SectionHeader 
@@ -1035,7 +1317,6 @@ export const MainTab: React.FC<MainTabProps> = ({
             </div>
           )}
         </div>
-
         {/* Single Image Upload */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           <SectionHeader 
@@ -1120,7 +1401,6 @@ export const MainTab: React.FC<MainTabProps> = ({
             </div>
           )}
         </div>
-
         {/* Action Buttons */}
         <div className="flex justify-center space-x-4 pt-8">
           <button
