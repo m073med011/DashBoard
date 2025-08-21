@@ -186,54 +186,56 @@ const CreatePropertyPage = () => {
 
   // Reusable Formatted Number Input
   const FormattedNumberInput = ({
-    label,
-    name,
-    required = false,
-    placeholder = "",
-    error,
-  }: {
-    label: string;
-    name: keyof FormInputs;
-    required?: boolean;
-    placeholder?: string;
-    error?: boolean;
-  }) => {
-    const { field } = useController({ name, control });
+  label,
+  name,
+  required = false,
+  placeholder = "",
+  error,
+}: {
+  label: string;
+  name: keyof FormInputs;
+  required?: boolean;
+  placeholder?: string;
+  error?: boolean;
+}) => {
+  const { field } = useController({ name, control });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      const digits = value.replace(/\D/g, "");
-      field.onChange(digits ? Number(digits) : "");
-    };
-
-    const displayValue = field.value
-      ? Number(field.value).toLocaleString('en').replace(/,/g, '  ')
-      : '';
-
-    return (
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-dark dark:text-white">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
-        <input
-          type="text"
-          value={displayValue}
-          onChange={handleChange}
-          placeholder={placeholder}
-          className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
-          inputMode="numeric"
-          pattern="[0-9 ]*"
-        />
-        {error && (
-          <p className="text-red-500 text-sm flex items-center">
-            <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
-            {t("field_required")}
-          </p>
-        )}
-      </div>
-    );
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+    // Convert to number or empty string
+    field.onChange(digits ? Number(digits) : '');
   };
+
+  const displayValue = field.value
+    ? Number(field.value).toLocaleString('en').replace(/,/g, ' ')
+    : '';
+
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-dark dark:text-white">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      <input
+        type="text"
+        value={displayValue}
+        onChange={handleChange}
+        placeholder={placeholder}
+        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
+        inputMode="numeric"
+        pattern="[0-9 ]*"
+      />
+      {error && (
+        <p className="text-red-500 text-sm flex items-center">
+          <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+          {t("field_required")}
+        </p>
+      )}
+    </div>
+  );
+};
 
   // Date Input Component
 
