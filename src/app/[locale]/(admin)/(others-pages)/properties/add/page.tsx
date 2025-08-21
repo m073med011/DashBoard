@@ -185,7 +185,7 @@ const CreatePropertyPage = () => {
   );
 
   // Reusable Formatted Number Input
-  const FormattedNumberInput = ({
+ const FormattedNumberInput = ({
   label,
   name,
   required = false,
@@ -199,17 +199,46 @@ const CreatePropertyPage = () => {
   error?: boolean;
 }) => {
   const { field } = useController({ name, control });
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const cursorPosition = input.selectionStart || 0;
     const value = e.target.value;
+    
     // Remove all non-digit characters
     const digits = value.replace(/\D/g, '');
-    // Convert to number or empty string
-    field.onChange(digits ? Number(digits) : '');
+    
+    // Store the raw number value
+    const numValue = digits ? Number(digits) : '';
+    field.onChange(numValue);
+    
+    // Calculate new cursor position after formatting
+    setTimeout(() => {
+      if (inputRef.current && digits) {
+        const formattedValue = Number(digits).toLocaleString('en-US').replace(/,/g, ' ');
+        const digitsBefore = value.slice(0, cursorPosition).replace(/\D/g, '').length;
+        
+        let newPosition = 0;
+        let digitCount = 0;
+        
+        for (let i = 0; i < formattedValue.length; i++) {
+          if (formattedValue[i] !== ' ') {
+            digitCount++;
+          }
+          if (digitCount === digitsBefore) {
+            newPosition = i + 1;
+            break;
+          }
+        }
+        
+        inputRef.current.setSelectionRange(newPosition, newPosition);
+      }
+    }, 0);
   };
 
   const displayValue = field.value
-    ? Number(field.value).toLocaleString('en').replace(/,/g, ' ')
+    ? Number(field.value).toLocaleString('en-US').replace(/,/g, ' ')
     : '';
 
   return (
@@ -219,11 +248,17 @@ const CreatePropertyPage = () => {
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
       <input
+        ref={inputRef}
         type="text"
         value={displayValue}
         onChange={handleChange}
         placeholder={placeholder}
         className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
+        dir="ltr"
+        style={{ 
+          textAlign: locale === 'ar' ? 'right' : 'left',
+          unicodeBidi: 'plaintext'
+        }}
         inputMode="numeric"
         pattern="[0-9 ]*"
       />
@@ -952,7 +987,7 @@ const DateInput = ({
                   ]}
                   placeholder={t("select_status")}
                 />
-                <InputField
+                {/* <InputField
                   label={t("type")}
                   name="type"
                   type="select"
@@ -970,7 +1005,7 @@ const DateInput = ({
                     { value: "building", label: t("building") },
                   ]}
                   placeholder={t("select_type")}
-                />
+                /> */}
                 <InputField
                   label={t("immediate_delivery")}
                   name="immediate_delivery"
