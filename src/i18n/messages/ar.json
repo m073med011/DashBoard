@@ -27,6 +27,8 @@
   },
   "Comming Soon": "قريبا",
   "Tables": {
+    "Confirm New Password":"تأكيد كلمة المرور الجديدة",
+    "contact": "Contact",
     "Agents": "الوكلاء",
     "Owners": "المديرين",
     "Blogs": "المدونات",
@@ -299,6 +301,8 @@
     "Edit Content": "تعديل المحتوى"
   },
   "toast": {
+    "Agent saved successfully": "تم حفظ الوكلاء بنجاح",
+    "owner saved successfully": "تم حفظ المالك بنجاح",
     "Amenity created successfully": "تم إنشاء وسائل الراحة بنجاح",
     "Amenity updated successfully": "تم تحديث وسائل الراحة بنجاح",
     "Amenity deleted successfully": "تم حذف وسائل الراحة بنجاح",

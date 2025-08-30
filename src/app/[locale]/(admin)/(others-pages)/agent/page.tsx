@@ -9,9 +9,8 @@ import Image from 'next/image';
 import Toast from '@/components/Toast';
 import { useLocale } from 'next-intl';
 import { useTranslations } from 'next-intl';
-import { AxiosError } from 'axios'; // Make sure to import AxiosError type
+import { AxiosError } from 'axios';
 import ImageWithFallback from '@/components/ImageWithFallback';
-
 
 type OwnerItem = {
   id: number;
@@ -30,10 +29,10 @@ type ToastState = {
   message: string;
   type: 'success' | 'error' | 'info';
   show: boolean;
+  translate?: boolean;
 };
 
 export default function OwnersPage() {
-
   const locale = useLocale();
   const t = useTranslations("Tables");
   const [items, setItems] = useState<OwnerItem[]>([]);
@@ -43,12 +42,136 @@ export default function OwnersPage() {
     message: '',
     type: 'info',
     show: false,
+    translate: true,
   });
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
+  const [nameValue, setNameValue] = useState('');
+  const [isNameValid, setIsNameValid] = useState(true);
+  
+  // Password validation states
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isPasswordValid, setIsPasswordValid] = useState(true);
 
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-    setToast({ message, type, show: true });
-    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
+  // Phone validation function
+  const validatePhone = (phone: string): boolean => {
+    const phoneRegex = /^01\d{9}$/; // Must start with 01 and be exactly 11 digits
+    return phoneRegex.test(phone);
   };
+
+  // Name validation function
+  const validateName = (name: string): boolean => {
+    return name.length <= 30;
+  };
+
+  // Password validation function
+  const validatePasswords = (pass: string, confirmPass: string): boolean => {
+    if (!pass && !confirmPass) return true; // Both empty is valid for edit
+    return pass === confirmPass;
+  };
+
+  // Handle phone input change for create form
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only allow numbers
+    const numbersOnly = value.replace(/\D/g, '');
+    // Limit to 11 digits
+    const limitedPhone = numbersOnly.slice(0, 11);
+    
+    setPhoneNumber(limitedPhone);
+    setIsPhoneValid(validatePhone(limitedPhone));
+  };
+
+  // Handle name input change for create form
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNameValue(value);
+    setIsNameValid(validateName(value));
+  };
+
+  // Handle name input change for edit form
+  const handleEditNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setIsNameValid(validateName(value));
+  };
+
+  // Handle phone input change for edit form
+  const handleEditPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only allow numbers
+    const numbersOnly = value.replace(/\D/g, '');
+    // Limit to 11 digits
+    const limitedPhone = numbersOnly.slice(0, 11);
+    
+    // Update the input value directly
+    e.target.value = limitedPhone;
+    
+    // Validate the phone number
+    const isValid = validatePhone(limitedPhone);
+    
+    // Update validation state for edit form
+    setIsPhoneValid(isValid);
+  };
+
+  // Handle password input change
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    setIsPasswordValid(validatePasswords(value, confirmPassword));
+  };
+
+  // Handle confirm password input change
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setConfirmPassword(value);
+    setIsPasswordValid(validatePasswords(password, value));
+  };
+
+  // Reset all validation states when modal closes
+  const closeModal = () => {
+    setModalState({ type: null });
+    setPhoneNumber('');
+    setIsPhoneValid(false);
+    setNameValue('');
+    setIsNameValid(true);
+    setPassword('');
+    setConfirmPassword('');
+    setIsPasswordValid(true);
+  };
+
+  // Initialize validation states when opening edit modal
+  const openEditModal = (item: OwnerItem) => {
+    setModalState({ type: 'edit', item });
+    // Set initial validation state based on current phone
+    setIsPhoneValid(validatePhone(item.phone || ''));
+    // Set initial validation state based on current name
+    setIsNameValid(validateName(item.name || ''));
+    // Reset password fields
+    setPassword('');
+    setConfirmPassword('');
+    setIsPasswordValid(true);
+  };
+
+  // Fixed showToast function
+const showToast = (
+  message: string, 
+  type: 'success' | 'error' | 'info' = 'info',
+  translate: boolean = true
+) => {
+  // First, hide any existing toast
+  setToast(prev => ({ ...prev, show: false }));
+  
+  // Then show the new toast after a brief delay to ensure state change
+  setTimeout(() => {
+    setToast({ message, type, show: true, translate });
+  }, 50);
+  
+  // Hide the toast after 3 seconds
+  setTimeout(() => {
+    setToast(prev => ({ ...prev, show: false }));
+  }, 3050); // 3000ms + 50ms delay
+};
 
   const [modalState, setModalState] = useState<{
     type: 'create' | 'edit' | 'view' | null;
@@ -74,18 +197,15 @@ export default function OwnersPage() {
           phone: item.phone,
           parent_id: item.parent_id,
           avatar: item.avatar,
-          // subscription: item.subscription,
-          // provider_id: item.provider_id,
-          // email_verified_at: item.email_verified_at,
           role: item.role,
         }));
 
         setItems(normalized);
       } catch (error: unknown) {
         if (error instanceof AxiosError) {
-          showToast(error.response?.data.message, 'error');
+          showToast(error.response?.data.message || 'An error occurred', 'error', false);
         } else {
-          showToast(t('An unknown error occurred'), 'error');
+          showToast('An unknown error occurred', 'error', true);
         }
       } finally {
         setLoading(false);
@@ -99,7 +219,7 @@ export default function OwnersPage() {
     if (storedToken) {
       setToken(storedToken);
     } else {
-      showToast(t('Token not found in localStorage'), 'error');
+      showToast('Token not found in localStorage', 'error', false);
     }
   }, [t]);
 
@@ -122,7 +242,7 @@ export default function OwnersPage() {
       showToast('Agent deleted successfully', 'success');
     } catch (error) {
       console.error('Delete failed', error);
-      showToast('Delete failed', 'error');
+      showToast('Delete failed', 'error', false);
     }
   };
 
@@ -131,7 +251,6 @@ export default function OwnersPage() {
 
     try {
       if (modalState.type === 'create') {
-        // Create owner: name, email, phone, password, password_confirmation
         const payload = new FormData();
         payload.append('name', formData.get('name') as string);
         payload.append('email', formData.get('email') as string);
@@ -141,7 +260,6 @@ export default function OwnersPage() {
 
         await postData('owner/agents', payload, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
       } else if (modalState.type === 'edit' && modalState.item) {
-        // Edit owner: _method=PUT, name, email, password (optional)
         const payload = new FormData();
         payload.append('_method', 'PUT');
         payload.append('name', formData.get('name') as string);
@@ -149,8 +267,11 @@ export default function OwnersPage() {
         payload.append('phone', formData.get('phone') as string);
 
         const password = formData.get('password') as string;
+        const passwordConfirmation = formData.get('password_confirmation') as string;
+        
         if (password) {
           payload.append('password', password);
+          payload.append('password_confirmation', passwordConfirmation);
         }
 
         await postData(`owner/agents/${modalState.item.id}`, payload, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
@@ -158,19 +279,26 @@ export default function OwnersPage() {
 
       fetchOwners(token);
       setModalState({ type: null });
-      showToast(t('agent saved successfully'), 'success');  
+      showToast('Agent saved successfully', 'success');
     } catch (error) {
       if (error instanceof AxiosError) {
-        showToast('error', 'error');
+        showToast(error.response?.data.message || 'An error occurred', 'error', false);
       } else {
-        showToast(t('An unknown error occurred'), 'error');
+        showToast('An unknown error occurred', 'error', true);
       }
     }
   };
 
   return (
     <div className="p-6">
-      {toast.show && <Toast message={toast.message} type={toast.type} duration={3000} />}
+      {toast.show && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          duration={3000} 
+          translate={toast.translate}
+        />
+      )}
 
       {loading ? (
         <p>Loading...</p>
@@ -179,27 +307,27 @@ export default function OwnersPage() {
           data={items}
           columns={[
             {
-  key: 'avatar',
-  label: 'Avatar',
-  render: (item) =>
-    item.avatar ? (
-      <div className="flex items-center justify-center">
-        <ImageWithFallback 
-          src={item?.avatar || ''} 
-          alt="User Avatar" 
-          width={400} 
-          height={400} 
-          className="rounded-xl w-[100px] h-[100px] object-cover" 
-        />
-      </div>
-    ) : (
-      <div className="flex items-center justify-center">
-        <div className="w-[100px] h-[100px] bg-gray-200 rounded-xl flex items-center justify-center">
-          No Image
-        </div>
-      </div>
-    )
-},
+              key: 'avatar',
+              label: 'Avatar',
+              render: (item) =>
+                item.avatar ? (
+                  <div className="flex items-center justify-center">
+                    <ImageWithFallback 
+                      src={item?.avatar || ''} 
+                      alt="User Avatar" 
+                      width={400} 
+                      height={400} 
+                      className="rounded-xl w-[100px] h-[100px] object-cover" 
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <div className="w-[100px] h-[100px] bg-gray-200 rounded-xl flex items-center justify-center">
+                      No Image
+                    </div>
+                  </div>
+                )
+            },
             {
               key: 'name',
               label: 'Name',
@@ -208,11 +336,11 @@ export default function OwnersPage() {
             {
               key: 'email',
               label: 'Email',
-               render: (item) => (
-    <div className="max-w-[clamp(10.00px,10vw,100.00px)] w-full  mx-1">
-      {item.email || '-'}
-    </div>
-  ),
+              render: (item) => (
+                <div className="max-w-[clamp(10.00px,10vw,100.00px)] w-full mx-1">
+                  {item.email || '-'}
+                </div>
+              ),
             },
             {
               key: 'phone',
@@ -220,16 +348,22 @@ export default function OwnersPage() {
               render: (item) => item.phone || '-',
             },
           ]}
-          onCreate={() => setModalState({ type: 'create' })}
-          onEdit={(item) => setModalState({ type: 'edit', item })}
+          onCreate={() => {
+            setModalState({ type: 'create' });
+            setNameValue('');
+            setIsNameValid(true);
+            setPassword('');
+            setConfirmPassword('');
+            setIsPasswordValid(true);
+          }}
+          onEdit={(item) => openEditModal(item)}
           onDelete={handleDelete}
           onView={(item) => setModalState({ type: 'view', item })}
         />
       )}
 
       <ModalForm
-              className='max-w-1/3'
-
+        className='max-w-1/3'
         open={!!modalState.type}
         title={
           modalState.type === 'create'
@@ -238,10 +372,10 @@ export default function OwnersPage() {
             ? t('Edit agent')
             : t('View agent')
         }
-        onClose={() => setModalState({ type: null })}
+        onClose={closeModal}
       >
         {modalState.type === 'view' ? (
-          <div className="space-y-3  ">
+          <div className="space-y-3">
             {modalState.item?.avatar && (
               <div className="flex justify-center">
                 <Image
@@ -262,12 +396,6 @@ export default function OwnersPage() {
             <p className='flex items-center gap-2'>
               <strong>{t('Phone')}:</strong> {modalState.item?.phone}
             </p>
-            {/* <p>
-              <strong>Subscription:</strong> {modalState.item?.subscription}
-            </p>
-            <p>
-              <strong>Role:</strong> {modalState.item?.role}
-            </p> */}
           </div>
         ) : (
           <form
@@ -278,14 +406,23 @@ export default function OwnersPage() {
             }}
             className="space-y-3"
           >
-                       <input
+            <input
               type="text"
               name="name"
               placeholder={t('Owner Name')}
               defaultValue={modalState.item?.name || ''}
-              className="w-full border p-2 rounded"
+              value={modalState.type === 'create' ? nameValue : undefined}
+              onChange={modalState.type === 'create' ? handleNameChange : handleEditNameChange}
+              className={`w-full border p-2 rounded ${
+                !isNameValid ? 'border-red-500' : 'border-gray-300'
+              }`}
               required
             />
+            {!isNameValid && (
+              <p className="text-red-500 text-sm">
+                Agent name is too long, please enter up to 30 char
+              </p>
+            )}
             <input
               type="email"
               name="email"
@@ -300,10 +437,18 @@ export default function OwnersPage() {
                   type="tel"
                   name="phone"
                   placeholder={t('Phone Number')}
-                  defaultValue=""
-                  className="w-full border p-2 rounded"
+                  value={phoneNumber}
+                  onChange={handlePhoneChange}
+                  className={`w-full border p-2 rounded ${
+                    phoneNumber && !isPhoneValid ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 />
+                {phoneNumber && !isPhoneValid && (
+                  <p className="text-red-500 text-sm">
+                    Phone number must be 11 digits and start with 01
+                  </p>
+                )}
                 <input
                   type="password"
                   name="password"
@@ -322,28 +467,60 @@ export default function OwnersPage() {
             )}
             {modalState.type === 'edit' && (
               <>
+                <div>
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder={t('Phone Number')}
+                    defaultValue={modalState.item?.phone || ''}
+                    onChange={handleEditPhoneChange}
+                    className={`w-full border p-2 rounded ${
+                      !isPhoneValid ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    required
+                  />
+                  {!isPhoneValid && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Phone number must be 11 digits and start with 01
+                    </p>
+                  )}
+                </div>
                 <input
-                  type="tel"
-                  name="phone"
-                  placeholder={t('Phone Number')}
-              defaultValue={modalState.item?.phone || ''}
-              className="w-full border p-2 rounded"
-              required
+                  type="password"
+                  name="password"
+                  placeholder={t('New Password (leave blank to keep current)')}
+                  value={password}
+                  onChange={handlePasswordChange}
+                  className={`w-full border p-2 rounded ${
+                    !isPasswordValid ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 />
-              <input
-                type="password"
-                name="password"
-                placeholder={t('New Password (leave blank to keep current)')}
-                className="w-full border p-2 rounded"
-              />
-              {/* // phone */}
-            
-                </>
+                <input
+                  type="password"
+                  name="password_confirmation"
+                  placeholder={t('Confirm New Password')}
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  className={`w-full border p-2 rounded ${
+                    !isPasswordValid ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {!isPasswordValid && (
+                  <p className="text-red-500 text-sm">
+                    Passwords must match exactly
+                  </p>
+                )}
+              </>
             )}
 
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded w-full"
+              disabled={!isPhoneValid || !isNameValid || !isPasswordValid}
+              className={`px-4 py-2 rounded w-full text-white ${
+                !isPhoneValid || !isNameValid || !isPasswordValid
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
             >
               {modalState.type === 'create' ? t('Create Owner') : t('Update Owner')}
             </button>

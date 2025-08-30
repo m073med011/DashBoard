@@ -81,6 +81,7 @@
   },
   "Comming Soon": "Coming Soon",
   "Tables": {
+    "Confirm New Password":"Confirm New Password",
     "contact": "Contact",
     "Agents": "Agents",
     "Owners": "Owners",
@@ -352,6 +353,8 @@
     "Edit Content": "Edit Content"
   },
   "toast": {
+    "Agent saved successfully": "Agent saved successfully",
+    "Owner saved successfully": "Owner saved successfully",
     "Amenity created successfully": "Amenity created successfully",
     "Amenity updated successfully": "Amenity updated successfully",
     "Amenity deleted successfully": "Amenity deleted successfully",
