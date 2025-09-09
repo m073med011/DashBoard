@@ -15,7 +15,7 @@ type ToastProps = {
 export default function Toast({ 
   message, 
   type = 'info', 
-  duration = 6000,
+  duration = 15000,
   translationValues = {},
   translate = true // Default to true
 }: ToastProps) {

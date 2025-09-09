@@ -281,6 +281,8 @@
     "welcome": "Welcome"
   },
   "blogs": {
+    "Required for new entries": "Image is Required",
+    "Amenity Image": "Amenity Image",
     "Click to upload": "Click to upload",
     "Minimum size": "Minimum size: {size}",
     "change image": "Change Image",
@@ -353,6 +355,7 @@
     "Edit Content": "Edit Content"
   },
   "toast": {
+    "Please select an image for the amenity": "Please select an image for the amenity",
     "Agent saved successfully": "Agent saved successfully",
     "Owner saved successfully": "Owner saved successfully",
     "Amenity created successfully": "Amenity created successfully",
@@ -513,6 +516,7 @@
     "No English content available for this banner": "No English Content Available for this Banner"
   },
   "properties": {
+    "please_select_location_from_dropdown": "Please select location from dropdown",
     "select_date":"Select Date",
     "starting_day":"starting Day",
     "enter_landing_space":"enter value",
@@ -800,6 +804,7 @@
     "e.g., Swimming Pool, Gym": "e.g., Swimming Pool, Gym"
   },
   "Amenities": {
+    "Creating":"Creating",
     "Property Not Found": "Property Not Found",
     "Property could not be loaded": "The requested property could not be loaded.",
     "No data": "No data",

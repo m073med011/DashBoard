@@ -186,9 +186,6 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
         key={hasImage ? 'with-image' : 'without-image'}
       />
 
-      {!value && !preview && required && (
-        <p className="text-xs text-gray-500 mt-1">{t("Required for new entries")}</p>
-      )}
     </div>
   );
 };

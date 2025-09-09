@@ -229,6 +229,8 @@
   },
 
   "blogs": {
+    "Required for new entries": "الصوره مطلوب",
+    "Amenity Image": "صورة المرفق",
     "Click to upload": "انقر لرفع الصورة",
     "Minimum size": "الحد الأدنى للحجم: {size}",
     "change image": "تغيير الصورة",
@@ -301,6 +303,7 @@
     "Edit Content": "تعديل المحتوى"
   },
   "toast": {
+    "Please select an image for the amenity": "يرجى اختيار صورة للمرفق",
     "Agent saved successfully": "تم حفظ الوكلاء بنجاح",
     "owner saved successfully": "تم حفظ المالك بنجاح",
     "Amenity created successfully": "تم إنشاء وسائل الراحة بنجاح",
@@ -501,6 +504,7 @@
     "cancel": "إلغاء"
   },
   "properties": {
+    "please_select_location_from_dropdown": "يرجى اختيار الموقع من القائمة المنسدلة",
     "select_date":"حدد يوم",
     "starting_day":"يوم البدايه",
     "enter_landing_space":"ادخل القيمه",
@@ -785,6 +789,7 @@
     "e.g., Swimming Pool, Gym": "مثلا: بركة سباحة، صالة رياضية"
   },
   "Amenities": {
+    "Creating": "جاري الإنشاء",
     "Property Not Found": "العقار غير موجود",
     "Property could not be loaded": "لا يمكن تحميل العقار المطلوب.",
     "No data": "لا توجد بيانات",
