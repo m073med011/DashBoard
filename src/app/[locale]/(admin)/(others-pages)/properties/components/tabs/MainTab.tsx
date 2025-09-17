@@ -815,7 +815,7 @@ export const MainTab: React.FC<MainTabProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">{t("Phone Calls")}</p>
-                <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{propertystat?.data?.count_call || 10}</p>
+                <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{propertystat?.count_call }</p>
               </div>
               <div className="bg-blue-500 p-3 rounded-lg">
                 <Phone className="h-6 w-6 text-white" />
@@ -826,7 +826,7 @@ export const MainTab: React.FC<MainTabProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-600 dark:text-green-400 text-sm font-medium">{t("WhatsApp Messages")}</p>
-                <p className="text-3xl font-bold text-green-700 dark:text-green-300">{propertystat?.data?.count_whatsapp || 0}</p>
+                <p className="text-3xl font-bold text-green-700 dark:text-green-300">{propertystat.count_whatsapp}</p>
               </div>
               <div className="bg-green-500 p-3 rounded-lg">
                 <MessageCircle className="h-6 w-6 text-white" />
@@ -844,7 +844,7 @@ export const MainTab: React.FC<MainTabProps> = ({
                 </h2>
                 <div className="flex items-center gap-2 text-blue-100 mb-3">
                   <MapPin className="h-4 w-4" />
-                  <span>{property?.area?.description?.en?.name}</span>
+                  <span>{property.property_locations[0].location || '-'}</span>
                 </div>
                 <div className="flex items-center gap-6 text-sm">
                   <div className="flex items-center gap-2">
@@ -884,7 +884,7 @@ export const MainTab: React.FC<MainTabProps> = ({
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 text-center">
                 <ChefHat className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{property?.kitichen}</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{property?.kitichen ||"-"}</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">{t("kitichen")}</div>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 text-center">
@@ -963,7 +963,6 @@ export const MainTab: React.FC<MainTabProps> = ({
       </div>
     );
   }
-
   // EDIT MODE COMPONENT
   return (
     <div className="space-y-6">
@@ -978,8 +977,8 @@ export const MainTab: React.FC<MainTabProps> = ({
             description={t("property_type_location_details")}
           />
           {expandedSections.basic && (
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div>
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className=''>
                 <GoogleLocationSearch
                   label={t("location")}
                   name="location"

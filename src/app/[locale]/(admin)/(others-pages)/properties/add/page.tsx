@@ -195,17 +195,6 @@ const CreatePropertyPage = () => {
     }
   };
 
-  // const handleLocationChange = (
-  //   value: string,
-  //   googleLocationData: LocationData | null
-  // ) => {
-  //   setLocationValue(value);
-  //   setValue("location", value);
-  //   if (googleLocationData) {
-  //     setLocationData(googleLocationData);
-  //   }
-  // };
-
   const handleMortgageToggle = () => {
     const currentValue = watch("mortgage") === "yes";
     setValue("mortgage", currentValue ? "no" : "yes");
@@ -268,39 +257,51 @@ const CreatePropertyPage = () => {
       return;
     }
 
+    // Debug log to check form data before submission
+    console.log("Form data before submission:", data);
+    console.log("Kitchen value:", data.kitchen);
+    console.log("Starting day value:", data.starting_day);
+
     const formData = new FormData();
 
     // --- General Fields ---
-    formData.append("type_id", data.type_id);
-    formData.append("user_id", data.userId);
-    formData.append("price", data.price);
-    formData.append("sqt", data.sqt);
-    formData.append("bedroom", data.bedroom);
-    formData.append("bathroom", data.bathroom);
-    formData.append("kitchen", data.kitchen);
-    formData.append("status", data.status);
-    formData.append("type", data.type);
-    formData.append("immediate_delivery", data.immediate_delivery);
-    formData.append("furnishing", data.furnishing);
-    formData.append("payment_method", data.payment_method);
+    formData.append("type_id", data.type_id || "");
+    formData.append("user_id", data.userId || "");
+    formData.append("price", String(data.price || ""));
+    formData.append("sqt", String(data.sqt || ""));
+    formData.append("bedroom", String(data.bedroom || ""));
+    formData.append("bathroom", String(data.bathroom || ""));
+    
+    // Fix: Ensure kitchen is sent as string
+    formData.append("kitchen", String(data.kitchen || ""));
+    
+    formData.append("status", data.status || "");
+    formData.append("type", data.type || "");
+    formData.append("immediate_delivery", data.immediate_delivery || "");
+    formData.append("furnishing", data.furnishing || "");
+    formData.append("payment_method", data.payment_method || "");
+    formData.append("landing_space", String(data.landing_space || ""));
 
     // --- Conditional Fields (Installment) ---
     if (data.payment_method === "installment") {
-      if (data.down_price) formData.append("down_price", data.down_price);
-      if (data.paid_months) formData.append("paid_months", data.paid_months);
+      if (data.down_price) formData.append("down_price", String(data.down_price));
+      if (data.paid_months) formData.append("paid_months", String(data.paid_months));
     }
 
     // --- Optional Fields ---
     if (data.mortgage) {
       formData.append("mortgage", data.mortgage);
     }
+    
+    // Fix: Always send starting_day, ensure it's properly formatted
     if (data.starting_day) {
       formData.append("starting_day", data.starting_day);
+    } else {
+      formData.append("starting_day", "");
     }
-    formData.append("landing_space", data.landing_space);
 
     // --- Location ---
-    formData.append("location", locationValue);
+    formData.append("location", locationValue || "");
     if (locationData) {
       formData.append("location_place_id", locationData.placeId);
       if (locationData.lat)
@@ -310,16 +311,16 @@ const CreatePropertyPage = () => {
     }
 
     // --- English Content ---
-    formData.append("title[en]", data.title_en);
-    formData.append("description[en]", descriptionEn);
-    formData.append("keywords[en]", data.keywords_en);
-    formData.append("slug[en]", data.slug_en);
+    formData.append("title[en]", data.title_en || "");
+    formData.append("description[en]", descriptionEn || "");
+    formData.append("keywords[en]", data.keywords_en || "");
+    formData.append("slug[en]", data.slug_en || "");
 
     // --- Arabic Content ---
-    formData.append("title[ar]", data.title_ar);
-    formData.append("description[ar]", descriptionAr);
-    formData.append("keywords[ar]", data.keywords_ar);
-    formData.append("slug[ar]", data.slug_ar);
+    formData.append("title[ar]", data.title_ar || "");
+    formData.append("description[ar]", descriptionAr || "");
+    formData.append("keywords[ar]", data.keywords_ar || "");
+    formData.append("slug[ar]", data.slug_ar || "");
 
     // --- Cover Image ---
     formData.append("cover", imagePreview.file);
@@ -332,10 +333,11 @@ const CreatePropertyPage = () => {
       );
       showToast("property_added_successfully", "success");
       router.push(`/properties/view/${response?.data?.id}`);
-    } catch (error:unknown) {
+    } catch (error: unknown) {
       console.error("Failed to create property:", error);
       const errorMessage =
-        (error as unknown as { response?: { data?: { message?: string } } })?.response?.data?.message || t("failed_to_add_property");
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 
+        t("failed_to_add_property");
       showToast(errorMessage, "error", false);
     }
   };
@@ -416,7 +418,7 @@ const CreatePropertyPage = () => {
       const value = e.target.value;
 
       const digits = value.replace(/\D/g, "");
-      const numValue = digits ? Number(digits) : "";
+      const numValue = digits ? Number(digits) : 0; 
       field.onChange(numValue);
 
       setTimeout(() => {
@@ -529,7 +531,8 @@ const CreatePropertyPage = () => {
 
     const handleDateSelect = (date: Date) => {
       setSelectedDate(date);
-      setValue(name, formatDate(date));
+      const formattedDate = formatDate(date);
+      setValue(name, formattedDate, { shouldValidate: true });
       setIsOpen(false);
     };
 
@@ -830,9 +833,9 @@ const CreatePropertyPage = () => {
               description={t("property_type_location_details")}
             />
             {expandedSections.basic && (
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
-                <GoogleLocationSearch
+                  <GoogleLocationSearch
                     label={t("location")}
                     name="location"
                     value={locationValue}
@@ -1066,7 +1069,7 @@ const CreatePropertyPage = () => {
               description={t("status_type_delivery_info")}
             />
             {expandedSections.details && (
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <InputField
                   label={t("status")}
                   name="status"

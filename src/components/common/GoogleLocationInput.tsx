@@ -47,7 +47,7 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
   t = (key: string) => key,
 }) => {
   const [locationQuery, setLocationQuery] = useState(value);
-  const locale=useLocale()
+  const locale = useLocale()
   const [locationSuggestions, setLocationSuggestions] = useState<
     google.maps.places.AutocompletePrediction[]
   >([]);
@@ -171,11 +171,11 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
   }, []);
 
   return (
-    <div className=" absolute max-w-[220px]">
+    <div className="space-y-2">
       {/* Label */}
       <label
         htmlFor={name}
-        className={`block text-sm ${locale=== "ar"?"text-right":""} font-medium text-dark dark:text-white mb-2`}
+        className={`block text-sm ${locale === "ar" ? "text-right" : ""} font-medium text-dark dark:text-white`}
         dir={dir}
       >
         {label}
@@ -183,19 +183,19 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
       </label>
 
       {/* Input Field */}
-      <div className="relative w-full">
-        <div className="relative">
+      <div className=" absolute ">
+        <div className="relative  ">
           <input
             ref={inputRef}
             id={name}
             name={name}
             type="text"
             placeholder={placeholder || `${t('select')} ${label}`}
-            className={`w-full px-4 py-3 pl-10 border rounded-md focus:outline-none focus:ring-2 transition-colors ${
+            className={`w-full px-20 py-3 pl-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30 ${
               error
                 ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-                : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-            }`}
+                : 'border-slate-300 dark:border-slate-600 focus:ring-orange-500 focus:border-transparent'
+            } bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100`}
             value={locationQuery}
             onChange={handleInputChange}
             onFocus={() =>
@@ -220,38 +220,38 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
         )}
 
         {showLocationSuggestions && locationSuggestions.length > 0 && (
-  <div
-    ref={suggestionsRef}
-    className="absolute top-full mt-1 w-full z-50 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl"
-  >
-    {locationSuggestions.map((suggestion) => (
-      <div
-        key={suggestion.place_id}
-        onClick={() => handleSuggestionSelect(suggestion)}
-        className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
-      >
-        <MapPin className="mt-1 text-blue-500 dark:text-blue-400" size={18} />
-        <div>
-          <div className="font-semibold text-sm text-gray-800 dark:text-white">
-            {suggestion.structured_formatting?.main_text || suggestion.description}
+          <div
+            ref={suggestionsRef}
+            className="absolute top-full mt-1 w-full z-50 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl"
+          >
+            {locationSuggestions.map((suggestion) => (
+              <div
+                key={suggestion.place_id}
+                onClick={() => handleSuggestionSelect(suggestion)}
+                className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                <MapPin className="mt-1 text-blue-500 dark:text-blue-400" size={18} />
+                <div>
+                  <div className="font-semibold text-sm text-gray-800 dark:text-white">
+                    {suggestion.structured_formatting?.main_text || suggestion.description}
+                  </div>
+                  {suggestion.structured_formatting?.secondary_text && (
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {suggestion.structured_formatting.secondary_text}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-          {suggestion.structured_formatting?.secondary_text && (
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {suggestion.structured_formatting.secondary_text}
-            </div>
-          )}
-        </div>
-      </div>
-    ))}
-  </div>
-)}
-
+        )}
       </div>
 
       {/* Error Message */}
       {error && errorMessage && (
         <div className="mt-2">
-          <p className="text-sm text-red-600">
+          <p className="text-sm text-red-600 flex items-center">
+            <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
             {errorMessage || t('field_required')}
           </p>
         </div>

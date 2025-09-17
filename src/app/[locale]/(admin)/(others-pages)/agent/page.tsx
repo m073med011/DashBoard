@@ -47,12 +47,21 @@ export default function OwnersPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [nameValue, setNameValue] = useState('');
-  const [isNameValid, setIsNameValid] = useState(true);
+  const [isNameValid, setIsNameValid] = useState(false);
   
   // Password validation states
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isPasswordValid, setIsPasswordValid] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+
+  const [modalState, setModalState] = useState<{
+    type: 'create' | 'edit' | 'view' | null;
+    item?: OwnerItem;
+  }>({ type: null });
 
   // Phone validation function
   const validatePhone = (phone: string): boolean => {
@@ -62,12 +71,14 @@ export default function OwnersPage() {
 
   // Name validation function
   const validateName = (name: string): boolean => {
-    return name.length <= 30;
+    const nameRegex = /^[a-zA-Z\s]+$/; // Only letters and spaces allowed
+    return name.length <= 30 && nameRegex.test(name) && name.trim().length > 0;
   };
 
   // Password validation function
   const validatePasswords = (pass: string, confirmPass: string): boolean => {
     if (!pass && !confirmPass) return true; // Both empty is valid for edit
+    if (modalState.type === 'create' && (!pass || !confirmPass)) return false; // Both required for create
     return pass === confirmPass;
   };
 
@@ -118,6 +129,7 @@ export default function OwnersPage() {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPassword(value);
+    setPasswordTouched(true);
     setIsPasswordValid(validatePasswords(value, confirmPassword));
   };
 
@@ -125,6 +137,7 @@ export default function OwnersPage() {
   const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setConfirmPassword(value);
+    setConfirmPasswordTouched(true);
     setIsPasswordValid(validatePasswords(password, value));
   };
 
@@ -134,7 +147,7 @@ export default function OwnersPage() {
     setPhoneNumber('');
     setIsPhoneValid(false);
     setNameValue('');
-    setIsNameValid(true);
+    setIsNameValid(false);
     setPassword('');
     setConfirmPassword('');
     setIsPasswordValid(true);
@@ -151,32 +164,31 @@ export default function OwnersPage() {
     setPassword('');
     setConfirmPassword('');
     setIsPasswordValid(true);
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    setPasswordTouched(false);
+    setConfirmPasswordTouched(false);
   };
 
   // Fixed showToast function
-const showToast = (
-  message: string, 
-  type: 'success' | 'error' | 'info' = 'info',
-  translate: boolean = true
-) => {
-  // First, hide any existing toast
-  setToast(prev => ({ ...prev, show: false }));
-  
-  // Then show the new toast after a brief delay to ensure state change
-  setTimeout(() => {
-    setToast({ message, type, show: true, translate });
-  }, 50);
-  
-  // Hide the toast after 3 seconds
-  setTimeout(() => {
+  const showToast = (
+    message: string, 
+    type: 'success' | 'error' | 'info' = 'info',
+    translate: boolean = true
+  ) => {
+    // First, hide any existing toast
     setToast(prev => ({ ...prev, show: false }));
-  }, 3050); // 3000ms + 50ms delay
-};
-
-  const [modalState, setModalState] = useState<{
-    type: 'create' | 'edit' | 'view' | null;
-    item?: OwnerItem;
-  }>({ type: null });
+    
+    // Then show the new toast after a brief delay to ensure state change
+    setTimeout(() => {
+      setToast({ message, type, show: true, translate });
+    }, 50);
+    
+    // Hide the toast after 3 seconds
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, show: false }));
+    }, 3050); // 3000ms + 50ms delay
+  };
 
   const fetchOwners = useCallback(
     async (authToken: string) => {
@@ -351,10 +363,14 @@ const showToast = (
           onCreate={() => {
             setModalState({ type: 'create' });
             setNameValue('');
-            setIsNameValid(true);
+            setIsNameValid(false);
             setPassword('');
             setConfirmPassword('');
             setIsPasswordValid(true);
+            setShowPassword(false);
+            setShowConfirmPassword(false);
+            setPasswordTouched(false);
+            setConfirmPasswordTouched(false);
           }}
           onEdit={(item) => openEditModal(item)}
           onDelete={handleDelete}
@@ -406,63 +422,124 @@ const showToast = (
             }}
             className="space-y-3"
           >
-            <input
-              type="text"
-              name="name"
-              placeholder={t('Owner Name')}
-              defaultValue={modalState.item?.name || ''}
-              value={modalState.type === 'create' ? nameValue : undefined}
-              onChange={modalState.type === 'create' ? handleNameChange : handleEditNameChange}
-              className={`w-full border p-2 rounded ${
-                !isNameValid ? 'border-red-500' : 'border-gray-300'
-              }`}
-              required
-            />
-            {!isNameValid && (
-              <p className="text-red-500 text-sm">
-                Agent name is too long, please enter up to 30 char
-              </p>
-            )}
+            <div>
+              <input
+                type="text"
+                name="name"
+                placeholder={t('Owner Name')}
+                defaultValue={modalState.item?.name || ''}
+                value={modalState.type === 'create' ? nameValue : undefined}
+                onChange={modalState.type === 'create' ? handleNameChange : handleEditNameChange}
+                className={`w-full border p-2 rounded ${
+                  (modalState.type === 'create' && nameValue && !isNameValid) || (modalState.type === 'edit' && !isNameValid) ? 'border-red-500' : 'border-gray-300'
+                }`}
+                required
+              />
+              {((modalState.type === 'create' && nameValue && !isNameValid) || (modalState.type === 'edit' && !isNameValid)) && (
+                <p className="text-red-500 text-sm mt-1">
+                  {t('nameInvalidError')}
+                </p>
+              )}
+            </div>
             <input
               type="email"
               name="email"
               placeholder={t('Email Address')}
               defaultValue={modalState.item?.email || ''}
-              className="w-full border p-2 rounded"
+              className="w-full border p-2 rounded border-gray-300"
               required
             />
             {modalState.type === 'create' && (
               <>
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder={t('Phone Number')}
-                  value={phoneNumber}
-                  onChange={handlePhoneChange}
-                  className={`w-full border p-2 rounded ${
-                    phoneNumber && !isPhoneValid ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  required
-                />
-                {phoneNumber && !isPhoneValid && (
+                <div>
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder={t('Phone Number')}
+                    value={phoneNumber}
+                    onChange={handlePhoneChange}
+                    className={`w-full border p-2 rounded ${
+                      phoneNumber && !isPhoneValid ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    required
+                  />
+                  {phoneNumber && !isPhoneValid && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {t('phoneInvalidError')}
+                    </p>
+                  )}
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    placeholder={t('Password')}
+                    value={password}
+                    onChange={handlePasswordChange}
+                    className={`w-full border p-2 rounded ${
+                      locale === 'ar' ? 'pl-10 pr-2' : 'pr-10 pl-2'
+                    } ${
+                      passwordTouched && !isPasswordValid ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className={`absolute top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 ${
+                      locale === 'ar' ? 'left-2' : 'right-2'
+                    }`}
+                  >
+                    {showPassword ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="password_confirmation"
+                    placeholder={t('Confirm Password')}
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    className={`w-full border p-2 rounded ${
+                      locale === 'ar' ? 'pl-10 pr-2' : 'pr-10 pl-2'
+                    } ${
+                      confirmPasswordTouched && !isPasswordValid ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className={`absolute top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 ${
+                      locale === 'ar' ? 'left-2' : 'right-2'
+                    }`}
+                  >
+                    {showConfirmPassword ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                {!isPasswordValid && (passwordTouched || confirmPasswordTouched) && (password || confirmPassword) && (
                   <p className="text-red-500 text-sm">
-                    Phone number must be 11 digits and start with 01
+                    {t('passwordMismatchError')}
                   </p>
                 )}
-                <input
-                  type="password"
-                  name="password"
-                  placeholder={t('Password')}
-                  className="w-full border p-2 rounded"
-                  required
-                />
-                <input
-                  type="password"
-                  name="password_confirmation"
-                  placeholder={t('Confirm Password')}
-                  className="w-full border p-2 rounded"
-                  required
-                />
               </>
             )}
             {modalState.type === 'edit' && (
@@ -481,33 +558,77 @@ const showToast = (
                   />
                   {!isPhoneValid && (
                     <p className="text-red-500 text-sm mt-1">
-                      Phone number must be 11 digits and start with 01
+                      {t('phoneInvalidError')}
                     </p>
                   )}
                 </div>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder={t('New Password (leave blank to keep current)')}
-                  value={password}
-                  onChange={handlePasswordChange}
-                  className={`w-full border p-2 rounded ${
-                    !isPasswordValid ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                <input
-                  type="password"
-                  name="password_confirmation"
-                  placeholder={t('Confirm New Password')}
-                  value={confirmPassword}
-                  onChange={handleConfirmPasswordChange}
-                  className={`w-full border p-2 rounded ${
-                    !isPasswordValid ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {!isPasswordValid && (
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    placeholder={t('New Password (leave blank to keep current)')}
+                    value={password}
+                    onChange={handlePasswordChange}
+                    className={`w-full border p-2 rounded ${
+                      locale === 'ar' ? 'pl-10 pr-2' : 'pr-10 pl-2'
+                    } ${
+                      passwordTouched && !isPasswordValid ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className={`absolute top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 ${
+                      locale === 'ar' ? 'left-2' : 'right-2'
+                    }`}
+                  >
+                    {showPassword ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="password_confirmation"
+                    placeholder={t('Confirm New Password')}
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    className={`w-full border p-2 rounded ${
+                      locale === 'ar' ? 'pl-10 pr-2' : 'pr-10 pl-2'
+                    } ${
+                      confirmPasswordTouched && !isPasswordValid ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className={`absolute top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 ${
+                      locale === 'ar' ? 'left-2' : 'right-2'
+                    }`}
+                  >
+                    {showConfirmPassword ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                {!isPasswordValid && (passwordTouched || confirmPasswordTouched) && (password || confirmPassword) && (
                   <p className="text-red-500 text-sm">
-                    Passwords must match exactly
+                    {t('passwordMismatchError')}
                   </p>
                 )}
               </>
@@ -515,9 +636,9 @@ const showToast = (
 
             <button
               type="submit"
-              disabled={!isPhoneValid || !isNameValid || !isPasswordValid}
+              disabled={modalState.type === 'create' ? (!isPhoneValid || !isNameValid || !isPasswordValid || !nameValue) : (!isPhoneValid || !isNameValid || !isPasswordValid)}
               className={`px-4 py-2 rounded w-full text-white ${
-                !isPhoneValid || !isNameValid || !isPasswordValid
+                (modalState.type === 'create' ? (!isPhoneValid || !isNameValid || !isPasswordValid || !nameValue) : (!isPhoneValid || !isNameValid || !isPasswordValid))
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700'
               }`}

@@ -122,10 +122,8 @@ export type PropertyModule = {
 
 // Statistics
 export type PropertyStatistics = {
-  data: {
     count_call: number;
     count_whatsapp: number;
-  };
 };
 
 // Main Property Data

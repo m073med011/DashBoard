@@ -27,6 +27,9 @@
   },
   "Comming Soon": "قريبا",
   "Tables": {
+     "nameInvalidError": "يجب أن يكون الاسم من 1-30 حرفًا ويحتوي على أحرف ومسافات فقط",
+    "phoneInvalidError": "يجب أن يكون رقم الهاتف 11 رقمًا ويبدأ بـ 01",
+    "passwordMismatchError": "يجب أن تتطابق كلمات المرور تمامًا",
     "Confirm New Password":"تأكيد كلمة المرور الجديدة",
     "contact": "Contact",
     "Agents": "الوكلاء",
