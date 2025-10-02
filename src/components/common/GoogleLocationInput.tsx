@@ -100,7 +100,7 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
     if (query.length > 2 && isGoogleMapsLoaded && autocompleteService.current) {
       const request: google.maps.places.AutocompletionRequest = {
         input: query,
-        types: ['establishment', 'geocode'],
+        types: ['geocode'], // Only return geographic locations, not businesses
         componentRestrictions: { country: 'EG' }, // 🇪🇬 restrict to Egypt
       };
 

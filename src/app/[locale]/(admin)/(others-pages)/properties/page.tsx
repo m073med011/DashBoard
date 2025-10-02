@@ -42,7 +42,6 @@ type PropertyListing = {
   user: User;
   type: PropertyType;
   price: number;
-  kitchen: number;
   title: string;
   description: string;
   slug: string;

@@ -43,7 +43,6 @@ type FormInputs = {
   sqt: string;
   bedroom: string;
   bathroom: string;
-  kitchen: string;
   status: string;
   type: string;
   immediate_delivery: string;
@@ -147,6 +146,8 @@ const CreatePropertyPage = () => {
 
   // ============= DERIVED STATE / WATCHERS =============
   const paymentMethod = useWatch({ control, name: "payment_method" }) || "cash";
+  const status = useWatch({ control, name: "status" }) || "";
+  const immediateDelivery = useWatch({ control, name: "immediate_delivery" }) || "";
 
   // ============= CUSTOM HOOKS / UTILITIES =============
   const showToast = useCallback(
@@ -259,7 +260,6 @@ const CreatePropertyPage = () => {
 
     // Debug log to check form data before submission
     console.log("Form data before submission:", data);
-    console.log("Kitchen value:", data.kitchen);
     console.log("Starting day value:", data.starting_day);
 
     const formData = new FormData();
@@ -272,8 +272,6 @@ const CreatePropertyPage = () => {
     formData.append("bedroom", String(data.bedroom || ""));
     formData.append("bathroom", String(data.bathroom || ""));
     
-    // Fix: Ensure kitchen is sent as string
-    formData.append("kitchen", String(data.kitchen || ""));
     
     formData.append("status", data.status || "");
     formData.append("type", data.type || "");
@@ -293,8 +291,8 @@ const CreatePropertyPage = () => {
       formData.append("mortgage", data.mortgage);
     }
     
-    // Fix: Always send starting_day, ensure it's properly formatted
-    if (data.starting_day) {
+    // Fix: Only send starting_day when immediate delivery is "no"
+    if (data.immediate_delivery === "no" && data.starting_day) {
       formData.append("starting_day", data.starting_day);
     } else {
       formData.append("starting_day", "");
@@ -880,6 +878,62 @@ const CreatePropertyPage = () => {
             )}
           </div>
 
+          {/* Property Details */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <SectionHeader
+              title={t("property_details")}
+              icon={<FileText className="w-5 h-5 text-[#F26A3F]" />}
+              sectionKey="details"
+              description={t("status_type_delivery_info")}
+            />
+            {expandedSections.details && (
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <InputField
+                  label={t("status")}
+                  name="status"
+                  type="select"
+                  required
+                  options={[
+                    { value: "rent", label: t("rent") },
+                    { value: "sale", label: t("sale") },
+                  ]}
+                  placeholder={t("select_status")}
+                />
+                <InputField
+                  label={t("immediate_delivery")}
+                  name="immediate_delivery"
+                  type="select"
+                  required
+                  options={[
+                    { value: "yes", label: t("yes") },
+                    { value: "no", label: t("no") },
+                  ]}
+                  placeholder={t("select_option")}
+                />
+                <InputField
+                  label={t("furnishing")}
+                  name="furnishing"
+                  type="select"
+                  required
+                  options={[
+                    { value: "all-furnished", label: t("furnished") },
+                    { value: "unfurnished", label: t("unfurnished") },
+                    { value: "semi-furnished", label: t("semi_furnished") },
+                    { value: "partly-furnished", label: t("partly_furnished") },
+                  ]}
+                  placeholder={t("select_furnishing")}
+                />
+                {immediateDelivery === "no" && (
+                  <DateInput
+                    label={t("starting_day")}
+                    name="starting_day"
+                    required
+                  />
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Pricing Information */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             <SectionHeader
@@ -917,18 +971,20 @@ const CreatePropertyPage = () => {
                       <Coins className="w-4 h-4" />
                       {t("cash")}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setValue("payment_method", "installment")}
-                      className={`flex-1 py-3 px-4 text-center font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
-                        paymentMethod === "installment"
-                          ? "bg-[#F26A3F] text-white shadow-inner"
-                          : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
-                      }`}
-                    >
-                      <CreditCard className="w-4 h-4" />
-                      {t("installment")}
-                    </button>
+                    {status === "sale" && (
+                      <button
+                        type="button"
+                        onClick={() => setValue("payment_method", "installment")}
+                        className={`flex-1 py-3 px-4 text-center font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                          paymentMethod === "installment"
+                            ? "bg-[#F26A3F] text-white shadow-inner"
+                            : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
+                        }`}
+                      >
+                        <CreditCard className="w-4 h-4" />
+                        {t("installment")}
+                      </button>
+                    )}
                   </div>
                   {errors.payment_method && (
                     <p className="text-red-500 text-sm flex items-center mt-1">
@@ -939,7 +995,7 @@ const CreatePropertyPage = () => {
                 </div>
 
                 {/* Down Payment & Paid Months */}
-                {paymentMethod === "installment" && (
+                {paymentMethod === "installment" && status === "sale" && (
                   <>
                     <FormattedNumberInput
                       label={t("down_price")}
@@ -1017,7 +1073,7 @@ const CreatePropertyPage = () => {
               title={t("room_configuration")}
               icon={<Home className="w-5 h-5 text-[#F26A3F]" />}
               sectionKey="rooms"
-              description={t("bedrooms_bathrooms_kitchen_details")}
+              description={t("bedrooms_bathrooms_details")}
             />
             {expandedSections.rooms && (
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -1043,72 +1099,11 @@ const CreatePropertyPage = () => {
                   error={!!errors.bathroom}
                 />
                 <FormattedNumberInput
-                  label={t("kitchen")}
-                  name="kitchen"
-                  required
-                  placeholder={t("number_of_kitchens")}
-                  error={!!errors.kitchen}
-                />
-                <FormattedNumberInput
                   label={t("landing_space")}
                   name="landing_space"
                   required
                   placeholder={t("enter_landing_space")}
                   error={!!errors.landing_space}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Property Details */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <SectionHeader
-              title={t("property_details")}
-              icon={<FileText className="w-5 h-5 text-[#F26A3F]" />}
-              sectionKey="details"
-              description={t("status_type_delivery_info")}
-            />
-            {expandedSections.details && (
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <InputField
-                  label={t("status")}
-                  name="status"
-                  type="select"
-                  required
-                  options={[
-                    { value: "rent", label: t("rent") },
-                    { value: "sale", label: t("sale") },
-                  ]}
-                  placeholder={t("select_status")}
-                />
-                <InputField
-                  label={t("immediate_delivery")}
-                  name="immediate_delivery"
-                  type="select"
-                  required
-                  options={[
-                    { value: "yes", label: t("yes") },
-                    { value: "no", label: t("no") },
-                  ]}
-                  placeholder={t("select_option")}
-                />
-                <InputField
-                  label={t("furnishing")}
-                  name="furnishing"
-                  type="select"
-                  required
-                  options={[
-                    { value: "all-furnished", label: t("furnished") },
-                    { value: "unfurnished", label: t("unfurnished") },
-                    { value: "semi-furnished", label: t("semi_furnished") },
-                    { value: "partly-furnished", label: t("partly_furnished") },
-                  ]}
-                  placeholder={t("select_furnishing")}
-                />
-                <DateInput
-                  label={t("starting_day")}
-                  name="starting_day"
-                  required
                 />
               </div>
             )}

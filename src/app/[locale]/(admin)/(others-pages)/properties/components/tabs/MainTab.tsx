@@ -97,6 +97,8 @@ export const MainTab: React.FC<MainTabProps> = ({
   } = useForm<FormInputs>();
   
   const paymentMethod = useWatch({ control, name: "payment_method" }) || "cash";
+  const status = useWatch({ control, name: "status" }) || "";
+  const immediateDelivery = useWatch({ control, name: "immediate_delivery" }) || "";
 
   const statusOptions = [
     { value: 'accepted', label: 'Accepted', color: 'text-green-600', bgColor: 'bg-green-50 hover:bg-green-100' },
@@ -127,7 +129,6 @@ export const MainTab: React.FC<MainTabProps> = ({
         sqt: property.sqt?.toString() || "",
         bedroom: property.bedroom?.toString() || "",
         bathroom: property.bathroom?.toString() || "",
-        kitchen: property.kitichen?.toString() || "",
         status: property.status || "",
         type: property.type?.title || "",
         immediate_delivery: property.immediate_delivery || "",
@@ -660,7 +661,6 @@ export const MainTab: React.FC<MainTabProps> = ({
     formData.append("sqt", data.sqt);
     formData.append("bedroom", data.bedroom);
     formData.append("bathroom", data.bathroom);
-    formData.append("kitichen", data.kitchen);
     formData.append("status", data.status);
     formData.append("type", data.type);
     formData.append("immediate_delivery", data.immediate_delivery);
@@ -678,8 +678,12 @@ export const MainTab: React.FC<MainTabProps> = ({
       formData.append("mortgage", data.mortgage);
     }
     
-    // New fields
-    if (data.starting_day) formData.append("starting_day", data.starting_day);
+    // New fields - only send starting_day when immediate delivery is "no"
+    if (data.immediate_delivery === "no" && data.starting_day) {
+      formData.append("starting_day", data.starting_day);
+    } else {
+      formData.append("starting_day", "");
+    }
     formData.append("landing_space", data.landing_space);
     
     // Location
@@ -883,11 +887,6 @@ export const MainTab: React.FC<MainTabProps> = ({
                 <div className="text-sm text-gray-600 dark:text-gray-400">{t("bathroom")}</div>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 text-center">
-                <ChefHat className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{property?.kitichen ||"-"}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{t("kitichen")}</div>
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 text-center">
                 <Ruler className="h-6 w-6 text-blue-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{property?.sqt}</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">sq ft</div>
@@ -1020,6 +1019,61 @@ export const MainTab: React.FC<MainTabProps> = ({
             </div>
           )}
         </div>
+        {/* Property Details */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <SectionHeader 
+            title={t("property_details")} 
+            icon={<FileText className="w-5 h-5 text-[#F26A3F]" />}
+            sectionKey="details"
+            description={t("status_type_delivery_info")}
+          />
+          {expandedSections.details && (
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+              <InputField
+                label={t("status")}
+                name="status"
+                type="select"
+                required
+                options={[
+                  { value: "rent", label: t("rent") },
+                  { value: "sale", label: t("sale") },
+                ]}
+                placeholder={t("select_status")}
+              />
+              <InputField
+                label={t("immediate_delivery")}
+                name="immediate_delivery"
+                type="select"
+                required
+                options={[
+                  { value: "yes", label: t("yes") },
+                  { value: "no", label: t("no") },
+                ]}
+                placeholder={t("select_option")}
+              />
+              <InputField
+                label={t("furnishing")}
+                name="furnishing"
+                type="select"
+                required
+                options={[
+                  { value: "all-furnished", label: t("furnished") },
+                  { value: "unfurnished", label: t("unfurnished") },
+                  { value: "semi-furnished", label: t("semi_furnished") },
+                  { value: "partly-furnished", label: t("partly_furnished") },
+                ]}
+                placeholder={t("select_furnishing")}
+              />
+              {immediateDelivery === "no" && (
+                <DateInput
+                  label={t("starting_day")}
+                  name="starting_day"
+                  required
+                />
+              )}
+            </div>
+          )}
+        </div>
         {/* Pricing Information */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
           <SectionHeader 
@@ -1056,18 +1110,20 @@ export const MainTab: React.FC<MainTabProps> = ({
                     <Coins className="w-4 h-4" />
                     {t("cash")}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setValue("payment_method", "installment")}
-                    className={`flex-1 py-3 px-4 text-center font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
-                      paymentMethod === "installment"
-                        ? "bg-[#F26A3F] text-white shadow-inner"
-                        : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
-                    }`}
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    {t("installment")}
-                  </button>
+                  {status === "sale" && (
+                    <button
+                      type="button"
+                      onClick={() => setValue("payment_method", "installment")}
+                      className={`flex-1 py-3 px-4 text-center font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                        paymentMethod === "installment"
+                          ? "bg-[#F26A3F] text-white shadow-inner"
+                          : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
+                      }`}
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      {t("installment")}
+                    </button>
+                  )}
                 </div>
                 {errors.payment_method && (
                   <p className="text-red-500 text-sm flex items-center mt-1">
@@ -1077,7 +1133,7 @@ export const MainTab: React.FC<MainTabProps> = ({
                 )}
               </div>
               {/* Down Payment & Paid Months */}
-              {paymentMethod === "installment" && (
+              {paymentMethod === "installment" && status === "sale" && (
                 <>
                   <FormattedNumberInput
                     label={t("down_price")}
@@ -1149,7 +1205,7 @@ export const MainTab: React.FC<MainTabProps> = ({
             title={t("room_configuration")} 
             icon={<Home className="w-5 h-5 text-[#F26A3F]" />}
             sectionKey="rooms"
-            description={t("bedrooms_bathrooms_kitchen_details")}
+            description={t("bedrooms_bathrooms_details")}
           />
           {expandedSections.rooms && (
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -1175,90 +1231,11 @@ export const MainTab: React.FC<MainTabProps> = ({
                 error={!!errors.bathroom}
               />
               <FormattedNumberInput
-                label={t("kitchen")}
-                name="kitchen"
-                required
-                placeholder={t("number_of_kitchens")}
-                error={!!errors.kitchen}
-              />
-              <FormattedNumberInput
                 label={t("landing_space")}
                 name="landing_space"
                 required
                 placeholder={t("enter_landing_space")}
                 error={!!errors.landing_space}
-              />
-            </div>
-          )}
-        </div>
-        {/* Property Details */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <SectionHeader 
-            title={t("property_details")} 
-            icon={<FileText className="w-5 h-5 text-[#F26A3F]" />}
-            sectionKey="details"
-            description={t("status_type_delivery_info")}
-          />
-          {expandedSections.details && (
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-              <InputField
-                label={t("status")}
-                name="status"
-                type="select"
-                required
-                options={[
-                  { value: "rent", label: t("rent") },
-                  { value: "sale", label: t("sale") },
-                ]}
-                placeholder={t("select_status")}
-              />
-              {/* <InputField
-                label={t("type")}
-                name="type"
-                type="select"
-                required
-                options={[
-                  { value: "apartment", label: t("apartment") },
-                  { value: "villa", label: t("villa") },
-                  { value: "townhouse", label: t("townhouse") },
-                  { value: "stand_alone", label: t("stand_alone") },
-                  { value: "duplex", label: t("duplex") },
-                  { value: "penthouse", label: t("penthouse") },
-                  { value: "office", label: t("office") },
-                  { value: "shop", label: t("shop") },
-                  { value: "warehouse", label: t("warehouse") },
-                  { value: "building", label: t("building") },
-                ]}
-                placeholder={t("select_type")}
-              /> */}
-              <InputField
-                label={t("immediate_delivery")}
-                name="immediate_delivery"
-                type="select"
-                required
-                options={[
-                  { value: "yes", label: t("yes") },
-                  { value: "no", label: t("no") },
-                ]}
-                placeholder={t("select_option")}
-              />
-              <InputField
-                label={t("furnishing")}
-                name="furnishing"
-                type="select"
-                required
-                options={[
-                  { value: "all-furnished", label: t("furnished") },
-                  { value: "unfurnished", label: t("unfurnished") },
-                  { value: "semi-furnished", label: t("semi_furnished") },
-                  { value: "partly-furnished", label: t("partly_furnished") },
-                ]}
-                placeholder={t("select_furnishing")}
-              />
-              <DateInput
-                label={t("starting_day")}
-                name="starting_day"
-                required
               />
             </div>
           )}

@@ -138,7 +138,6 @@ export type PropertyData = {
   sqt: number;
   bedroom: number;
   bathroom: number;
-  kitichen: number; // Note: This is the correct spelling used in the backend
   status: string;
   immediate_delivery: string;
   furnishing?: string;
@@ -183,7 +182,6 @@ export type FormInputs = {
   sqt: string;
   bedroom: string;
   bathroom: string;
-  kitchen: string; // This is used in the form, but maps to kitichen in backend
   status: string;
   immediate_delivery: string;
   payment_method: string;
