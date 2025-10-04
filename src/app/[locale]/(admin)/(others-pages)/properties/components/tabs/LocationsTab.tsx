@@ -6,16 +6,25 @@ import { PropertyData, PropertyLocation, LocationPoint } from '@/types/PropertyT
 import { postData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
 import { useTranslations } from 'next-intl';
 import GoogleLocationSearch from '@/components/common/GoogleLocationInput';
 
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'your-mapbox-token-here';
+// IMPORTANT: Remove the CSS import from here and add it to your _app.tsx or layout.tsx:
+// import 'mapbox-gl/dist/mapbox-gl.css';
+
+// Set token directly (ensure env variable is set)
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoiZGxsZW5pIiwiYSI6ImNtYXJ6czU0YzBla2MybHFyZ3ZzODZvZHoifQ.hLCLgDINOXDSiijw56p15w';
+
+if (!MAPBOX_TOKEN) {
+  console.error('⚠️ MAPBOX TOKEN IS MISSING! Set NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN in your .env file');
+}
+
+mapboxgl.accessToken = MAPBOX_TOKEN || '';
 
 interface LocationTabProps {
   property: PropertyData;
-  onUpdate?: () => void; // Callback to refresh property data
-  refetch?: () => void; // Callback to refresh property data - THIS IS THE ONE WE NEED
+  onUpdate?: () => void;
+  refetch?: () => void;
 }
 
 interface LocationData {
@@ -66,7 +75,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
   const propertyId = params?.id as string;
   const t = useTranslations('properties');
   
-  // Initialize states with first property location if exists
   const getInitialLocationValue = useCallback(() => {
     if (property?.property_locations && property.property_locations.length > 0) {
       const firstLocation = property.property_locations[0];
@@ -79,10 +87,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
     if (property?.property_locations && property.property_locations.length > 0) {
       const firstLocation = property.property_locations[0];
       
-      console.log('=== Initial Location Debug ===');
-      console.log('First location raw data:', firstLocation);
-      
-      // Check if we have the required data for location
       if (firstLocation.location && firstLocation.location_place_id) {
         const locationData = {
           address: firstLocation.location,
@@ -92,29 +96,23 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
           name: firstLocation.name || firstLocation.location.split(',')[0].trim()
         };
         
-        console.log('Processed location data:', locationData);
-        console.log('Has valid coordinates:', locationData.lat && locationData.lng && !isNaN(locationData.lat) && !isNaN(locationData.lng));
-        console.log('=== End Initial Location Debug ===');
-        
         return locationData;
       }
     }
     
-    console.log('No valid initial location found');
     return null;
   }, [property?.property_locations]);
   
-  // States - Initialize with first property location if available
   const [locationValue, setLocationValue] = useState<string>(getInitialLocationValue());
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(getInitialSelectedLocation());
   const [loading, setLoading] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
 
-  // Refs
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const existingMarkers = useRef<mapboxgl.Marker[]>([]);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
-  // Update states when property changes
   useEffect(() => {
     const newLocationValue = getInitialLocationValue();
     const newSelectedLocation = getInitialSelectedLocation();
@@ -126,11 +124,9 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
   const loadExistingLocations = useCallback(() => {
     if (!map.current || !property?.property_locations) return;
 
-    // Clear existing markers and sources
     existingMarkers.current.forEach(marker => marker.remove());
     existingMarkers.current = [];
 
-    // Remove existing sources and layers
     const existingSources = ['existing-areas', 'existing-points'];
     existingSources.forEach(sourceId => {
       if (map.current!.getSource(sourceId)) {
@@ -144,7 +140,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
       }
     });
 
-    // Group locations by name
     const locationGroups: LocationGroup = property.property_locations.reduce((groups: LocationGroup, location: PropertyLocation) => {
       if (!groups[location.name]) {
         groups[location.name] = [];
@@ -153,7 +148,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
       return groups;
     }, {});
 
-    // Create features
     const areaFeatures: PolygonGeoJSONFeature[] = [];
     const pointFeatures: PointGeoJSONFeature[] = [];
     const colors = ['#45B7D1', '#4ECDC4', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
@@ -164,7 +158,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
       colorIndex++;
 
       if (locations.length >= 3) {
-        // Create polygon for 3+ points
         const coordinates = locations.map(loc => [loc.location_lng, loc.location_lat]);
         coordinates.push(coordinates[0]);
 
@@ -182,7 +175,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
           }
         });
       } else {
-        // Create points for 1-2 points
         locations.forEach(location => {
           pointFeatures.push({
             type: 'Feature',
@@ -200,7 +192,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
       }
     });
 
-    // Add areas to map
     if (areaFeatures.length > 0) {
       map.current!.addSource('existing-areas', {
         type: 'geojson',
@@ -249,7 +240,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
       });
     }
 
-    // Add points to map
     if (pointFeatures.length > 0) {
       map.current!.addSource('existing-points', {
         type: 'geojson',
@@ -291,7 +281,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
       });
     }
 
-    // Fit bounds to all locations
     if (property.property_locations.length > 0) {
       const bounds = new mapboxgl.LngLatBounds();
       property.property_locations.forEach((location: PropertyLocation) => {
@@ -301,21 +290,32 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
     }
   }, [property?.property_locations]);
 
-  // Initialize map
+  // Initialize map - FIXED VERSION
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    // Prevent double initialization
+    if (map.current) return;
+    
+    // Ensure container exists
+    if (!mapContainer.current) {
+      console.error('Map container not found');
+      return;
+    }
 
-    console.log('=== Map Initialization Debug ===');
-    console.log('Mapbox token:', mapboxgl.accessToken ? 'Token exists' : 'No token');
-    console.log('Property locations:', property?.property_locations);
+    // Check for Mapbox token
+    if (!MAPBOX_TOKEN || MAPBOX_TOKEN === '') {
+      const errorMsg = 'Mapbox access token is missing. Please set NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN in your .env file.';
+      console.error(errorMsg);
+      setMapError(errorMsg);
+      return;
+    }
 
-    // Determine initial center based on first location or default to Cairo
-    let initialCenter: [number, number] = [31.2357, 30.0444]; // Default to Cairo, Egypt
+    console.log('🗺️ Initializing Mapbox map...');
+
+    let initialCenter: [number, number] = [31.2357, 30.0444]; // Cairo, Egypt
     let initialZoom = 12;
 
     if (property?.property_locations?.length > 0) {
       const firstLocation = property.property_locations[0];
-      console.log('First location for map center:', firstLocation);
       
       if (firstLocation.location_lng && firstLocation.location_lat) {
         const lng = parseFloat(firstLocation.location_lng.toString());
@@ -323,52 +323,59 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
         
         if (!isNaN(lng) && !isNaN(lat)) {
           initialCenter = [lng, lat];
-          initialZoom = 15; // Zoom closer when we have a specific location
-          console.log('Using property location as center:', initialCenter);
-        } else {
-          console.log('Invalid coordinates, using default center');
+          initialZoom = 15;
         }
       }
     }
-
-    console.log('Map center:', initialCenter, 'Zoom:', initialZoom);
 
     try {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: initialCenter,
-        zoom: initialZoom
+        zoom: initialZoom,
+        attributionControl: true
       });
 
+      // Add navigation controls
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
       map.current.on('load', () => {
-        console.log('Map loaded successfully');
+        console.log('✅ Map loaded successfully');
+        setMapLoaded(true);
+        setMapError(null);
+        
         if (property?.property_locations?.length > 0) {
-          console.log('Loading existing locations...');
           loadExistingLocations();
         }
       });
 
       map.current.on('error', (e) => {
-        console.error('Map error:', e);
+        console.error('❌ Map error:', e);
+        setMapError('Error loading map. Please check your Mapbox token.');
       });
 
-      console.log('Map initialized successfully');
     } catch (error) {
-      console.error('Error initializing map:', error);
+      console.error('❌ Error initializing map:', error);
+      setMapError('Failed to initialize map: ' + (error as Error).message);
     }
-
-    console.log('=== End Map Initialization Debug ===');
 
     return () => {
       if (map.current) {
         map.current.remove();
         map.current = null;
+        setMapLoaded(false);
       }
     };
-  }, [mapContainer, property, loadExistingLocations]);
+  }, []); // Empty dependency array - only run once
 
-  // Save selected location to API
+  // Load locations when they change
+  useEffect(() => {
+    if (mapLoaded && property?.property_locations) {
+      loadExistingLocations();
+    }
+  }, [mapLoaded, property?.property_locations, loadExistingLocations]);
+
   const handleSaveLocation = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -384,7 +391,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
     try {
       setLoading(true);
 
-      // Save the location
       await postData(
         `owner/locations`,
         {
@@ -402,19 +408,16 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
 
       alert('Location saved successfully!');
 
-      // Reset form only if this was a new location (not the initial one)
       const isInitialLocation = property?.property_locations?.[0]?.location_place_id === selectedLocation.placeId;
       if (!isInitialLocation) {
         setLocationValue("");
         setSelectedLocation(null);
       }
 
-      // Call the appropriate callback function to refresh data
-      // Priority: refetch > onUpdate
       if (refetch) {
-        refetch(); // ✅ This will refresh the property data including new location
+        refetch();
       } else if (onUpdate) {
-        onUpdate(); // ✅ Fallback to onUpdate if refetch is not available
+        onUpdate();
       }
 
     } catch (error) {
@@ -425,41 +428,27 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
     }
   };
 
-  // Add selected location marker to map
+  // Add selected location marker - FIXED VERSION
   useEffect(() => {
-    console.log('=== Marker Effect Debug ===');
-    console.log('selectedLocation:', selectedLocation);
-    console.log('map.current:', map.current);
-    console.log('map loaded:', map.current?.loaded());
-    
-    if (!selectedLocation || !selectedLocation.lat || !selectedLocation.lng) {
-      console.log('No selected location or missing coordinates');
+    if (!selectedLocation || !selectedLocation.lat || !selectedLocation.lng || !mapLoaded) {
       return;
     }
 
     if (!map.current) {
-      console.log('Map not initialized');
       return;
     }
 
-    // Wait for map to be loaded
     const addMarker = () => {
       try {
-        console.log('Adding marker at:', [selectedLocation.lng, selectedLocation.lat]);
-        
         // Clear any existing new location markers
         const existingNewMarkers = document.querySelectorAll('.new-location-marker');
         existingNewMarkers.forEach(marker => marker.remove());
 
-        // Check if this is the initial location from API
         const isInitialLocation = property?.property_locations?.[0]?.location_place_id === selectedLocation.placeId;
-        console.log('Is initial location:', isInitialLocation);
         
-        // Add new marker for selected location
         const el = document.createElement('div');
         el.className = 'new-location-marker';
         
-        // Different styling for initial vs new locations
         if (isInitialLocation) {
           el.style.cssText = `
             background-color: #10b981;
@@ -472,7 +461,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
             position: relative;
             z-index: 1000;
           `;
-          // Add a small indicator for initial location
           const indicator = document.createElement('div');
           indicator.style.cssText = `
             position: absolute;
@@ -498,7 +486,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
           `;
         }
 
-        // Validate coordinates
         const lng = parseFloat(selectedLocation.lng?.toString() ?? '0');
         const lat = parseFloat(selectedLocation.lat?.toString() ?? '0');
         
@@ -507,8 +494,6 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
           return;
         }
 
-        console.log('Creating marker with coordinates:', [lng, lat]);
-
         new mapboxgl.Marker(el)
           .setLngLat([lng, lat])
           .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`
@@ -516,35 +501,24 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
               <p style="margin: 0 0 4px 0; font-size: 12px;">${selectedLocation.address}</p>
               <p style="margin: 0 0 4px 0; font-size: 11px; color: #666;">Lat: ${lat.toFixed(6)}</p>
               <p style="margin: 0 0 4px 0; font-size: 11px; color: #666;">Lng: ${lng.toFixed(6)}</p>
-              ${isInitialLocation ? '<p style="color: #10b981; font-size: 10px; margin: 0;"><strong>current location </strong></p>' : ''}
+              ${isInitialLocation ? '<p style="color: #10b981; font-size: 10px; margin: 0;"><strong>Current Location</strong></p>' : ''}
             </div>
           `))
           .addTo(map.current!);
 
-        console.log('Marker added successfully');
-
-        // Center map on location
         map.current!.flyTo({
           center: [lng, lat],
           zoom: 15,
           duration: 1000
         });
 
-        console.log('Map centered on location');
-
       } catch (error) {
         console.error('Error adding marker:', error);
       }
     };
 
-    if (map.current.loaded()) {
-      addMarker();
-    } else {
-      map.current.on('load', addMarker);
-    }
-
-    console.log('=== End Marker Effect Debug ===');
-  }, [selectedLocation, property]);
+    addMarker();
+  }, [selectedLocation, property, mapLoaded]);
 
   return (
     <div className="mb-8">
@@ -585,11 +559,22 @@ export const LocationTab: React.FC<LocationTabProps> = ({ property, onUpdate, re
 
       {/* Map Container */}
       <div className="my-16">
+        {mapError && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <p className="font-semibold">Map Error:</p>
+            <p className="text-sm">{mapError}</p>
+          </div>
+        )}
         <div
           ref={mapContainer}
-          className="h-96 w-full rounded-lg border border-gray-300"
-          style={{ height: '400px' }}
+          className="h-96 w-full rounded-lg border border-gray-300 bg-gray-100"
+          style={{ minHeight: '400px' }}
         />
+        {!mapLoaded && !mapError && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
+            <p className="text-gray-500">Loading map...</p>
+          </div>
+        )}
       </div>
     </div>
   );

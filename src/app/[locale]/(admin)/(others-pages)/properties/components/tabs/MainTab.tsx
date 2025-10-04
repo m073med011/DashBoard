@@ -6,7 +6,7 @@ import { AxiosHeaders } from "axios";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Phone, Mail, MessageCircle, Home, Bed, Bath,
-  ChefHat, Ruler, MapPin, User, CheckCircle, Clock, ChevronDown,
+  Ruler, MapPin, User, CheckCircle, Clock, ChevronDown,
   DollarSign, FileText, Globe, Camera, Check, X, Coins, CreditCard, Save,
   ChevronUp, Calendar, ChevronLeft, ChevronRight
 } from 'lucide-react';

@@ -1,6 +1,7 @@
 import { Outfit } from 'next/font/google';
 import './globals.css';
 import { NextIntlClientProvider } from "next-intl";
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
