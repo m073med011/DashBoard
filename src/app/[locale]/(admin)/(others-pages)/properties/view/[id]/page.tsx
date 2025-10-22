@@ -20,7 +20,7 @@ export default function PropertyDetailsPage() {
   const propertyId = params?.id as string;
   const t = useTranslations("properties");
   const { property, propertystat, loading, toast, refetch } = useProperty(propertyId);
-  const [activeTab, setActiveTab] = useState<TabType>('main');
+  const [activeTab, setActiveTab] = useState<TabType>('images');
   const [isEditMode, setIsEditMode] = useState(false);
 
   // Update page title when property loads

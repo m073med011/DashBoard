@@ -13,7 +13,7 @@ import { AxiosHeaders } from "axios";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations, useLocale } from "next-intl";
 import Toast from "@/components/Toast";
-import RichTextEditor from "@/components/RichTextEditor";
+import ProfiTextEditor from "@/components/ProfiTextEditor";
 import {
   ChevronDown,
   ChevronUp,
@@ -124,6 +124,7 @@ const CreatePropertyPage = () => {
   const [imagePreview, setImagePreview] = useState<ImagePreview | null>(null);
   const [locationValue, setLocationValue] = useState<string>("");
   const [locationData, setLocationData] = useState<LocationData | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [toast, setToast] = useState<ToastState>({
     message: "",
     type: "success",
@@ -248,6 +249,11 @@ const CreatePropertyPage = () => {
 
   // ============= FORM SUBMISSION =============
   const onSubmit = async (data: FormInputs) => {
+    // حماية من الضغط المتكرر
+    if (isSubmitting) {
+      return;
+    }
+
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) {
       showToast("auth_token_not_found", "error");
@@ -257,6 +263,9 @@ const CreatePropertyPage = () => {
       showToast("please_select_an_image", "error");
       return;
     }
+
+    // بدء عملية الإرسال
+    setIsSubmitting(true);
 
     // Debug log to check form data before submission
     console.log("Form data before submission:", data);
@@ -337,6 +346,9 @@ const CreatePropertyPage = () => {
         (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 
         t("failed_to_add_property");
       showToast(errorMessage, "error", false);
+    } finally {
+      // إنهاء عملية الإرسال
+      setIsSubmitting(false);
     }
   };
 
@@ -1147,10 +1159,10 @@ const CreatePropertyPage = () => {
                     {t("description_ar")} <span className="text-red-500">*</span>
                   </label>
                   <div className="">
-                    <RichTextEditor
+                    <ProfiTextEditor
                       value={descriptionAr}
                       onChange={setDescriptionAr}
-                      label=""
+                      placeholder="Enter description in Arabic..."
                     />
                   </div>
                 </div>
@@ -1193,10 +1205,10 @@ const CreatePropertyPage = () => {
                     {t("description_en")} <span className="text-red-500">*</span>
                   </label>
                   <div className="border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
-                    <RichTextEditor
+                    <ProfiTextEditor
                       value={descriptionEn}
                       onChange={setDescriptionEn}
-                      label=""
+                      placeholder="Enter description in English..."
                     />
                   </div>
                 </div>
@@ -1279,10 +1291,24 @@ const CreatePropertyPage = () => {
             </button>
             <button
               type="submit"
-              className="px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-2"
+              disabled={isSubmitting}
+              className={`px-8 py-3 font-medium rounded-lg shadow-lg transition-all duration-200 flex items-center space-x-2 ${
+                isSubmitting
+                  ? "bg-gray-400 cursor-not-allowed transform-none"
+                  : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 hover:shadow-xl transform hover:scale-105"
+              } text-white`}
             >
-              <Check className="w-5 h-5" />
-              <span>{t("create_property")}</span>
+              {isSubmitting ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>{t("creating")}...</span>
+                </>
+              ) : (
+                <>
+                  <Check className="w-5 h-5" />
+                  <span>{t("create_property")}</span>
+                </>
+              )}
             </button>
           </div>
         </form>
