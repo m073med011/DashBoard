@@ -63,7 +63,6 @@ type FormInputs = {
   title_ar: string;
   description_ar: string;
   keywords_ar: string;
-  slug_ar: string;
 
   // Location field
   location: string;
@@ -327,7 +326,7 @@ const CreatePropertyPage = () => {
     formData.append("title[ar]", data.title_ar || "");
     formData.append("description[ar]", descriptionAr || "");
     formData.append("keywords[ar]", data.keywords_ar || "");
-    formData.append("slug[ar]", data.slug_ar || "");
+    
 
     // --- Cover Image ---
     formData.append("cover", imagePreview.file);
@@ -932,6 +931,12 @@ const CreatePropertyPage = () => {
                     { value: "unfurnished", label: t("unfurnished") },
                     { value: "semi-furnished", label: t("semi_furnished") },
                     { value: "partly-furnished", label: t("partly_furnished") },
+                    ...(status === "sale"
+                      ? [
+                          { value: "finished", label: t("finished") },
+                          { value: "half-finished", label: t("half_finished") },
+                        ]
+                      : []),
                   ]}
                   placeholder={t("select_furnishing")}
                 />
@@ -1139,13 +1144,7 @@ const CreatePropertyPage = () => {
                     dir="rtl"
                     placeholder={t("title_arabic_placeholder")}
                   />
-                  <InputField
-                    label={t("slug_ar")}
-                    name="slug_ar"
-                    required
-                    dir="rtl"
-                    placeholder={t("slug_arabic_placeholder")}
-                  />
+                  
                 </div>
                 <InputField
                   label={t("keywords_ar")}

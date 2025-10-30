@@ -118,7 +118,7 @@ export default function PropertyListingsPage() {
   );
 
   // Navigate handlers
-  const handleView = (item: PropertyListing) => router.push(`/properties/view/${item.id}`);
+  const handleView = (item: PropertyListing) => router.push(`/properties/view/${item.id}?tab=main`);
   // const handleEdit = (item: PropertyListing) => router.push(`/properties/edit/${item.id}`);
 
   return (

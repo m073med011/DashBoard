@@ -14,13 +14,16 @@ import { ImagesTab } from '@/app/[locale]/(admin)/(others-pages)/properties/comp
 import { FloorPlanTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/FloorPlanTab';
 import { useTranslations } from 'next-intl';
 import { Edit, Eye } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 export default function PropertyDetailsPage() {
   const params = useParams();
   const propertyId = params?.id as string;
   const t = useTranslations("properties");
   const { property, propertystat, loading, toast, refetch } = useProperty(propertyId);
-  const [activeTab, setActiveTab] = useState<TabType>('images');
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get('tab') as TabType) || 'images';
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [isEditMode, setIsEditMode] = useState(false);
 
   // Update page title when property loads

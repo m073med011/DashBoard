@@ -145,7 +145,6 @@ export const MainTab: React.FC<MainTabProps> = ({
         title_ar: property.descriptions?.ar?.title || "",
         description_ar: property.descriptions?.ar?.description || "",
         keywords_ar: property.descriptions?.ar?.keywords || "",
-        slug_ar: property.descriptions?.ar?.slug || "",
       };
       reset(formData);
       setDescriptionEn(property.descriptions?.en?.description || "");
@@ -704,7 +703,6 @@ export const MainTab: React.FC<MainTabProps> = ({
     formData.append("title[ar]", data.title_ar);
     formData.append("description[ar]", descriptionAr);
     formData.append("keywords[ar]", data.keywords_ar);
-    formData.append("slug[ar]", data.slug_ar);
     
     // Cover image (only if a new image was selected)
     if (imagePreview && imagePreview.file) {
@@ -1258,13 +1256,7 @@ export const MainTab: React.FC<MainTabProps> = ({
                   dir="rtl"
                   placeholder={t("title_arabic_placeholder")}
                 />
-                <InputField
-                  label={t("slug_ar")}
-                  name="slug_ar"
-                  required
-                  dir="rtl"
-                  placeholder={t("slug_arabic_placeholder")}
-                />
+                
               </div>
               <InputField
                 label={t("keywords_ar")}

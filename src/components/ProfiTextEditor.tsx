@@ -30,9 +30,9 @@ export default function ProfiTextEditor({ value, onChange, placeholder = 'Type s
   }, [value]);
 
   return (
-    <div className="border rounded-md shadow bg-white">
+    <div className="border border-slate-300 dark:border-slate-600 rounded-md shadow bg-white dark:bg-slate-800">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 border-b p-2 text-sm bg-gray-50">
+      <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 dark:border-slate-600 p-2 text-sm bg-gray-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
         {/* Formatting */}
         <button onClick={() => exec('bold')} className="toolbar-btn font-bold">B</button>
         <button onClick={() => exec('italic')} className="toolbar-btn italic">I</button>
@@ -69,7 +69,7 @@ export default function ProfiTextEditor({ value, onChange, placeholder = 'Type s
         contentEditable
         onInput={handleInput}
         dir={direction}
-        className="min-h-[180px] p-4 outline-none prose max-w-none"
+        className="min-h-[180px] p-4 outline-none prose dark:prose-invert max-w-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
         data-placeholder={placeholder}
       />
     </div>

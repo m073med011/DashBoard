@@ -102,8 +102,8 @@ export default function Table<T extends { id: number }>({
                   <div className="flex gap-2 justify-center w-full items-center">
                     {onViewPage && (
                       <button
-                        onClick={() => router.push(`${pathname}/view/${item.id}`)}
-                        className="inline-flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+                        onClick={() => router.push(`${pathname}/view/${item.id}?tab=main`)}
+                        className="inline-flex items-center gap-1 text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
                       >
                         <Eye className="w-4 h-4" />
                         {t('View Page')}
@@ -113,7 +113,7 @@ export default function Table<T extends { id: number }>({
                     {onView && (
                       <button
                         onClick={() => onView(item)}
-                        className="inline-flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+                        className="inline-flex items-center gap-1 text-white bg-blue-600 hover:bg-blue-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
                       >
                         <Eye className="w-4 h-4" />
                         {t('View')}
@@ -124,7 +124,7 @@ export default function Table<T extends { id: number }>({
                       <button
                       // on click route to page id 
                       onClick={() => router.push(`${pathname}/edit/${item.id}`)}
-                        className="inline-flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+                        className="inline-flex items-center gap-1 text-white bg-purple-600 hover:bg-purple-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
                       >
                         <ZoomIn className="w-4 h-4" />
                         {t('edit')}
@@ -133,7 +133,7 @@ export default function Table<T extends { id: number }>({
                     {onEdit && (
                       <button
                         onClick={() => onEdit(item)}
-                        className="inline-flex items-center gap-2 text-white bg-yellow-500 hover:bg-yellow-600 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+                        className="inline-flex items-center gap-1 text-white bg-yellow-500 hover:bg-yellow-600 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
                       >
                         <Pencil className="w-4 h-4" />
                         {t('quickedit')}
@@ -142,7 +142,7 @@ export default function Table<T extends { id: number }>({
                     {onDelete && (
                       <button
                         onClick={() => handleDeleteClick(item)}
-                        className="inline-flex items-center gap-2 text-white bg-red-600 hover:bg-red-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
+                        className="inline-flex items-center gap-1 text-white bg-red-600 hover:bg-red-700 transition px-3 py-1.5 rounded-md shadow-md text-sm font-semibold"
                       >
                         <Trash2 className="w-4 h-4" />
                         {t('Delete')}
