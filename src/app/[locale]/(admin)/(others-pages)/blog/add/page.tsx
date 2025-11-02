@@ -235,7 +235,7 @@ const CreateContentPage = () => {
     <button
       type="button"
       onClick={onClick}
-      className={`px-6 py-3 rounded-t-lg font-medium transition-colors duration-200 ${
+      className={`px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-t-lg text-sm sm:text-base font-medium transition-colors duration-200 whitespace-nowrap ${
         isActive
           ? "bg-blue-600 text-white border-b-2 border-blue-600"
           : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
@@ -246,16 +246,16 @@ const CreateContentPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-3 sm:p-4 md:p-6">
       {toast.show && <Toast message={toast.message} type={toast.type} duration={3000} />}
       <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-        <div className="p-8">
-          <h1 className="text-3xl font-bold mb-6 text-center">
+        <div className="p-4 sm:p-6 md:p-8">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-center">
             {t("Create Content")}
           </h1>
           
           {/* Tab Navigation */}
-          <div className="flex space-x-2 mb-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex space-x-1 sm:space-x-2 mb-4 sm:mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto scrollbar-hide -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8">
             <TabButton
               label={t("Arabic Content")}
               isActive={activeTab === "ar"}
@@ -282,14 +282,14 @@ const CreateContentPage = () => {
             
             {/* Arabic Content Tab */}
             {activeTab === "ar" && (
-              <div className="mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="mb-6 sm:mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {arabicFields.map(({ name, label }) => (
                     <div key={name}>
-                      <label className="block mb-1 font-medium">{t(label)}</label>
+                      <label className="block mb-1 text-sm sm:text-base font-medium">{t(label)}</label>
                       <input
                         {...register(name, { required: true })}
-                        className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring focus:ring-blue-400"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring focus:ring-blue-400"
                         dir="rtl"
                       />
                       {errors[name] && (
@@ -299,7 +299,7 @@ const CreateContentPage = () => {
                   ))}
                 </div>
                 
-                <div className="mt-6">
+                <div className="mt-4 sm:mt-6">
                   <RichTextEditor
                     value={descriptionAr}
                     onChange={setDescriptionAr}
@@ -311,14 +311,14 @@ const CreateContentPage = () => {
 
             {/* English Content Tab */}
             {activeTab === "en" && (
-              <div className="mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="mb-6 sm:mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {englishFields.map(({ name, label }) => (
                     <div key={name}>
-                      <label className="block mb-1 font-medium">{t(label)}</label>
+                      <label className="block mb-1 text-sm sm:text-base font-medium">{t(label)}</label>
                       <input
                         {...register(name, { required: true })}
-                        className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring focus:ring-blue-400"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring focus:ring-blue-400"
                       />
                       {errors[name] && (
                         <p className="text-red-500 text-sm mt-1">{t("This field is required")}</p>
@@ -327,7 +327,7 @@ const CreateContentPage = () => {
                   ))}
                 </div>
                 
-                <div className="mt-6">
+                <div className="mt-4 sm:mt-6">
                   <RichTextEditor
                     value={descriptionEn}
                     onChange={setDescriptionEn}
@@ -339,15 +339,15 @@ const CreateContentPage = () => {
 
             {/* Meta Information Tab */}
             {activeTab === "meta" && (
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4">{t("SEO Meta Information & Keywords")}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="mb-6 sm:mb-8">
+                <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t("SEO Meta Information & Keywords")}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {metaFields.map(({ name, label, dir }) => (
                     <div key={name}>
-                      <label className="block mb-1 font-medium">{t(label)}</label>
+                      <label className="block mb-1 text-sm sm:text-base font-medium">{t(label)}</label>
                       <input
                         {...register(name, { required: true })}
-                        className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring focus:ring-blue-400"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring focus:ring-blue-400"
                         dir={dir}
                       />
                       {errors[name] && (
@@ -361,15 +361,15 @@ const CreateContentPage = () => {
 
             {/* General Information Tab */}
             {activeTab === "general" && (
-              <div className="mb-8">
+              <div className="mb-6 sm:mb-8">
                 {/* Type Selection */}
-                <div className="mb-6">
-                  <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                <div className="mb-4 sm:mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4 sm:gap-6">
                     <div>
-                      <label className="block mb-1 font-medium">{t("Type")}</label>
+                      <label className="block mb-1 text-sm sm:text-base font-medium">{t("Type")}</label>
                       <select
                         {...register("type_id", { required: true })}
-                        className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 focus:outline-none focus:ring focus:ring-blue-400"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 focus:outline-none focus:ring focus:ring-blue-400"
                       >
                         <option value="">{t("Select a type")}</option>
                         {types.map((type) => (
@@ -386,18 +386,18 @@ const CreateContentPage = () => {
                 </div>
 
                 {/* File Upload Section */}
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold mb-4">{t("File Uploads")}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="mb-4 sm:mb-8">
+                  <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t("File Uploads")}</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {/* Cover Upload */}
                     <div>
-                      <label className="block mb-1 font-medium">{t("Cover")}</label>
+                      <label className="block mb-1 text-sm sm:text-base font-medium">{t("Cover")}</label>
                       <input
                         id="cover-input"
                         type="file"
                         onChange={handleCoverChange}
                         accept="image/*"
-                        className="w-full border px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-sm"
+                        className="w-full border px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-xs sm:text-sm"
                         required
                       />
                       
@@ -412,7 +412,7 @@ const CreateContentPage = () => {
                           <button
                             type="button"
                             onClick={removeCover}
-                            className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors duration-200"
+                            className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 sm:w-6 sm:h-6 flex items-center justify-center text-base sm:text-sm font-bold transition-colors duration-200"
                             title="Remove cover"
                           >
                             ×
@@ -423,13 +423,13 @@ const CreateContentPage = () => {
 
                     {/* Image Upload */}
                     <div>
-                      <label className="block mb-1 font-medium">{t("Image")}</label>
+                      <label className="block mb-1 text-sm sm:text-base font-medium">{t("Image")}</label>
                       <input
                         id="image-input"
                         type="file"
                         onChange={handleImageChange}
                         accept="image/*"
-                        className="w-full border px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-sm"
+                        className="w-full border px-3 sm:px-4 py-2 rounded-md bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-xs sm:text-sm"
                         required
                       />
                       
@@ -444,7 +444,7 @@ const CreateContentPage = () => {
                           <button
                             type="button"
                             onClick={removeImage}
-                            className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold transition-colors duration-200"
+                            className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 sm:w-6 sm:h-6 flex items-center justify-center text-base sm:text-sm font-bold transition-colors duration-200"
                             title="Remove image"
                           >
                             ×
@@ -457,17 +457,17 @@ const CreateContentPage = () => {
               </div>
             )}
 
-            <div className="mt-10 flex justify-end space-x-4">
+            <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 sm:space-x-4">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-8 py-3 rounded-lg shadow-md transition duration-200"
+                className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg shadow-md transition duration-200 w-full sm:w-auto order-2 sm:order-1"
               >
                 {t("Cancel")}
               </button>
               <button
                 type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-lg shadow-md transition duration-200 transform hover:scale-105"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg shadow-md transition duration-200 transform hover:scale-105 w-full sm:w-auto order-1 sm:order-2"
               >
                 {t("Submit")}
               </button>

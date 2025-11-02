@@ -183,19 +183,19 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
       </label>
 
       {/* Input Field */}
-      <div className=" absolute ">
-        <div className="relative  ">
+      <div className="relative w-full">
+        <div className="relative w-full">
           <input
             ref={inputRef}
             id={name}
             name={name}
             type="text"
             placeholder={placeholder || `${t('select')} ${label}`}
-            className={`w-full px-20 py-3 pl-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30 ${
+            className={`w-full px-4 py-3 pl-10 pr-4 md:px-4 md:pr-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30 ${
               error
                 ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                 : 'border-slate-300 dark:border-slate-600 focus:ring-orange-500 focus:border-transparent'
-            } bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100`}
+            } bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 max-w-full`}
             value={locationQuery}
             onChange={handleInputChange}
             onFocus={() =>
@@ -203,9 +203,10 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
             }
             autoComplete="off"
             dir={dir}
+            style={{ boxSizing: 'border-box', paddingLeft: '30px' }}
           />
           <MapPin
-            className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
+            className={`absolute left-2 top-1/2 transform -translate-y-1/2 ${
               error ? 'text-red-500' : 'text-gray-500'
             }`}
             size={18}
@@ -222,7 +223,7 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
         {showLocationSuggestions && locationSuggestions.length > 0 && (
           <div
             ref={suggestionsRef}
-            className="absolute top-full mt-1 w-full z-50 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl"
+            className="absolute top-full mt-1 w-full z-50 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl max-h-64 overflow-y-auto"
           >
             {locationSuggestions.map((suggestion) => (
               <div
@@ -230,13 +231,13 @@ const GoogleLocationSearch: React.FC<GoogleLocationSearchProps> = ({
                 onClick={() => handleSuggestionSelect(suggestion)}
                 className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
               >
-                <MapPin className="mt-1 text-blue-500 dark:text-blue-400" size={18} />
-                <div>
-                  <div className="font-semibold text-sm text-gray-800 dark:text-white">
+                <MapPin className="mt-1 text-blue-500 dark:text-blue-400 flex-shrink-0" size={18} />
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold text-sm text-gray-800 dark:text-white break-words">
                     {suggestion.structured_formatting?.main_text || suggestion.description}
                   </div>
                   {suggestion.structured_formatting?.secondary_text && (
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 break-words">
                       {suggestion.structured_formatting.secondary_text}
                     </div>
                   )}

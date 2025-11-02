@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import { useForm, useWatch, useController } from "react-hook-form";
 import { postData, getData } from "@/libs/axios/server";
@@ -99,6 +99,16 @@ export const MainTab: React.FC<MainTabProps> = ({
   const paymentMethod = useWatch({ control, name: "payment_method" }) || "cash";
   const status = useWatch({ control, name: "status" }) || "";
   const immediateDelivery = useWatch({ control, name: "immediate_delivery" }) || "";
+  const selectedTypeId = useWatch({ control, name: "type_id" }) || "";
+  
+  // Check if selected property type is apartment
+  const isApartment = useMemo(() => {
+    if (!selectedTypeId || !propertyTypes.length) return false;
+    const selectedType = propertyTypes.find(type => String(type.id) === String(selectedTypeId));
+    if (!selectedType) return false;
+    const typeTitle = (selectedType.title || "").toLowerCase();
+    return typeTitle.includes("apartment") || typeTitle.includes("شقة");
+  }, [selectedTypeId, propertyTypes]);
 
   const statusOptions = [
     { value: 'accepted', label: 'Accepted', color: 'text-green-600', bgColor: 'bg-green-50 hover:bg-green-100' },
@@ -683,7 +693,10 @@ export const MainTab: React.FC<MainTabProps> = ({
     } else {
       formData.append("starting_day", "");
     }
-    formData.append("landing_space", data.landing_space);
+    // Only append landing_space if property type is not apartment
+    if (!isApartment) {
+      formData.append("landing_space", data.landing_space || "");
+    }
     
     // Location
     formData.append("location", locationValue);
@@ -975,7 +988,7 @@ export const MainTab: React.FC<MainTabProps> = ({
           />
           {expandedSections.basic && (
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className=''>
+              <div className="w-full min-w-0">
                 <GoogleLocationSearch
                   label={t("location")}
                   name="location"
@@ -1228,13 +1241,15 @@ export const MainTab: React.FC<MainTabProps> = ({
                 placeholder={t("number_of_bathrooms")}
                 error={!!errors.bathroom}
               />
-              <FormattedNumberInput
-                label={t("landing_space")}
-                name="landing_space"
-                required
-                placeholder={t("enter_landing_space")}
-                error={!!errors.landing_space}
-              />
+              {!isApartment && (
+                <FormattedNumberInput
+                  label={t("landing_space")}
+                  name="landing_space"
+                  required
+                  placeholder={t("enter_landing_space")}
+                  error={!!errors.landing_space}
+                />
+              )}
             </div>
           )}
         </div>

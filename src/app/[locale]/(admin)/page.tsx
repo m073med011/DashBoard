@@ -8,6 +8,7 @@ import {
   AlertCircle, ArrowUpRight, ArrowDownRight, BarChart3, PieChart
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
 
 interface StatisticsData {
   total_customers: number;
@@ -209,6 +210,7 @@ export default function DashBoard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations('Home');
+  const router = useRouter();
 
   const fetchStatistics = useCallback(async () => {
     try {
@@ -322,12 +324,22 @@ export default function DashBoard() {
             </div>
             <div className="space-y-4">
               {[
-                { label: t('accepted'), value: statistics.accepted || 0, color: 'bg-emerald-500', icon: CheckCircle },
-                { label: t('pending'), value: statistics.pending || 0, color: 'bg-orange-500', icon: Clock },
-                { label: t('cancelled'), value: statistics.cancelled || 0, color: 'bg-red-500', icon: XCircle },
-                { label: t('immediate'), value: statistics.immediate_delivery || 0, color: 'bg-blue-500', icon: TrendingUp }
+                { label: t('accepted'), value: statistics.accepted || 0, color: 'bg-emerald-500', icon: CheckCircle, filter: 'accepted' },
+                { label: t('pending'), value: statistics.pending || 0, color: 'bg-orange-500', icon: Clock, filter: 'pending' },
+                { label: t('cancelled'), value: statistics.cancelled || 0, color: 'bg-red-500', icon: XCircle, filter: 'cancelled' },
+                { label: t('immediate'), value: statistics.immediate_delivery || 0, color: 'bg-blue-500', icon: TrendingUp, filter: null }
               ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 dark:bg-gray-800 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <div 
+                  key={index} 
+                  onClick={() => {
+                      router.push(`/properties?filter=${item.filter}`);
+                  }}
+                  className={`flex items-center justify-between p-3 bg-gray-50/50 dark:bg-gray-800 rounded-xl transition-colors ${
+                    item.filter && item.value > 0 
+                      ? 'hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer hover:shadow-md' 
+                      : 'cursor-default'
+                  }`}
+                >
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 ${item.color} rounded-lg`}>
                       <item.icon className="w-4 h-4 text-white" />

@@ -148,6 +148,16 @@ const CreatePropertyPage = () => {
   const paymentMethod = useWatch({ control, name: "payment_method" }) || "cash";
   const status = useWatch({ control, name: "status" }) || "";
   const immediateDelivery = useWatch({ control, name: "immediate_delivery" }) || "";
+  const selectedTypeId = useWatch({ control, name: "type_id" }) || "";
+  
+  // Check if selected property type is apartment
+  const isApartment = useMemo(() => {
+    if (!selectedTypeId || !propertyTypes.length) return false;
+    const selectedType = propertyTypes.find(type => String(type.id) === String(selectedTypeId));
+    if (!selectedType) return false;
+    const typeTitle = (selectedType.title || "").toLowerCase();
+    return typeTitle.includes("apartment") || typeTitle.includes("شقة");
+  }, [selectedTypeId, propertyTypes]);
 
   // ============= CUSTOM HOOKS / UTILITIES =============
   const showToast = useCallback(
@@ -286,7 +296,10 @@ const CreatePropertyPage = () => {
     formData.append("immediate_delivery", data.immediate_delivery || "");
     formData.append("furnishing", data.furnishing || "");
     formData.append("payment_method", data.payment_method || "");
-    formData.append("landing_space", String(data.landing_space || ""));
+    // Only append landing_space if property type is not apartment
+    if (!isApartment) {
+      formData.append("landing_space", String(data.landing_space || ""));
+    }
 
     // --- Conditional Fields (Installment) ---
     if (data.payment_method === "installment") {
@@ -843,7 +856,7 @@ const CreatePropertyPage = () => {
             />
             {expandedSections.basic && (
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div>
+                <div className="w-full min-w-0">
                   <GoogleLocationSearch
                     label={t("location")}
                     name="location"
@@ -1115,13 +1128,15 @@ const CreatePropertyPage = () => {
                   placeholder={t("number_of_bathrooms")}
                   error={!!errors.bathroom}
                 />
-                <FormattedNumberInput
-                  label={t("landing_space")}
-                  name="landing_space"
-                  required
-                  placeholder={t("enter_landing_space")}
-                  error={!!errors.landing_space}
-                />
+                {!isApartment && (
+                  <FormattedNumberInput
+                    label={t("landing_space")}
+                    name="landing_space"
+                    required
+                    placeholder={t("enter_landing_space")}
+                    error={!!errors.landing_space}
+                  />
+                )}
               </div>
             )}
           </div>

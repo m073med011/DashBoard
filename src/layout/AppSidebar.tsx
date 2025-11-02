@@ -49,7 +49,7 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered, toggleMobileSidebar } = useSidebar();
   const pathname = usePathname();
   const t = useTranslations("sidebar");
   const locale = useLocale();
@@ -74,6 +74,13 @@ const AppSidebar: React.FC = () => {
     setOpenSubmenu((prev) =>
       prev?.type === type && prev.index === index ? null : { type, index }
     );
+  };
+
+  // Close mobile sidebar when navigating
+  const handleLinkClick = () => {
+    if (isMobileOpen) {
+      toggleMobileSidebar();
+    }
   };
 
   // Get available modules from localStorage
@@ -130,6 +137,7 @@ const AppSidebar: React.FC = () => {
             <li key={sub.name}>
               <Link
                 href={`/${locale}${sub.path}`}
+                onClick={handleLinkClick}
                 className={`flex items-center justify-between px-3 py-2 rounded text-sm transition-all duration-200
                   ${isActive(sub.path)
                     ? "bg-orange-50 dark:bg-gray-800 text-orange-600 dark:text-orange-400 font-medium"
@@ -219,6 +227,7 @@ const AppSidebar: React.FC = () => {
               nav.path && (
                 <Link
                   href={`/${locale}${nav.path}`}
+                  onClick={handleLinkClick}
                   className={`group flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200
                     ${isParentActive
                       ? "bg-orange-50 dark:bg-gray-800 text-orange-600 dark:text-orange-400 font-medium"
@@ -260,7 +269,7 @@ const AppSidebar: React.FC = () => {
     >
       {/* Logo Section */}
       <div className={`py-8 ${!isSidebarVisible ? "flex justify-center" : ""}`}>
-        <Link href={`/${locale}`}>
+        <Link href={`/${locale}`} onClick={handleLinkClick}>
           {isSidebarVisible ? (
             <svg
               style={{
