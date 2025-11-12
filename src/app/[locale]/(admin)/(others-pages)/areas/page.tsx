@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Table from '@/components/tables/Table';
 import ModalForm from '@/components/tables/ModalTableForm';
-import { getData, postData, patchData, deleteData } from '@/libs/axios/server';
+import { getData, postData, deleteData } from '@/libs/axios/server';
 import { AxiosHeaders } from 'axios';
 import Image from 'next/image';
 import ImageUploadField from '@/components/ImageUploadField';
