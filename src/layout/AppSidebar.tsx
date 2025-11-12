@@ -14,6 +14,7 @@ import {
   Headphones,
   Phone,
   Puzzle,
+  MapPin,
 } from "lucide-react";
 import { ChevronDownIcon, HorizontaLDots } from "../icons/index";
 
@@ -40,6 +41,7 @@ const NAV_ITEMS: NavItem[] = [
   { icon: <Newspaper />, name: "blogs", path: "/blog" },
   { icon: <Images />, name: "banners", path: "/banners" },
   { icon: <Tag />, name: "types", path: "/types" },
+  { icon: <MapPin />, name: "areas", path: "/areas" },
   { icon: <Puzzle />, name: "amenities", path: "/amenities" },
   {
     icon: <Building2 />,

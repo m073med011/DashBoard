@@ -182,7 +182,9 @@
     "Description(en)": "Description (EN)",
     "Banners": "Banners",
     "edit": "Edit",
-    "Link": "Link"
+    "Link": "Link",
+    "Developer": "Developer",
+    "Google Maps": "Google Maps"
   },
   "types": {
     "Create": "Create",
@@ -240,7 +242,17 @@
     "Enter area name in English": "Enter area name in English",
     "Enter area name in Arabic": "Enter area name in Arabic",
     "Enter number of properties": "Enter number of properties",
-    "Leave empty to keep current image": "Leave empty to keep current image"
+    "Leave empty to keep current image": "Leave empty to keep current image",
+    "Developer (EN)": "Developer (EN)",
+    "Developer (AR)": "Developer (AR)",
+    "Developer (English)": "Developer (English)",
+    "Developer (Arabic)": "Developer (Arabic)",
+    "Developer": "Developer",
+    "Enter developer name in English": "Enter developer name in English",
+    "Enter developer name in Arabic": "Enter developer name in Arabic",
+    "Google Maps": "Google Maps",
+    "Enter Google Maps value": "Enter Google Maps value",
+    "Failed to fetch area details": "Failed to fetch area details"
   },
   "sidebar": {
     "contact": "Contact",

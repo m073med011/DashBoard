@@ -17,16 +17,19 @@ import { AREA_IMAGE_SIZE } from '@/libs/constants/imageSizes';
 type Area = {
   id: number;
   name: string;
-  description: {
+  image: string;
+  developer: string;
+  google_maps: string;
+  description?:{
     en: {
       name: string;
+      developer: string;
     };
     ar: {
       name: string;
+      developer: string;
     };
-  };
-  image: string;
-  count_of_properties: number;
+  }
 };
 
 type ToastState = {
@@ -125,7 +128,7 @@ export default function AreasPage() {
       }
     } catch (error) {
       console.error('Failed to fetch single area', error);
-      showToast("Failed to fetch area details", 'error');
+      showToast(t("Failed to fetch area details"), 'error');
     } finally {
       setModalLoading(false);
     }
@@ -170,7 +173,9 @@ export default function AreasPage() {
     const payload = new FormData();
     payload.append('name[en]', formData.get('name[en]') as string);
     payload.append('name[ar]', formData.get('name[ar]') as string);
-    payload.append('count_of_properties', formData.get('count_of_properties') as string);
+    payload.append('developer[en]', formData.get('developer[en]') as string);
+    payload.append('developer[ar]', formData.get('developer[ar]') as string);
+    payload.append('google_maps', formData.get('google_maps') as string);
 
     // Use the selected image file from ImageUploadField
     if (selectedImageFile) {
@@ -184,8 +189,7 @@ export default function AreasPage() {
         }));
         showToast("Area created successfully", 'success');
       } else if (modalState.type === 'edit' && currentArea) {
-        payload.append('_method', 'PATCH');
-        await patchData(`owner/areas/${currentArea.id}`, payload, new AxiosHeaders({
+        await postData(`owner/areas/${currentArea.id}`, payload, new AxiosHeaders({
           Authorization: `Bearer ${token}`,
         }));
         showToast("Area updated successfully", 'success');
@@ -215,12 +219,12 @@ export default function AreasPage() {
           columns={[
             {
               key: 'name',
-              label: 'Name',
+              label: t('Name'),
               render: (item) => `${item?.name}`,
             },
             {
               key: 'image',
-              label: 'Image',
+              label: t('Image'),
               render: (item: Area) => (
                 <Image
                   src={item.image}
@@ -231,10 +235,16 @@ export default function AreasPage() {
                 />
               ),
             },
+        
             {
-              key: 'count_of_properties',
-              label: 'Properties',
-              render: (item) => item.count_of_properties.toString(),
+              key: 'developer',
+              label: t('Developer'),
+              render: (item) => item?.developer || '-',
+            },
+            {
+              key: 'google_maps',
+              label: t('Google Maps'),
+              render: (item) => item?.google_maps || '-',
             },
           ]}
           onCreate={() => setModalState({ type: 'create' })}
@@ -272,7 +282,7 @@ export default function AreasPage() {
                       {t('Name (EN)')}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {currentArea?.description.en.name}
+                      {currentArea?.description?.en?.name || '-'}
                     </td>
                   </tr>
                   <tr>
@@ -280,15 +290,25 @@ export default function AreasPage() {
                       {t('Name (AR)')}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {currentArea?.description.ar.name}
+                      {currentArea?.description?.ar?.name || '-'}
                     </td>
                   </tr>
+           
                   <tr>
                     <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                      {t('Properties')}
+                      {t('Developer (EN)')}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {currentArea?.count_of_properties}
+                      {currentArea?.developer || '-'}
+                    </td>
+                  </tr>
+               
+                  <tr>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                      {t('Google Maps')}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {currentArea?.google_maps || '-'}
                     </td>
                   </tr>
                   {currentArea?.image && (
@@ -331,9 +351,8 @@ export default function AreasPage() {
                 type="text"
                 name="name[en]"
                 placeholder={t('Enter area name in English')}
-                defaultValue={currentArea?.description.en.name ?? ''}
+                defaultValue={currentArea?.description?.en?.name ?? ''}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
               />
             </div>
             
@@ -346,37 +365,61 @@ export default function AreasPage() {
                 type="text"
                 name="name[ar]"
                 placeholder={t('Enter area name in Arabic')}
-                defaultValue={currentArea?.description.ar.name ?? ''}
+                defaultValue={currentArea?.description?.ar?.name ?? ''}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
               />
             </div>
             
             <div>
-              <label htmlFor="count_properties" className="block text-sm font-medium text-gray-700">
-                {t('Number of Properties')}
+              <label htmlFor="developer_en" className="block text-sm font-medium text-gray-700">
+                {t('Developer (English)')}
               </label>
               <input
-                id="count_properties"
-                type="number"
-                name="count_of_properties"
-                placeholder={t('Enter number of properties')}
-                defaultValue={currentArea?.count_of_properties?.toString() ?? ''}
+                id="developer_en"
+                type="text"
+                name="developer[en]"
+                placeholder={t('Enter developer name in English')}
+                defaultValue={currentArea?.description?.en?.developer ?? ''}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                min="0"
-                required
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="developer_ar" className="block text-sm font-medium text-gray-700">
+                {t('Developer (Arabic)')}
+              </label>
+              <input
+                id="developer_ar"
+                type="text"
+                name="developer[ar]"
+                placeholder={t('Enter developer name in Arabic')}
+                defaultValue={currentArea?.description?.ar?.developer ?? ''}
+                className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="google_maps" className="block text-sm font-medium text-gray-700">
+                {t('Google Maps')}
+              </label>
+              <input
+                id="google_maps"
+                type="text"
+                name="google_maps"
+                placeholder={t('Enter Google Maps value')}
+                defaultValue={currentArea?.google_maps ?? ''}
+                className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             
             {/* Replace the old file input with ImageUploadField */}
             <ImageUploadField
-              label="Area Image"
+              label={t('Area Image')}
               id="area-image"
               name="image"
               value={currentArea?.image || null}
               preview={imagePreview}
               onChange={handleImageChange}
-              required={modalState.type === 'create'}
               accept="image/*"
               allowedSizes={`${AREA_IMAGE_SIZE.width}x${AREA_IMAGE_SIZE.height}`}
             />

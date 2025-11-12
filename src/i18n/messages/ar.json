@@ -129,7 +129,9 @@
     "Description(en)": "الوصف (انجليزي)",
     "Banners": "البنرات",
     "edit": "تعديل",
-    "Link": "الرابط"
+    "Link": "الرابط",
+    "Developer": "المطور",
+    "Google Maps": "خرائط جوجل"
   },
   "types": {
     
@@ -188,7 +190,17 @@
     "Enter area name in English": "أدخل اسم المنطقة باللغة الإنجليزية",
     "Enter area name in Arabic": "أدخل اسم المنطقة باللغة العربية",
     "Enter number of properties": "أدخل عدد العقارات",
-    "Leave empty to keep current image": "اتركه فارغًا للحفاظ على الصورة الحالية"
+    "Leave empty to keep current image": "اتركه فارغًا للحفاظ على الصورة الحالية",
+    "Developer (EN)": "المطور (إنجليزي)",
+    "Developer (AR)": "المطور (عربي)",
+    "Developer (English)": "المطور (إنجليزي)",
+    "Developer (Arabic)": "المطور (عربي)",
+    "Developer": "المطور",
+    "Enter developer name in English": "أدخل اسم المطور باللغة الإنجليزية",
+    "Enter developer name in Arabic": "أدخل اسم المطور باللغة العربية",
+    "Google Maps": "خرائط جوجل",
+    "Enter Google Maps value": "أدخل قيمة خرائط جوجل",
+    "Failed to fetch area details": "فشل في جلب تفاصيل المنطقة"
   },
   "sidebar": {
     "contact": "التواصل",

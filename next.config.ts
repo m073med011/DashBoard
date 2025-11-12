@@ -36,6 +36,9 @@ const nextConfig: NextConfig = {
       {
         hostname: "proplix.shop",
       },
+      {
+        hostname: "www.google.com",
+      },
 
     ],
   },
