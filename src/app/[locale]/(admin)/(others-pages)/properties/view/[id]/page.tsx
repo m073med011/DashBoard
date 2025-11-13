@@ -9,7 +9,7 @@ import {TabButton,LoadingSpinner,NotFoundMessage} from '@/app/[locale]/(admin)/(
 import { MainTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/MainTab';
 import { AmenitiesTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/AmenitiesTab';
 import { FeaturesTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/FeaturesTab';
-import { LocationTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/LocationsTab';
+// import { LocationTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/LocationsTab';
 import { ImagesTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/ImagesTab';
 import { FloorPlanTab } from '@/app/[locale]/(admin)/(others-pages)/properties/components/tabs/FloorPlanTab';
 import { useTranslations } from 'next-intl';
@@ -62,8 +62,8 @@ export default function PropertyDetailsPage() {
         return <AmenitiesTab property={property} refetch={refetch} />;
       case 'features':
         return <FeaturesTab property={property} refetch={refetch} />;
-      case 'locations':
-        return <LocationTab property={property} refetch={refetch} />;
+      // case 'locations':
+      //   return <LocationTab property={property} refetch={refetch} />;
       case 'images':
         return <ImagesTab property={property} refetch={refetch} />;
       case 'floorplan':

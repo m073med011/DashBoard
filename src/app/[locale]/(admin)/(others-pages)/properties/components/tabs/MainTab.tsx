@@ -920,7 +920,7 @@ export const MainTab: React.FC<MainTabProps> = ({
                 </h2>
                 <div className="flex items-center gap-2 text-blue-100 mb-3">
                   <MapPin className="h-4 w-4" />
-                  <span>{property.property_locations[0].location || '-'}</span>
+                  <span>{property?.area?.name|| '-'}</span>
                 </div>
                 <div className="flex items-center gap-6 text-sm">
                   <div className="flex items-center gap-2">
