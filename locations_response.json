@@ -1,0 +1,2108 @@
+[
+  {
+    "project_en": "9 Side",
+    "project_ar": "ناين سايد",
+    "developer_en": "El Mansour Developments",
+    "developer_ar": "المنصور للتطوير",
+    "name_en": "Cairo, Mokattam, Al Hadaba Al Olya, 9 Side",
+    "name_ar": "Cairo, Mokattam, Al Hadaba Al Olya, 9 Side",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Mokattam%2C%20Al%20Hadaba%20Al%20Olya%2C%209%20Side"
+  },
+  {
+    "project_en": "Aden",
+    "project_ar": "ادن",
+    "developer_en": "Orascom Development",
+    "developer_ar": "أوراسكوم للتنمية",
+    "name_en": "Red Sea, Hurghada, Makadi, Makadi Orascom Resort",
+    "name_ar": "البحر الأحمر, الغردقة, مكادي, Makadi Orascom Resort",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Red%20Sea%2C%20Hurghada%2C%20Makadi%2C%20Makadi%20Orascom%20Resort"
+  },
+  {
+    "project_en": "Aeon",
+    "project_ar": "ايون",
+    "developer_en": "MARAKEZ",
+    "developer_ar": "مراكز",
+    "name_en": "Giza, 6 October City, 6 October Compounds, Aeon",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, كمبوندات 6 أكتوبر, Aeon",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%206%20October%20Compounds%2C%20Aeon"
+  },
+  {
+    "project_en": "Al Maqsad Residences",
+    "project_ar": "المقصد ريزيدنسز",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, Al Maqsad",
+    "name_ar": "Cairo, New Capital City, New Capital Compounds, Al Maqsad",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20Al%20Maqsad"
+  },
+  {
+    "project_en": "Aliva",
+    "project_ar": "أليفا",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Aliva",
+    "name_ar": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Aliva",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Mostakbal%20City%20Compounds%2C%20Aliva"
+  },
+  {
+    "project_en": "Alma New Alamein Resort",
+    "project_ar": "ألما العلمين الجديدة",
+    "developer_en": "New Generation Developments (NGD)",
+    "developer_ar": "نيو جنريشن للتطوير",
+    "name_en": "North Coast, Al Alamein, New Alamein City, Alma New Alamein Resort",
+    "name_ar": "North Coast, Al Alamein, New Alamein City, Alma New Alamein Resort",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Al%20Alamein%2C%20New%20Alamein%20City%2C%20Alma%20New%20Alamein%20Resort"
+  },
+  {
+    "project_en": "Ancient Hill",
+    "project_ar": "انشنت هيل",
+    "developer_en": "Orascom Development",
+    "developer_ar": "أوراسكوم للتنمية",
+    "name_en": "Red Sea, Hurghada, El Gouna, Ancient Hill",
+    "name_ar": "البحر الأحمر, الغردقة, الجونة, Ancient Hill",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Red%20Sea%2C%20Hurghada%2C%20El%20Gouna%2C%20Ancient%20Hill"
+  },
+  {
+    "project_en": "Ancient Sands",
+    "project_ar": "انشنت ساندس",
+    "developer_en": "Orascom Development",
+    "developer_ar": "أوراسكوم للتنمية",
+    "name_en": "Red Sea, Hurghada, El Gouna, Ancient Sands Resort",
+    "name_ar": "البحر الأحمر, الغردقة, الجونة, Ancient Sands Resort",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Red%20Sea%2C%20Hurghada%2C%20El%20Gouna%2C%20Ancient%20Sands%20Resort"
+  },
+  {
+    "project_en": "Art Island",
+    "project_ar": "آرت آيلاند",
+    "developer_en": "Orascom Development",
+    "developer_ar": "أوراسكوم للتنمية",
+    "name_en": "Red Sea, Hurghada, El Gouna, Art Island",
+    "name_ar": "البحر الأحمر, الغردقة, الجونة, Art Island",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Red%20Sea%2C%20Hurghada%2C%20El%20Gouna%2C%20Art%20Island"
+  },
+  {
+    "project_en": "Atika",
+    "project_ar": "اتيكا",
+    "developer_en": "New Plan Developments",
+    "developer_ar": "نيو بلان للتطوير",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, Atika",
+    "name_ar": "القاهرة, العاصمة الإدارية الجديدة, New Capital Compounds, Atika",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20Atika"
+  },
+  {
+    "project_en": "Atrio",
+    "project_ar": "اتريو",
+    "developer_en": "IWAN Developments",
+    "developer_ar": "إيوان للتطوير",
+    "name_en": "Giza, Sheikh Zayed City, Sheikh Zayed Compounds, Atrio",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, كمبوندات الشيخ زايد, Atrio",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20Sheikh%20Zayed%20Compounds%2C%20Atrio"
+  },
+  {
+    "project_en": "Avelin",
+    "project_ar": "افيلين",
+    "developer_en": "Times Development",
+    "developer_ar": "تايمز للتطوير",
+    "name_en": "Cairo, New Cairo City, North Investors Area, Avelin",
+    "name_ar": "القاهرة, القاهرة الجديدة, منطقة المستثمرين الشمالية, Avelin",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20North%20Investors%20Area%2C%20Avelin"
+  },
+  {
+    "project_en": "Azha North Coast",
+    "project_ar": "أزهى الساحل الشمالي",
+    "developer_en": "Madaar",
+    "developer_ar": "مدار",
+    "name_en": "North Coast, Ras Al Hekma, Azha North",
+    "name_ar": "North Coast, Ras Al Hekma, Azha North",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20Azha%20North"
+  },
+  {
+    "project_en": "Azha West - New Zayed",
+    "project_ar": "أزهى ويست - نيو زايد",
+    "developer_en": "Madaar",
+    "developer_ar": "مدار",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City, Azha West",
+    "name_ar": "Giza, Sheikh Zayed City, New Zayed City, Azha West",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City%2C%20Azha%20West"
+  },
+  {
+    "project_en": "Azzar",
+    "project_ar": "ازار",
+    "developer_en": "Reedy Group development",
+    "developer_ar": "ريدي جروب للتطوير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Azzar",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الخامس، مجمعات التجمع الخامس، عازر",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+5th+Settlement+5th+Settlement+Compounds+Azzar"
+  },
+  {
+    "project_en": "Azzar Infinity",
+    "project_ar": "ازار إنفينيتي",
+    "developer_en": "Reedy Group development",
+    "developer_ar": "ريدي جروب للتطوير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Azzar",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الخامس، مجمعات التجمع الخامس، عازر",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+5th+Settlement+5th+Settlement+Compounds+Azzar"
+  },
+  {
+    "project_en": "Baroque",
+    "project_ar": "باروك",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, Baroque",
+    "name_ar": "Cairo, New Capital City, New Capital Compounds, Baroque",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20Baroque"
+  },
+  {
+    "project_en": "Beachfront Towers",
+    "project_ar": "بيتش فرونت تاورز",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "North Coast, Al Alamein, New Alamein City, Beachfront Towers",
+    "name_ar": "North Coast, Al Alamein, New Alamein City, Beachfront Towers",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Al%20Alamein%2C%20New%20Alamein%20City%2C%20Beachfront%20Towers"
+  },
+  {
+    "project_en": "Beit Al Bahr",
+    "project_ar": "بيت البحر",
+    "developer_en": "IWAN Developments",
+    "developer_ar": "إيوان للتطوير",
+    "name_en": "North Coast, Sidi Heneish, Beit Al Bahr",
+    "name_ar": "الساحل الشمالي, Sidi Heneish, Beit Al Bahr",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Sidi%20Heneish%2C%20Beit%20Al%20Bahr"
+  },
+  {
+    "project_en": "Belle Vie",
+    "project_ar": "بيل ڤي",
+    "developer_en": "Emaar Misr",
+    "developer_ar": "إعمار مصر",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City, Belle Vie",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, مدينة زايد الجديدة, Belle Vie",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City%2C%20Belle%20Vie"
+  },
+  {
+    "project_en": "Blumar El Sokhna",
+    "project_ar": "بلومار العين السخنة",
+    "developer_en": "Wadi Degla",
+    "developer_ar": "وادي دجلة",
+    "name_en": "Suez, Al Ain Al Sokhna, Blumar",
+    "name_ar": "السويس, العين السخنة, Blumar",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Suez%2C%20Al%20Ain%20Al%20Sokhna%2C%20Blumar"
+  },
+  {
+    "project_en": "Botanica",
+    "project_ar": "بوتانيكا",
+    "developer_en": "New Generation Developments (NGD)",
+    "developer_ar": "نيو جنريشن للتطوير",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, Botanica",
+    "name_ar": "Cairo, New Capital City, New Capital Compounds, Botanica",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20Botanica"
+  },
+  {
+    "project_en": "Caesar",
+    "project_ar": "سيزر",
+    "developer_en": "Sodic",
+    "developer_ar": "سوديك",
+    "name_en": "North Coast, Ras Al Hekma, Caesar Island",
+    "name_ar": "الساحل الشمالي, راس الحكمة, Caesar Island",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20Caesar%20Island"
+  },
+  {
+    "project_en": "Capital Gardens Palm Hills",
+    "project_ar": "كابيتال جاردنز بالم هيلز",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Capital Gardens Palm Hills",
+    "name_ar": "القاهرة, مدينة المستقبل, كمبوندات مدينة المستقبل, Capital Gardens Palm Hills",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Mostakbal%20City%20Compounds%2C%20Capital%20Gardens%20Palm%20Hills"
+  },
+  {
+    "project_en": "Ceaser",
+    "project_ar": "سيزر",
+    "developer_en": "Sodic",
+    "developer_ar": "سوديك",
+    "name_en": "North Coast, Ras Al Hekma, Ceaser",
+    "name_ar": "الساحل الشمالي, راس الحكمة, Ceaser",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20Ceaser"
+  },
+  {
+    "project_en": "Central Park",
+    "project_ar": "سنترال بارك",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Aliva, Central Park",
+    "name_ar": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Aliva, Central Park",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Mostakbal%20City%20Compounds%2C%20Aliva%2C%20Central%20Park"
+  },
+  {
+    "project_en": "Club Park",
+    "project_ar": "كلوب بارك",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Aliva",
+    "name_ar": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Aliva",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Mostakbal%20City%20Compounds%2C%20Aliva"
+  },
+  {
+    "project_en": "Club Town",
+    "project_ar": "كلوب تاون",
+    "developer_en": "Wadi Degla",
+    "developer_ar": "وادي دجلة",
+    "name_en": "Cairo, Hay El Maadi, Zahraa El Maadi, Club Town",
+    "name_ar": "القاهرة, Hay El Maadi, Zahraa El Maadi, Club Town",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20Hay%20El%20Maadi%2C%20Zahraa%20El%20Maadi%2C%20Club%20Town"
+  },
+  {
+    "project_en": "Crescent Walk",
+    "project_ar": "كريسنت ووك",
+    "developer_en": "MARAKEZ",
+    "developer_ar": "مراكز",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Crescent Walk",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, 5th Settlement Compounds, Crescent Walk",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Crescent%20Walk"
+  },
+  {
+    "project_en": "Crysta",
+    "project_ar": "كريستا",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "North Coast, Sidi Abdel Rahman, Crysta Island",
+    "name_ar": "North Coast, Sidi Abdel Rahman, Crysta Island",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Sidi%20Abdel%20Rahman%2C%20Crysta%20Island"
+  },
+  {
+    "project_en": "Crystal Bay",
+    "project_ar": "كريستال باي",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "North Coast, Qesm Marsa Matrouh, Hacienda Heneish",
+    "name_ar": "North Coast, Qesm Marsa Matrouh, Hacienda Heneish",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Qesm%20Marsa%20Matrouh%2C%20Hacienda%20Heneish"
+  },
+  {
+    "project_en": "Cyan",
+    "project_ar": "سيان",
+    "developer_en": "Orascom Development",
+    "developer_ar": "أوراسكوم للتنمية",
+    "name_en": "Red Sea, Hurghada, El Gouna, Cyan",
+    "name_ar": "البحر الأحمر, الغردقة, الجونة, Cyan",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Red%20Sea%2C%20Hurghada%2C%20El%20Gouna%2C%20Cyan"
+  },
+  {
+    "project_en": "District 5",
+    "project_ar": "ديستريكت 5",
+    "developer_en": "MARAKEZ",
+    "developer_ar": "مراكز",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, District 5",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, 5th Settlement Compounds, District 5",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20District%205"
+  },
+  {
+    "project_en": "Down Town",
+    "project_ar": "داون تاون",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "North Coast, Al Alamein, Downtown Marina",
+    "name_ar": "North Coast, Al Alamein, Downtown Marina",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Al%20Alamein%2C%20Downtown%20Marina"
+  },
+  {
+    "project_en": "Downtown Port Said",
+    "project_ar": "داون تاون بورسعيد",
+    "developer_en": "Waterway Developments",
+    "developer_ar": "ووتر واي للتطوير",
+    "name_en": "Port Saeed, Porto Said, Downtown Port Said",
+    "name_ar": "Port Saeed, Porto Said, Downtown Port Said",
+    "google_maps": "https://www.google.com/maps?q=Port%20Saeed%2C%20Porto%20Said%2C%20Downtown%20Port%20Said"
+  },
+  {
+    "project_en": "Eastown",
+    "project_ar": "إيست تاون",
+    "developer_en": "SODIC",
+    "developer_ar": "سوديك",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Eastown",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الخامس، مجمعات التجمع الخامس، إيست تاون",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+5th+Settlement+5th+Settlement+Compounds+Eastown"
+  },
+  {
+    "project_en": "Etapa Compound",
+    "project_ar": "إيتابا كومباوند",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Giza, Sheikh Zayed City, Sheikh Zayed Compounds, Etapa",
+    "name_ar": "Giza, Sheikh Zayed City, Sheikh Zayed Compounds, Etapa",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%20Sheikh%20Zayed%20City%2C%20Sheikh%20Zayed%20Compounds%2C%20Etapa"
+  },
+  {
+    "project_en": "Evia",
+    "project_ar": "إيفيا",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "North Coast, Qesm Ad Dabaah, Evia",
+    "name_ar": "North Coast, Qesm Ad Dabaah, Evia",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Qesm%20Ad%20Dabaah%2C%20Evia"
+  },
+  {
+    "project_en": "Fairways",
+    "project_ar": "فيروايز",
+    "developer_en": "Orascom Development",
+    "developer_ar": "أوراسكوم للتنمية",
+    "name_en": "Red Sea, Hurghada, El Gouna",
+    "name_ar": "البحر الأحمر, الغردقة, الجونة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Red%20Sea%2C%20Hurghada%2C%20El%20Gouna"
+  },
+  {
+    "project_en": "Fields park",
+    "project_ar": "فيلدز بارك",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Aliva",
+    "name_ar": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Aliva",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Mostakbal%20City%20Compounds%2C%20Aliva"
+  },
+  {
+    "project_en": "Gaia Cabanas",
+    "project_ar": "جايا كاباناس",
+    "developer_en": "Melee Development",
+    "developer_ar": "ميلي للتطوير",
+    "name_en": "North Coast, Ras Al Hekma, Gaia",
+    "name_ar": "North Coast, Ras Al Hekma, Gaia",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20Gaia"
+  },
+  {
+    "project_en": "Galleria Moon Valley",
+    "project_ar": "جاليريا مون فالي",
+    "developer_en": "Arabia Holding",
+    "developer_ar": "أرابيا هولدينج",
+    "name_en": "Cairo, New Cairo City, South Investors Area, Galleria Moon Valley",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، منطقة المستثمرين الجنوبية، جاليريا مون فالي",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+South+Investors+Area+Galleria+Moon+Valley"
+  },
+  {
+    "project_en": "Garden City Heights",
+    "project_ar": "جاردن سيتي هايتس",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, New Garden City",
+    "name_ar": "Cairo, New Capital City, New Capital Compounds, New Garden City",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20New%20Garden%20City"
+  },
+  {
+    "project_en": "Garden Lakes",
+    "project_ar": "جاردن ليكس",
+    "developer_en": "Hyde Park Developments",
+    "developer_ar": "هايد بارك للتطوير",
+    "name_en": "Giza, 6 October City, 6 October Compounds, Garden Lakes",
+    "name_ar": "Giza, 6 October City, 6 October Compounds, Garden Lakes",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%206%20October%20City%2C%206%20October%20Compounds%2C%20Garden%20Lakes"
+  },
+  {
+    "project_en": "Garden Residence Hyde Park",
+    "project_ar": "جاردن ريزيدنس هايد بارك",
+    "developer_en": "Hyde Park Developments",
+    "developer_ar": "هايد بارك للتطوير",
+    "name_en": "Cairo, New Cairo City, Hyde Park",
+    "name_ar": "Cairo, New Cairo City, Hyde Park",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20Hyde%20Park"
+  },
+  {
+    "project_en": "Glen",
+    "project_ar": "جلين",
+    "developer_en": "IL Cazar Developments",
+    "developer_ar": "آي إل قصر للتطوير",
+    "name_en": "Cairo, New Cairo City, The 6th Settlement, Glen",
+    "name_ar": "Cairo, New Cairo City, The 6th Settlement, Glen",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%206th%20Settlement%2C%20Glen"
+  },
+  {
+    "project_en": "Go Heliopolis",
+    "project_ar": "جو هليوبوليس",
+    "developer_en": "IL Cazar Developments",
+    "developer_ar": "آي إل قصر للتطوير",
+    "name_en": "Cairo, Nasr City, Masaken Al Mohandesin, Go Heliopolis",
+    "name_ar": "Cairo, Nasr City, Masaken Al Mohandesin, Go Heliopolis",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Nasr%20City%2C%20Masaken%20Al%20Mohandesin%2C%20Go%20Heliopolis"
+  },
+  {
+    "project_en": "Golden Square",
+    "project_ar": "جولدن سكوير",
+    "developer_en": "IL Cazar Developments",
+    "developer_ar": "آي إل قصر للتطوير",
+    "name_en": "Cairo, New Cairo City, Golden Square",
+    "name_ar": "Cairo, New Cairo City, Golden Square",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20Golden%20Square"
+  },
+  {
+    "project_en": "Grand Valleys",
+    "project_ar": "جراند فاليز",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, New Capital City, Mountain View Grand Valley",
+    "name_ar": "Cairo, New Capital City, Mountain View Grand Valley",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Capital%20City%2C%20Mountain%20View%20Grand%20Valley"
+  },
+  {
+    "project_en": "Green Avenue",
+    "project_ar": "جرين أفينيو",
+    "developer_en": "New Jersey Developments",
+    "developer_ar": "نيو جيرسي للتطوير",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, Green Avenue",
+    "name_ar": "القاهرة, العاصمة الإدارية الجديدة, New Capital Compounds, Green Avenue",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20Green%20Avenue"
+  },
+  {
+    "project_en": "Greens Residence",
+    "project_ar": "جرينز ريزيدنس",
+    "developer_en": "Hyde Park Developments",
+    "developer_ar": "هايد بارك للتطوير",
+    "name_en": "Cairo, New Cairo City, Hyde Park",
+    "name_ar": "Cairo, New Cairo City, Hyde Park",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20Hyde%20Park"
+  },
+  {
+    "project_en": "Greenville",
+    "project_ar": "جرينفيل",
+    "developer_en": "PTC Real Estate Development",
+    "developer_ar": "بي تي سي للتطوير العقاري",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, مدينة زايد الجديدة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City"
+  },
+  {
+    "project_en": "Hacienda Blue",
+    "project_ar": "هاسيندا بلو",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "North Coast, Qesm Ad Dabaah",
+    "name_ar": "الساحل الشمالي, قسم الضبعة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Qesm%20Ad%20Dabaah"
+  },
+  {
+    "project_en": "Hacienda Heneish",
+    "project_ar": "هاسيندا حنيش",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "North Coast, Qesm Marsa Matrouh, Hacienda Heneish",
+    "name_ar": "الساحل الشمالي, قسم مرسى مطروح, Hacienda Heneish",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Qesm%20Marsa%20Matrouh%2C%20Hacienda%20Heneish"
+  },
+  {
+    "project_en": "Hacienda Red",
+    "project_ar": "هاسيندا ريد",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "North Coast, Sidi Abdel Rahman, Hacienda Red",
+    "name_ar": "الساحل الشمالي, سيدي عبد الرحمن, Hacienda Red",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Sidi%20Abdel%20Rahman%2C%20Hacienda%20Red"
+  },
+  {
+    "project_en": "Hacienda Waters",
+    "project_ar": "هاسيندا ووترز",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "North Coast, Qesm Ad Dabaah, Hacienda Waters",
+    "name_ar": "الساحل الشمالي, قسم الضبعة, Hacienda Waters",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Qesm%20Ad%20Dabaah%2C%20Hacienda%20Waters"
+  },
+  {
+    "project_en": "Hacienda West",
+    "project_ar": "هاسيندا ويست",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "North Coast, Ras Al Hekma, Hacienda West",
+    "name_ar": "الساحل الشمالي, راس الحكمة, Hacienda West",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20Hacienda%20West"
+  },
+  {
+    "project_en": "Hacienda White",
+    "project_ar": "هاسيندا وايت",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "North Coast, Sidi Abdel Rahman, Hacienda White",
+    "name_ar": "الساحل الشمالي, سيدي عبد الرحمن, Hacienda White",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Sidi%20Abdel%20Rahman%2C%20Hacienda%20White"
+  },
+  {
+    "project_en": "Haptown",
+    "project_ar": "هاب تاون",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, HAP Town",
+    "name_ar": "القاهرة, مدينة المستقبل, كمبوندات مدينة المستقبل, HAP Town",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Mostakbal%20City%20Compounds%2C%20HAP%20Town"
+  },
+  {
+    "project_en": "Hyde Park Central",
+    "project_ar": "هايد بارك سنترال",
+    "developer_en": "Hyde Park Developments",
+    "developer_ar": "هايد بارك للتطوير",
+    "name_en": "Cairo, New Cairo City, The 6th Settlement, Hyde Park Central",
+    "name_ar": "Cairo, New Cairo City, The 6th Settlement, Hyde Park Central",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%206th%20Settlement%2C%20Hyde%20Park%20Central"
+  },
+  {
+    "project_en": "Hyde Park New Cairo",
+    "project_ar": "هايد بارك القاهرة الجديدة",
+    "developer_en": "Hyde Park Developments",
+    "developer_ar": "هايد بارك للتطوير",
+    "name_en": "Cairo, New Cairo City, Hyde Park",
+    "name_ar": "Cairo, New Cairo City, Hyde Park",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20Hyde%20Park"
+  },
+  {
+    "project_en": "Il Latini City Edge",
+    "project_ar": "إل لاتيني",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Alexandria, Il Latini",
+    "name_ar": "Alexandria, Il Latini",
+    "google_maps": "https://www.google.com/maps?q=Alexandria%2C%20Il%20Latini"
+  },
+  {
+    "project_en": "Jade Park",
+    "project_ar": "جيد بارك",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, Jade Park",
+    "name_ar": "Cairo, New Capital City, New Capital Compounds, Jade Park",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20Jade%20Park"
+  },
+  {
+    "project_en": "Jamila",
+    "project_ar": "جميلة",
+    "developer_en": "New Jersey Developments",
+    "developer_ar": "نيو جيرسي للتطوير",
+    "name_en": "North Coast, Sidi Heneish, Jamila",
+    "name_ar": "الساحل الشمالي, Sidi Heneish, Jamila",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Sidi%20Heneish%2C%20Jamila"
+  },
+  {
+    "project_en": "Jeera",
+    "project_ar": "جيرا",
+    "developer_en": "IWAN Developments",
+    "developer_ar": "إيوان للتطوير",
+    "name_en": "Giza, Sheikh Zayed City, 13th District, Jeera",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, 13th District, Jeera",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%2013th%20District%2C%20Jeera"
+  },
+  {
+    "project_en": "Jewar Sheikh Zayed",
+    "project_ar": "جوار الشيخ زايد",
+    "developer_en": "IWAN Developments",
+    "developer_ar": "إيوان للتطوير",
+    "name_en": "Giza, Sheikh Zayed City, 13th District, Jewar",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, 13th District, Jewar",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%2013th%20District%2C%20Jewar"
+  },
+  {
+    "project_en": "Jodran",
+    "project_ar": "جدران",
+    "developer_en": "El Mansour Developments",
+    "developer_ar": "المنصور للتطوير",
+    "name_en": "Cairo, Hay El Maadi, Zahraa El Maadi, Jodran",
+    "name_ar": "Cairo, Hay El Maadi, Zahraa El Maadi, Jodran",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Hay%20El%20Maadi%2C%20Zahraa%20El%20Maadi%2C%20Jodran"
+  },
+  {
+    "project_en": "Jubail Compound",
+    "project_ar": "جبيل",
+    "developer_en": "IWAN Developments",
+    "developer_ar": "إيوان للتطوير",
+    "name_en": "Giza, 6 October City, 26th of July Corridor, Jubail",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, محور 26 يوليو, Jubail",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%2026th%20of%20July%20Corridor%2C%20Jubail"
+  },
+  {
+    "project_en": "June",
+    "project_ar": "جون",
+    "developer_en": "Sodic",
+    "developer_ar": "سوديك",
+    "name_en": "North Coast, Ras Al Hekma, June",
+    "name_ar": "الساحل الشمالي, راس الحكمة, June",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20June"
+  },
+  {
+    "project_en": "Jura El Sokhna",
+    "project_ar": "جورا العين السخنة",
+    "developer_en": "New Jersey Developments",
+    "developer_ar": "نيو جيرسي للتطوير",
+    "name_en": "Not available",
+    "name_ar": "Not available",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Not%20available"
+  },
+  {
+    "project_en": "Kairo",
+    "project_ar": "كايرو",
+    "developer_en": "Waterway Developments",
+    "developer_ar": "ووتر واي للتطوير",
+    "name_en": "Cairo, New Cairo City, Kairo",
+    "name_ar": "Cairo, New Cairo City, Kairo",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20Kairo"
+  },
+  {
+    "project_en": "Kamaran",
+    "project_ar": "كاماران",
+    "developer_en": "Orascom Development",
+    "developer_ar": "أوراسكوم للتنمية",
+    "name_en": "Red Sea, Hurghada, El Gouna, Kamaran",
+    "name_ar": "البحر الأحمر, الغردقة, الجونة, Kamaran",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Red%20Sea%2C%20Hurghada%2C%20El%20Gouna%2C%20Kamaran"
+  },
+  {
+    "project_en": "Karmell",
+    "project_ar": "كارميل",
+    "developer_en": "Sodic",
+    "developer_ar": "سوديك",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City, Karmell",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, مدينة زايد الجديدة, Karmell",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City%2C%20Karmell"
+  },
+  {
+    "project_en": "Katameya Dunes",
+    "project_ar": "قطامية ديونز",
+    "developer_en": "El Katameya Compounds",
+    "developer_ar": "مجمعات القطامية",
+    "name_en": "Cairo, New Cairo City, El Katameya, El Katameya Compounds, Katameya Dunes",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، القطامية، مجمعات القطامية، كتاميا ديونز",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+El+Katameya+El+Katameya+Compounds+Katameya+Dunes"
+  },
+  {
+    "project_en": "Katameya Heights",
+    "project_ar": "قطامية هايتس",
+    "developer_en": "El Katameya Compounds",
+    "developer_ar": "مجمعات القطامية",
+    "name_en": "Cairo, New Cairo City, El Katameya, El Katameya Compounds, Katameya Heights",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، القطامية، مجمعات القطامية، كتاميا هايتس",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+El+Katameya+El+Katameya+Compounds+Katameya+Heights"
+  },
+  {
+    "project_en": "Keys 52",
+    "project_ar": "كيز 52",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, New Cairo City",
+    "name_ar": "القاهرة, القاهرة الجديدة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City"
+  },
+  {
+    "project_en": "Kings Way",
+    "project_ar": "كينغز واي",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Giza, 6 October City, Green Belt, Boulevard Road, Kingsway",
+    "name_ar": "Giza, 6 October City, Green Belt, Boulevard Road, Kingsway",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%206%20October%20City%2C%20Green%20Belt%2C%20Boulevard%20Road%2C%20Kingsway"
+  },
+  {
+    "project_en": "Kinz New Zayed",
+    "project_ar": "كنز نيو زايد",
+    "developer_en": "Madaar",
+    "developer_ar": "مدار",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City",
+    "name_ar": "Giza, Sheikh Zayed City, New Zayed City",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City"
+  },
+  {
+    "project_en": "L'Hiver New Alamein",
+    "project_ar": "لوهيفر العلمين الجديدة",
+    "developer_en": "New Generation Developments (NGD)",
+    "developer_ar": "نيو جنريشن للتطوير",
+    "name_en": "North Coast, Al Alamein, New Alamein City, L'Hiver New Alamein",
+    "name_ar": "North Coast, Al Alamein, New Alamein City, L'Hiver New Alamein",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Al%20Alamein%2C%20New%20Alamein%20City%2C%20L%27Hiver%20New%20Alamein"
+  },
+  {
+    "project_en": "LVLS Mountain View",
+    "project_ar": "ليفلز ماونتن فيو",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "North Coast, Qesm Ad Dabaah, LVLS By Mountain View",
+    "name_ar": "North Coast, Qesm Ad Dabaah, LVLS By Mountain View",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Qesm%20Ad%20Dabaah%2C%20LVLS%20By%20Mountain%20View"
+  },
+  {
+    "project_en": "Lagoon Beach Park",
+    "project_ar": "لاجون بيتش بارك",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Lagoon Beach Park",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Lagoon Beach Park",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Lagoon%20Beach%20Park"
+  },
+  {
+    "project_en": "Laguna Bay",
+    "project_ar": "لاجونا باي",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Suez, Al Ain Al Sokhna, Laguna Bay",
+    "name_ar": "Suez, Al Ain Al Sokhna, Laguna Bay",
+    "google_maps": "https://www.google.com/maps?q=Suez%2C%20Al%20Ain%20Al%20Sokhna%2C%20Laguna%20Bay"
+  },
+  {
+    "project_en": "Lake View Boutique Villas",
+    "project_ar": "ليك فيو بوتيك فيلاز",
+    "developer_en": "Not available",
+    "developer_ar": "غير متوفر",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, The Lakeview Boutique Villas",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الخامس، مجمعات التجمع الخامس، ليك فيو بوتيك فيلاز",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+5th+Settlement+5th+Settlement+Compounds+The+Lakeview+Boutique+Villas"
+  },
+  {
+    "project_en": "Lake View Residence",
+    "project_ar": "ليك فيو ريزيدنس",
+    "developer_en": "Not available",
+    "developer_ar": "غير متوفر",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Lake View Residence",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الخامس، مجمعات التجمع الخامس، ليك فيو ريزيدنس",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+5th+Settlement+5th+Settlement+Compounds+Lake+View+Residence"
+  },
+  {
+    "project_en": "Lake View Residence 2",
+    "project_ar": "ليك فيو ريزيدنس 2",
+    "developer_en": "Not available",
+    "developer_ar": "غير متوفر",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Lake View Residence 2",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الخامس، مجمعات التجمع الخامس، ليك فيو ريزيدنس 2",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+5th+Settlement+5th+Settlement+Compounds+Lake+View+Residence+2"
+  },
+  {
+    "project_en": "Latin City",
+    "project_ar": "الحي اللاتيني",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "North Coast, Al Alamein, New Alamein City, Latin District",
+    "name_ar": "North Coast, Al Alamein, New Alamein City, Latin District",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Al%20Alamein%2C%20New%20Alamein%20City%2C%20Latin%20District"
+  },
+  {
+    "project_en": "Layan Residence",
+    "project_ar": "لايان ريزيدنس",
+    "developer_en": "Manazel Developments",
+    "developer_ar": "منازل للتطوير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Layan Residence",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الخامس، مجمعات التجمع الخامس، لايان ريزيدنس",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+5th+Settlement+5th+Settlement+Compounds+Layan+Residence"
+  },
+  {
+    "project_en": "Les Rois Compound",
+    "project_ar": "لي روا",
+    "developer_en": "Housing & Development Co.",
+    "developer_ar": "شركة الإسكان والتعمير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Les Rois",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, 5th Settlement Compounds, Les Rois",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Les%20Rois"
+  },
+  {
+    "project_en": "Little Venice",
+    "project_ar": "ليتل فينيس",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Suez, Al Ain Al Sokhna, Jaz Little Venice Golf",
+    "name_ar": "السويس, العين السخنة, Jaz Little Venice Golf",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Suez%2C%20Al%20Ain%20Al%20Sokhna%2C%20Jaz%20Little%20Venice%20Golf"
+  },
+  {
+    "project_en": "Lunas",
+    "project_ar": "لوناس",
+    "developer_en": "Madaar",
+    "developer_ar": "مدار",
+    "name_en": "North Coast, Ras Al Hekma, Azha North",
+    "name_ar": "North Coast, Ras Al Hekma, Azha North",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20Azha%20North"
+  },
+  {
+    "project_en": "Madinaty",
+    "project_ar": "مدينتي",
+    "developer_en": "Talaat Moustafa Group",
+    "developer_ar": "مجموعة طلعت مصطفى",
+    "name_en": "Cairo, Madinaty",
+    "name_ar": "Cairo, Madinaty",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Madinaty"
+  },
+  {
+    "project_en": "Majada",
+    "project_ar": "ماجادا",
+    "developer_en": "IWAN Developments",
+    "developer_ar": "إيوان للتطوير",
+    "name_en": "Suez, Al Ain Al Sokhna, Majada",
+    "name_ar": "السويس, العين السخنة, Majada",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Suez%2C%20Al%20Ain%20Al%20Sokhna%2C%20Majada"
+  },
+  {
+    "project_en": "Makadi Heights",
+    "project_ar": "مكادي هايتس",
+    "developer_en": "Orascom Development",
+    "developer_ar": "أوراسكوم للتنمية",
+    "name_en": "Red Sea, Hurghada, Makadi, Makadi Orascom Resort, Makadi Heights",
+    "name_ar": "البحر الأحمر, الغردقة, مكادي, Makadi Orascom Resort, Makadi Heights",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Red%20Sea%2C%20Hurghada%2C%20Makadi%2C%20Makadi%20Orascom%20Resort%2C%20Makadi%20Heights"
+  },
+  {
+    "project_en": "Makany",
+    "project_ar": "مكانى",
+    "developer_en": "El Mansour Developments",
+    "developer_ar": "المنصور للتطوير",
+    "name_en": "Cairo, New Cairo City, El Katameya, El Katameya Compounds, Makany",
+    "name_ar": "Cairo, New Cairo City, El Katameya, El Katameya Compounds, Makany",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20El%20Katameya%2C%20El%20Katameya%20Compounds%2C%20Makany"
+  },
+  {
+    "project_en": "Mamsha Avenue",
+    "project_ar": "ممشى أفنيو",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, Mamsha Avenue",
+    "name_ar": "Cairo, New Capital City, New Capital Compounds, Mamsha Avenue",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20Mamsha%20Avenue"
+  },
+  {
+    "project_en": "Mamsha Gardens",
+    "project_ar": "ممشى جاردنز",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Cairo, New Capital City, Mamsha Gardens",
+    "name_ar": "Cairo, New Capital City, Mamsha Gardens",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Capital%20City%2C%20Mamsha%20Gardens"
+  },
+  {
+    "project_en": "Mamsha Views",
+    "project_ar": "ممشى فيوز",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Cairo, New Capital City, Mamsha Views",
+    "name_ar": "Cairo, New Capital City, Mamsha Views",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Capital%20City%2C%20Mamsha%20Views"
+  },
+  {
+    "project_en": "Mamsha Vista",
+    "project_ar": "ممشى فيستا",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Cairo, New Capital City, Mamsha Vista",
+    "name_ar": "Cairo, New Capital City, Mamsha Vista",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Capital%20City%2C%20Mamsha%20Vista"
+  },
+  {
+    "project_en": "Marina Wadi Degla",
+    "project_ar": "مارينا وادي دجلة",
+    "developer_en": "Wadi Degla",
+    "developer_ar": "وادي دجلة",
+    "name_en": "Suez, Al Ain Al Sokhna, Marina Wadi Degla",
+    "name_ar": "السويس, العين السخنة, Marina Wadi Degla",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Suez%2C%20Al%20Ain%20Al%20Sokhna%2C%20Marina%20Wadi%20Degla"
+  },
+  {
+    "project_en": "Mazarine New Alamein",
+    "project_ar": "مازيرين العلمين الجديدة",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "North Coast, Al Alamein, New Alamein City, Mazarine",
+    "name_ar": "North Coast, Al Alamein, New Alamein City, Mazarine",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Al%20Alamein%2C%20New%20Alamein%20City%2C%20Mazarine"
+  },
+  {
+    "project_en": "Midtown East",
+    "project_ar": "ميدتاون إيست",
+    "developer_en": "Better Home Development",
+    "developer_ar": "بيتر هوم للتطوير",
+    "name_en": "Cairo, New Cairo City, The 6th Settlement",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع السادس",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%206th%20Settlement"
+  },
+  {
+    "project_en": "Midtown Sky New Capital",
+    "project_ar": "ميدتاون سكاي",
+    "developer_en": "Better Home Development",
+    "developer_ar": "بيتر هوم للتطوير",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, Midtown Sky",
+    "name_ar": "القاهرة, العاصمة الإدارية الجديدة, New Capital Compounds, Midtown Sky",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20Midtown%20Sky"
+  },
+  {
+    "project_en": "Midtown West",
+    "project_ar": "ميدتاون ويست",
+    "developer_en": "Better Home Development",
+    "developer_ar": "بيتر هوم للتطوير",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City, Midtown West",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, مدينة زايد الجديدة, Midtown West",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City%2C%20Midtown%20West"
+  },
+  {
+    "project_en": "Mivida",
+    "project_ar": "ميفيدا",
+    "developer_en": "Emaar Misr",
+    "developer_ar": "إعمار مصر",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mivida",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الخامس، مجمعات التجمع الخامس، ميفيدا",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+5th+Settlement+5th+Settlement+Compounds+Mivida"
+  },
+  {
+    "project_en": "Mouj",
+    "project_ar": "موج",
+    "developer_en": "Pledge Development",
+    "developer_ar": "بليدج للتطوير",
+    "name_en": "North Coast",
+    "name_ar": "الساحل الشمالي",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast"
+  },
+  {
+    "project_en": "Mountain View 1.1",
+    "project_ar": "ماونتن فيو 1.1",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View 1.1",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View 1.1",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Mountain%20View%201.1"
+  },
+  {
+    "project_en": "Mountain View 2",
+    "project_ar": "ماونتن فيو 2",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View 2",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View 2",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Mountain%20View%202"
+  },
+  {
+    "project_en": "Mountain View 3",
+    "project_ar": "ماونتن فيو 3",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View 3",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View 3",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Mountain%20View%203"
+  },
+  {
+    "project_en": "Mountain View 4",
+    "project_ar": "ماونتن فيو 4",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Giza, 6 October City, 6 October Compounds, Mountain View 4",
+    "name_ar": "Giza, 6 October City, 6 October Compounds, Mountain View 4",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%206%20October%20City%2C%206%20October%20Compounds%2C%20Mountain%20View%204"
+  },
+  {
+    "project_en": "Mountain View Chillout Park",
+    "project_ar": "ماونتن فيو تشيل أوت بارك",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Giza, 6 October City, Northern Expansions, Mountain View Chill Out Park",
+    "name_ar": "Giza, 6 October City, Northern Expansions, Mountain View Chill Out Park",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%206%20October%20City%2C%20Northern%20Expansions%2C%20Mountain%20View%20Chill%20Out%20Park"
+  },
+  {
+    "project_en": "Mountain View El Sokhna 2",
+    "project_ar": "ماونتن فيو العين السخنة 2",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Suez, Al Ain Al Sokhna, Mountain view, Mountain View Al Sokhna 2",
+    "name_ar": "Suez, Al Ain Al Sokhna, Mountain view, Mountain View Al Sokhna 2",
+    "google_maps": "https://www.google.com/maps?q=Suez%2C%20Al%20Ain%20Al%20Sokhna%2C%20Mountain%20view%2C%20Mountain%20View%20Al%20Sokhna%202"
+  },
+  {
+    "project_en": "Mountain View Hyde Park",
+    "project_ar": "ماونتن فيو هايد بارك",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View Hyde Park",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View Hyde Park",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Mountain%20View%20Hyde%20Park"
+  },
+  {
+    "project_en": "Mountain View ICity New Cairo",
+    "project_ar": "ماونتن فيو اي سيتي القاهرة الجديدة",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View iCity",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View iCity",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Mountain%20View%20iCity"
+  },
+  {
+    "project_en": "Mountain View October Park",
+    "project_ar": "ماونتن فيو أكتوبر بارك",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Giza, 6 October City, 6th District, Mountain View October Park",
+    "name_ar": "Giza, 6 October City, 6th District, Mountain View October Park",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%206%20October%20City%2C%206th%20District%2C%20Mountain%20View%20October%20Park"
+  },
+  {
+    "project_en": "Mountain View iCity October",
+    "project_ar": "ماونتن فيو آي سيتي أكتوبر",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Giza, 6 October City, 6 October Compounds, Mountain View iCity October",
+    "name_ar": "Giza, 6 October City, 6 October Compounds, Mountain View iCity October",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%206%20October%20City%2C%206%20October%20Compounds%2C%20Mountain%20View%20iCity%20October"
+  },
+  {
+    "project_en": "Murano Wadi Degla",
+    "project_ar": "مورانو وادي دجلة",
+    "developer_en": "Wadi Degla",
+    "developer_ar": "وادي دجلة",
+    "name_en": "Suez, Al Ain Al Sokhna, Murano Wadi Degla",
+    "name_ar": "السويس, العين السخنة, Murano Wadi Degla",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Suez%2C%20Al%20Ain%20Al%20Sokhna%2C%20Murano%20Wadi%20Degla"
+  },
+  {
+    "project_en": "Nmq",
+    "project_ar": "إن إم كيو",
+    "developer_en": "Melee Development",
+    "developer_ar": "ميلي للتطوير",
+    "name_en": "Giza, 6 October City, 26th of July Corridor, NMQ",
+    "name_ar": "Giza, 6 October City, 26th of July Corridor, NMQ",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%206%20October%20City%2C%2026th%20of%20July%20Corridor%2C%20NMQ"
+  },
+  {
+    "project_en": "Noor City",
+    "project_ar": "نور سيتي",
+    "developer_en": "Talaat Moustafa Group",
+    "developer_ar": "مجموعة طلعت مصطفى",
+    "name_en": "Cairo, Noor City",
+    "name_ar": "Cairo, Noor City",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Noor%20City"
+  },
+  {
+    "project_en": "Nord",
+    "project_ar": "نورد",
+    "developer_en": "IL Cazar Developments",
+    "developer_ar": "آي إل قصر للتطوير",
+    "name_en": "North Coast, Al Alamein, Nord",
+    "name_ar": "North Coast, Al Alamein, Nord",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Al%20Alamein%2C%20Nord"
+  },
+  {
+    "project_en": "North Edge Towers",
+    "project_ar": "نورث إيدج تاورز",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "North Coast, Al Alamein, New Alamein City, North Edge Towers",
+    "name_ar": "North Coast, Al Alamein, New Alamein City, North Edge Towers",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Al%20Alamein%2C%20New%20Alamein%20City%2C%20North%20Edge%20Towers"
+  },
+  {
+    "project_en": "Nyoum Assiut",
+    "project_ar": "نيوم أسيوط",
+    "developer_en": "Arab Developers Holding",
+    "developer_ar": "عرب ديفلوبرز القابضة",
+    "name_en": "Asyut, Nyoum Asyut",
+    "name_ar": "أسيوط, Nyoum Asyut",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Asyut%2C%20Nyoum%20Asyut"
+  },
+  {
+    "project_en": "Nyoum Mostakbal City",
+    "project_ar": "نيوم مدينة المستقبل",
+    "developer_en": "Arab Developers Holding",
+    "developer_ar": "عرب ديفلوبرز القابضة",
+    "name_en": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Nyoum Mostakbal",
+    "name_ar": "القاهرة, مدينة المستقبل, كمبوندات مدينة المستقبل, Nyoum Mostakbal",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Mostakbal%20City%20Compounds%2C%20Nyoum%20Mostakbal"
+  },
+  {
+    "project_en": "Nyoum October",
+    "project_ar": "نيوم أكتوبر",
+    "developer_en": "Arab Developers Holding",
+    "developer_ar": "عرب ديفلوبرز القابضة",
+    "name_en": "Giza, 6 October City, Northern Expansions, Nyoum October",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, الامتدادات الشمالية, Nyoum October",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%20Northern%20Expansions%2C%20Nyoum%20October"
+  },
+  {
+    "project_en": "Nyoum Pyramids",
+    "project_ar": "نيوم الأهرامات",
+    "developer_en": "Arab Developers Holding",
+    "developer_ar": "عرب ديفلوبرز القابضة",
+    "name_en": "Giza, 6 October City, Cairo Alexandria Desert Road, Nyoum Pyramids",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, طريق القاهرة الإسكندرية الصحراوي, Nyoum Pyramids",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%20Cairo%20Alexandria%20Desert%20Road%2C%20Nyoum%20Pyramids"
+  },
+  {
+    "project_en": "Ogami Ras El Hekma",
+    "project_ar": "أوجامي رأس الحكمة",
+    "developer_en": "Sodic",
+    "developer_ar": "سوديك",
+    "name_en": "North Coast, Ras Al Hekma, Ogami",
+    "name_ar": "الساحل الشمالي, راس الحكمة, Ogami",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20Ogami"
+  },
+  {
+    "project_en": "PK1 - Palm Hills Kattameya",
+    "project_ar": "بي كيه 1 - بالم هيلز قطامية",
+    "developer_en": "Palm Hills Developments",
+    "developer_ar": "بالم هيلز للتطوير",
+    "name_en": "Cairo, New Cairo City, El Katameya, El Katameya Compounds, Palm Hills Kattameya",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، القطامية، مجمعات القطامية، بالم هيلز كتاميا",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+El+Katameya+El+Katameya+Compounds+Palm+Hills+Kattameya"
+  },
+  {
+    "project_en": "PK2 - Palm Hills Kattameya",
+    "project_ar": "بي كيه 2 - بالم هيلز قطامية",
+    "developer_en": "Palm Hills Developments",
+    "developer_ar": "بالم هيلز للتطوير",
+    "name_en": "Cairo, New Cairo City, El Katameya, El Katameya Compounds, Palm Hills Kattameya",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، القطامية، مجمعات القطامية، بالم هيلز كتاميا",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+El+Katameya+El+Katameya+Compounds+Palm+Hills+Kattameya"
+  },
+  {
+    "project_en": "PX",
+    "project_ar": "بي إكس",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Giza, 6 October City, 6 October Compounds, PX Palm Hills",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, كمبوندات 6 أكتوبر, PX Palm Hills",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%206%20October%20Compounds%2C%20PX%20Palm%20Hills"
+  },
+  {
+    "project_en": "Palm Hills Alexandria",
+    "project_ar": "بالم هيلز الإسكندرية",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Alexandria, Alexandria Compounds, Palm Hills",
+    "name_ar": "الإسكندرية, Alexandria Compounds, Palm Hills",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Alexandria%2C%20Alexandria%20Compounds%2C%20Palm%20Hills"
+  },
+  {
+    "project_en": "Palm Hills Golf Extension",
+    "project_ar": "بالم هيلز جولف إكستنشن",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Giza, 6 October City, Al Wahat Road, Palm Hills Golf Extension",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, Al Wahat Road, Palm Hills Golf Extension",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%20Al%20Wahat%20Road%2C%20Palm%20Hills%20Golf%20Extension"
+  },
+  {
+    "project_en": "Palm Hills Golf Views",
+    "project_ar": "بالم هيلز جولف فيوز",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Giza, 6 October City, Cairo Alexandria Desert Road, Palm Hills Golf Views",
+    "name_ar": "Giza, 6 October City, Cairo Alexandria Desert Road, Palm Hills Golf Views",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%206%20October%20City%2C%20Cairo%20Alexandria%20Desert%20Road%2C%20Palm%20Hills%20Golf%20Views"
+  },
+  {
+    "project_en": "Palm Hills New Alamein City",
+    "project_ar": "بالم هيلز العلمين الجديدة",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "North Coast, Al Alamein, New Alamein City, Palm Hills New Alamein",
+    "name_ar": "الساحل الشمالي, العلمين, New Alamein City, Palm Hills New Alamein",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Al%20Alamein%2C%20New%20Alamein%20City%2C%20Palm%20Hills%20New%20Alamein"
+  },
+  {
+    "project_en": "Palm Hills New Cairo",
+    "project_ar": "بالم هيلز القاهرة الجديدة",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Palm Hills New Cairo",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, 5th Settlement Compounds, Palm Hills New Cairo",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Palm%20Hills%20New%20Cairo"
+  },
+  {
+    "project_en": "Palm Hills Phase 3",
+    "project_ar": "بالم هيلز المرحلة 3",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Palm Hills New Cairo",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Palm Hills New Cairo",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Palm%20Hills%20New%20Cairo"
+  },
+  {
+    "project_en": "Palm Hills Phase 4",
+    "project_ar": "بالم هيلز المرحلة 4",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Palm Hills New Cairo",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Palm Hills New Cairo",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Palm%20Hills%20New%20Cairo"
+  },
+  {
+    "project_en": "Palm Hills Phase 5",
+    "project_ar": "بالم هيلز المرحلة 5",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Palm Hills New Cairo",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Palm Hills New Cairo",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Palm%20Hills%20New%20Cairo"
+  },
+  {
+    "project_en": "Palm Parks",
+    "project_ar": "بالم باركس",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Giza, 6 October City, South Dahshur Link, Palm Parks Palm Hills",
+    "name_ar": "Giza, 6 October City, South Dahshur Link, Palm Parks Palm Hills",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%206%20October%20City%2C%20South%20Dahshur%20Link%2C%20Palm%20Parks%20Palm%20Hills"
+  },
+  {
+    "project_en": "Park Central",
+    "project_ar": "بارك سنترال",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Park Central",
+    "name_ar": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Park Central",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Mostakbal%20City%20Compounds%2C%20Park%20Central"
+  },
+  {
+    "project_en": "Park View Haptown",
+    "project_ar": "بارك فيو هابتاون",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, Mostakbal City - Future City, Park View Haptown",
+    "name_ar": "Cairo, Mostakbal City - Future City, Park View Haptown",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Park%20View%20Haptown"
+  },
+  {
+    "project_en": "Parkway Residence - Hyde Park",
+    "project_ar": "باركواي ريزيدنس - هايد بارك",
+    "developer_en": "Hyde Park Developments",
+    "developer_ar": "هايد بارك للتطوير",
+    "name_en": "Cairo, New Cairo City, Hyde Park",
+    "name_ar": "Cairo, New Cairo City, Hyde Park",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20Hyde%20Park"
+  },
+  {
+    "project_en": "Parsley",
+    "project_ar": "بارسلي",
+    "developer_en": "Ora Developers",
+    "developer_ar": "أورا للتطوير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Zed East",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, 5th Settlement Compounds, Zed East",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Zed%20East"
+  },
+  {
+    "project_en": "Phia Il Monte Galala",
+    "project_ar": "فيا المونتي جلالة",
+    "developer_en": "Tatweer Misr",
+    "developer_ar": "تطوير مصر",
+    "name_en": "Suez, Al Ain Al Sokhna, IL Monte Galala",
+    "name_ar": "السويس, العين السخنة, IL Monte Galala",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Suez%2C%20Al%20Ain%20Al%20Sokhna%2C%20IL%20Monte%20Galala"
+  },
+  {
+    "project_en": "Phoenix Swan Lake Residences",
+    "project_ar": "فينيكس سوان ليك ريزيدنسز",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, New Cairo City, Swan Lake Residence",
+    "name_ar": "Cairo, New Cairo City, Swan Lake Residence",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20Swan%20Lake%20Residence"
+  },
+  {
+    "project_en": "Phoenix Swan Lake Residences",
+    "project_ar": "فينيكس سوان ليك ريزيدنسز",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, New Cairo City, Swan Lake Residence",
+    "name_ar": "Cairo, New Cairo City, Swan Lake Residence",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20Swan%20Lake%20Residence"
+  },
+  {
+    "project_en": "Plage",
+    "project_ar": "بلاج",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "North Coast, Sidi Abdel Rahman, Plage",
+    "name_ar": "North Coast, Sidi Abdel Rahman, Plage",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Sidi%20Abdel%20Rahman%2C%20Plage"
+  },
+  {
+    "project_en": "Privado",
+    "project_ar": "بريفادو",
+    "developer_en": "Talaat Moustafa Group",
+    "developer_ar": "مجموعة طلعت مصطفى",
+    "name_en": "Cairo, Madinaty, Privado",
+    "name_ar": "Cairo, Madinaty, Privado",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Madinaty%2C%20Privado"
+  },
+  {
+    "project_en": "Promenade New Cairo",
+    "project_ar": "بروميناد القاهرة الجديدة",
+    "developer_en": "Wadi Degla",
+    "developer_ar": "وادي دجلة",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Promenade New Cairo",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, 5th Settlement Compounds, Promenade New Cairo",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Promenade%20New%20Cairo"
+  },
+  {
+    "project_en": "Pyramids Hills",
+    "project_ar": "بيراميدز هيلز",
+    "developer_en": "Ora Developers",
+    "developer_ar": "أورا للتطوير",
+    "name_en": "Giza, 6 October City, Cairo Alexandria Desert Road, Pyramids Hills",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, طريق القاهرة الإسكندرية الصحراوي, Pyramids Hills",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%20Cairo%20Alexandria%20Desert%20Road%2C%20Pyramids%20Hills"
+  },
+  {
+    "project_en": "Ramla",
+    "project_ar": "راملا",
+    "developer_en": "MARAKEZ",
+    "developer_ar": "مراكز",
+    "name_en": "North Coast, Ras Al Hekma, Ramla",
+    "name_ar": "الساحل الشمالي, راس الحكمة, Ramla",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20Ramla"
+  },
+  {
+    "project_en": "Rivers",
+    "project_ar": "ريفيرز",
+    "developer_en": "Tatweer Misr",
+    "developer_ar": "تطوير مصر",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City, Rivers",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, مدينة زايد الجديدة, Rivers",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City%2C%20Rivers"
+  },
+  {
+    "project_en": "Rivers Park - Aliva",
+    "project_ar": "ريفرز بارك - أليفا",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Aliva",
+    "name_ar": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Aliva",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Mostakbal%20City%20Compounds%2C%20Aliva"
+  },
+  {
+    "project_en": "Rivette - Amwaj",
+    "project_ar": "ريفِت - أمواج",
+    "developer_en": "Melee Development",
+    "developer_ar": "ميلي للتطوير",
+    "name_en": "North Coast, Sidi Abdel Rahman, Amwaj",
+    "name_ar": "North Coast, Sidi Abdel Rahman, Amwaj",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Sidi%20Abdel%20Rahman%2C%20Amwaj"
+  },
+  {
+    "project_en": "SQ1 New Cairo",
+    "project_ar": "إس كيو 1 القاهرة الجديدة",
+    "developer_en": "Housing & Development Co.",
+    "developer_ar": "شركة الإسكان والتعمير",
+    "name_en": "Cairo, New Cairo City",
+    "name_ar": "القاهرة, القاهرة الجديدة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City"
+  },
+  {
+    "project_en": "Safia Ras El Hekma",
+    "project_ar": "سافيا رأس الحكمة",
+    "developer_en": "IL Cazar Developments",
+    "developer_ar": "آي إل قصر للتطوير",
+    "name_en": "North Coast, Ras El Hekma, Safia",
+    "name_ar": "North Coast, Ras El Hekma, Safia",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Ras%20El%20Hekma%2C%20Safia"
+  },
+  {
+    "project_en": "Salt",
+    "project_ar": "سالت",
+    "developer_en": "Tatweer Misr",
+    "developer_ar": "تطوير مصر",
+    "name_en": "North Coast, Ras Al Hekma, Salt",
+    "name_ar": "الساحل الشمالي, راس الحكمة, Salt",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20Salt"
+  },
+  {
+    "project_en": "Sarayat El Katameya",
+    "project_ar": "سرايات القطامية",
+    "developer_en": "El Mansour Developments",
+    "developer_ar": "المنصور للتطوير",
+    "name_en": "Cairo, New Cairo City, El Katameya, El Katameya Compounds, Sarayat El-Kattameya",
+    "name_ar": "Cairo, New Cairo City, El Katameya, El Katameya Compounds, Sarayat El-Kattameya",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20El%20Katameya%2C%20El%20Katameya%20Compounds%2C%20Sarayat%20El-Kattameya"
+  },
+  {
+    "project_en": "Scenes",
+    "project_ar": "سينز",
+    "developer_en": "Tatweer Misr",
+    "developer_ar": "تطوير مصر",
+    "name_en": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Scenes",
+    "name_ar": "القاهرة, مدينة المستقبل, كمبوندات مدينة المستقبل, Scenes",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Mostakbal%20City%20Compounds%2C%20Scenes"
+  },
+  {
+    "project_en": "Seashore",
+    "project_ar": "سي شور",
+    "developer_en": "Hyde Park Developments",
+    "developer_ar": "هايد بارك للتطوير",
+    "name_en": "North Coast, Ras Al Hekma, Seashore",
+    "name_ar": "North Coast, Ras Al Hekma, Seashore",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20Seashore"
+  },
+  {
+    "project_en": "Serrano",
+    "project_ar": "سيرانو",
+    "developer_en": "New Plan Developments",
+    "developer_ar": "نيو بلان للتطوير",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, Serrano",
+    "name_ar": "القاهرة, العاصمة الإدارية الجديدة, New Capital Compounds, Serrano",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20Serrano"
+  },
+  {
+    "project_en": "Shedwan",
+    "project_ar": "شدوان",
+    "developer_en": "Orascom Development",
+    "developer_ar": "أوراسكوم للتنمية",
+    "name_en": "Red Sea, Hurghada, El Gouna, Shedwan Resort",
+    "name_ar": "البحر الأحمر, الغردقة, الجونة, Shedwan Resort",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Red%20Sea%2C%20Hurghada%2C%20El%20Gouna%2C%20Shedwan%20Resort"
+  },
+  {
+    "project_en": "Sia Lagoon",
+    "project_ar": "سيا لاجون",
+    "developer_en": "Arab Developers Holding",
+    "developer_ar": "عرب ديفلوبرز القابضة",
+    "name_en": "North Coast, Al Alamein, Sia Lagoon",
+    "name_ar": "الساحل الشمالي, العلمين, Sia Lagoon",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Al%20Alamein%2C%20Sia%20Lagoon"
+  },
+  {
+    "project_en": "Silversands North Coast",
+    "project_ar": "سيلفر ساندز الساحل الشمالي",
+    "developer_en": "Ora Developers",
+    "developer_ar": "أورا للتطوير",
+    "name_en": "North Coast, Qesm Marsa Matrouh, Silver Sands",
+    "name_ar": "الساحل الشمالي, قسم مرسى مطروح, Silver Sands",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Qesm%20Marsa%20Matrouh%2C%20Silver%20Sands"
+  },
+  {
+    "project_en": "Six West",
+    "project_ar": "سيكس ويست",
+    "developer_en": "Sodic",
+    "developer_ar": "سوديك",
+    "name_en": "Giza, Sheikh Zayed City, Sheikh Zayed Compounds, Beverly Hills, Six West",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, كمبوندات الشيخ زايد, Beverly Hills, Six West",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20Sheikh%20Zayed%20Compounds%2C%20Beverly%20Hills%2C%20Six%20West"
+  },
+  {
+    "project_en": "Skala",
+    "project_ar": "سكالا",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "North Coast, North Coast Resorts, Skala Mountain View Ras El Hikma",
+    "name_ar": "North Coast, North Coast Resorts, Skala Mountain View Ras El Hikma",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20North%20Coast%20Resorts%2C%20Skala%20Mountain%20View%20Ras%20El%20Hikma"
+  },
+  {
+    "project_en": "Sodic East",
+    "project_ar": "سوديك إيست",
+    "developer_en": "Sodic",
+    "developer_ar": "سوديك",
+    "name_en": "Cairo, New Heliopolis, 6th District, Sodic East",
+    "name_ar": "القاهرة, القاهرة الجديدة هليوبوليس, 6th District, Sodic East",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Heliopolis%2C%206th%20District%2C%20Sodic%20East"
+  },
+  {
+    "project_en": "Solana",
+    "project_ar": "سولانا",
+    "developer_en": "Ora Developers",
+    "developer_ar": "أورا للتطوير",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City, Solana",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, مدينة زايد الجديدة, Solana",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City%2C%20Solana"
+  },
+  {
+    "project_en": "Solana East",
+    "project_ar": "سولانا إيست",
+    "developer_en": "Ora Developers",
+    "developer_ar": "أورا للتطوير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Solana East",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, 5th Settlement Compounds, Solana East",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Solana%20East"
+  },
+  {
+    "project_en": "Soul",
+    "project_ar": "سول",
+    "developer_en": "Emaar Misr",
+    "developer_ar": "إعمار مصر",
+    "name_en": "North Coast, Qesm Ad Dabaah, Soul North Coast",
+    "name_ar": "الساحل الشمالي, قسم الضبعة, Soul North Coast",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Qesm%20Ad%20Dabaah%2C%20Soul%20North%20Coast"
+  },
+  {
+    "project_en": "SouthMed City",
+    "project_ar": "ساوث ميد سيتي",
+    "developer_en": "Talaat Moustafa Group",
+    "developer_ar": "مجموعة طلعت مصطفى",
+    "name_en": "North Coast, Qesm Ad Dabaah, South Med",
+    "name_ar": "North Coast, Qesm Ad Dabaah, South Med",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Qesm%20Ad%20Dabaah%2C%20South%20Med"
+  },
+  {
+    "project_en": "Stoda Sheraton Compound",
+    "project_ar": "ستودا شيراتون كومباوند",
+    "developer_en": "IL Cazar Developments",
+    "developer_ar": "آي إل قصر للتطوير",
+    "name_en": "Cairo, El Nozha, Sheraton Al Matar, Stoda",
+    "name_ar": "Cairo, El Nozha, Sheraton Al Matar, Stoda",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20El%20Nozha%2C%20Sheraton%20Al%20Matar%2C%20Stoda"
+  },
+  {
+    "project_en": "Stone Hills By Roya",
+    "project_ar": "ستون هيلز",
+    "developer_en": "Roya For Real Estate Company",
+    "developer_ar": "رؤية للتطوير العقاري",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, Fifth Square",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, Fifth Square",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%20Fifth%20Square"
+  },
+  {
+    "project_en": "Sun Gates",
+    "project_ar": "صن جيتس",
+    "developer_en": "El Mansour Developments",
+    "developer_ar": "المنصور للتطوير",
+    "name_en": "Cairo, Hay El Maadi, Zahraa El Maadi, Sun Gates",
+    "name_ar": "Cairo, Hay El Maadi, Zahraa El Maadi, Sun Gates",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Hay%20El%20Maadi%2C%20Zahraa%20El%20Maadi%2C%20Sun%20Gates"
+  },
+  {
+    "project_en": "Sun Square 1",
+    "project_ar": "صن سكوير 1",
+    "developer_en": "PTC Real Estate Development",
+    "developer_ar": "بي تي سي للتطوير العقاري",
+    "name_en": "Giza, 6 October City, Sun Square 1",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, Sun Square 1",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%20Sun%20Square%201"
+  },
+  {
+    "project_en": "Sun Square 22",
+    "project_ar": "صن سكوير 22",
+    "developer_en": "PTC Real Estate Development",
+    "developer_ar": "بي تي سي للتطوير العقاري",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, مدينة زايد الجديدة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City"
+  },
+  {
+    "project_en": "Sun Square 3",
+    "project_ar": "صن سكوير 3",
+    "developer_en": "PTC Real Estate Development",
+    "developer_ar": "بي تي سي للتطوير العقاري",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, مدينة زايد الجديدة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City"
+  },
+  {
+    "project_en": "Sun Square 4",
+    "project_ar": "صن سكوير 4",
+    "developer_en": "PTC Real Estate Development",
+    "developer_ar": "بي تي سي للتطوير العقاري",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, مدينة زايد الجديدة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City"
+  },
+  {
+    "project_en": "Swan Lake Katameya",
+    "project_ar": "سوان ليك كتاميا",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, New Cairo City, The 1st Settlement, Swan Lake Katameya",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الأول، سوان ليك كتاميا",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+1st+Settlement+Swan+Lake+Katameya"
+  },
+  {
+    "project_en": "Swan Lake Residence",
+    "project_ar": "سوان ليك ريزيدنس",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Swan Lake Residence",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الخامس، مجمعات التجمع الخامس، سوان ليك ريزيدنس",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+5th+Settlement+5th+Settlement+Compounds+Swan+Lake+Residence"
+  },
+  {
+    "project_en": "Swan Lake West",
+    "project_ar": "سوان ليك ويست",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Giza, 6 October City, 6 October Compounds, Swan Lake West",
+    "name_ar": "Giza, 6 October City, 6 October Compounds, Swan Lake West",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%206%20October%20City%2C%206%20October%20Compounds%2C%20Swan%20Lake%20West"
+  },
+  {
+    "project_en": "Swanlake Katameya",
+    "project_ar": "سوان ليك القطامية",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, New Cairo City, The 1st Settlement, Swan Lake Katameya",
+    "name_ar": "Cairo, New Cairo City, The 1st Settlement, Swan Lake Katameya",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%201st%20Settlement%2C%20Swan%20Lake%20Katameya"
+  },
+  {
+    "project_en": "Tala",
+    "project_ar": "تالا",
+    "developer_en": "Housing & Development Co.",
+    "developer_ar": "شركة الإسكان والتعمير",
+    "name_en": "Giza, 6 October City, 6 October Compounds, Tala",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, كمبوندات 6 أكتوبر, Tala",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%206%20October%20Compounds%2C%20Tala"
+  },
+  {
+    "project_en": "Talah",
+    "project_ar": "تالة",
+    "developer_en": "New Plan Developments",
+    "developer_ar": "نيو بلان للتطوير",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, Talah",
+    "name_ar": "القاهرة, العاصمة الإدارية الجديدة, New Capital Compounds, Talah",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20Talah"
+  },
+  {
+    "project_en": "Talda Mostakbal City",
+    "project_ar": "تالدا مدينة المستقبل",
+    "developer_en": "Housing & Development Co.",
+    "developer_ar": "شركة الإسكان والتعمير",
+    "name_en": "Cairo, Mostakbal City - Future City, Mostakbal City Compounds, Talda",
+    "name_ar": "القاهرة, مدينة المستقبل, كمبوندات مدينة المستقبل, Talda",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20Mostakbal%20City%20Compounds%2C%20Talda"
+  },
+  {
+    "project_en": "Tawny",
+    "project_ar": "تاوني",
+    "developer_en": "Hyde Park Developments",
+    "developer_ar": "هايد بارك للتطوير",
+    "name_en": "Giza, Cairo Alexandria Desert Road, Tawny",
+    "name_ar": "Giza, Cairo Alexandria Desert Road, Tawny",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%20Cairo%20Alexandria%20Desert%20Road%2C%20Tawny"
+  },
+  {
+    "project_en": "Telal East",
+    "project_ar": "تلال إيست",
+    "developer_en": "Roya For Real Estate Company",
+    "developer_ar": "رؤية للتطوير العقاري",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Telal East",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, 5th Settlement Compounds, Telal East",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Telal%20East"
+  },
+  {
+    "project_en": "Telal North Coast",
+    "project_ar": "تلال الساحل الشمالي",
+    "developer_en": "Roya For Real Estate Company",
+    "developer_ar": "رؤية للتطوير العقاري",
+    "name_en": "North Coast, Sidi Abdel Rahman, Telal Alamein",
+    "name_ar": "الساحل الشمالي, سيدي عبد الرحمن, Telal Alamein",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Sidi%20Abdel%20Rahman%2C%20Telal%20Alamein"
+  },
+  {
+    "project_en": "Telal Shores",
+    "project_ar": "تلال شورز",
+    "developer_en": "Roya For Real Estate Company",
+    "developer_ar": "رؤية للتطوير العقاري",
+    "name_en": "Suez, Al Ain Al Sokhna, Telal Al Sokhna",
+    "name_ar": "السويس, العين السخنة, Telal Al Sokhna",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Suez%2C%20Al%20Ain%20Al%20Sokhna%2C%20Telal%20Al%20Sokhna"
+  },
+  {
+    "project_en": "Telal Sokhna",
+    "project_ar": "تلال السخنة",
+    "developer_en": "Roya For Real Estate Company",
+    "developer_ar": "رؤية للتطوير العقاري",
+    "name_en": "Suez, Al Ain Al Sokhna, Telal Al Sokhna",
+    "name_ar": "السويس, العين السخنة, Telal Al Sokhna",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Suez%2C%20Al%20Ain%20Al%20Sokhna%2C%20Telal%20Al%20Sokhna"
+  },
+  {
+    "project_en": "Telal Soul",
+    "project_ar": "تلال سول",
+    "developer_en": "Roya For Real Estate Company",
+    "developer_ar": "رؤية للتطوير العقاري",
+    "name_en": "North Coast, Sidi Abdel Rahman, Telal Alamein",
+    "name_ar": "الساحل الشمالي, سيدي عبد الرحمن, Telal Alamein",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Sidi%20Abdel%20Rahman%2C%20Telal%20Alamein"
+  },
+  {
+    "project_en": "Terrace",
+    "project_ar": "تراس",
+    "developer_en": "Housing & Development Co.",
+    "developer_ar": "شركة الإسكان والتعمير",
+    "name_en": "Giza, Sheikh Zayed City, Sheikh Zayed Compounds, Terrace Compound",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, كمبوندات الشيخ زايد, Terrace Compound",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20Sheikh%20Zayed%20Compounds%2C%20Terrace%20Compound"
+  },
+  {
+    "project_en": "The Axis",
+    "project_ar": "ذا أكسيس",
+    "developer_en": "IWAN Developments",
+    "developer_ar": "إيوان للتطوير",
+    "name_en": "Giza, 6 October City, 6 October Compounds, The Axis",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, كمبوندات 6 أكتوبر, The Axis",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%206%20October%20Compounds%2C%20The%20Axis"
+  },
+  {
+    "project_en": "The Crest",
+    "project_ar": "ذا كريست",
+    "developer_en": "IL Cazar Developments",
+    "developer_ar": "آي إل قصر للتطوير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, The Crest",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, The Crest",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20The%20Crest"
+  },
+  {
+    "project_en": "The Crown",
+    "project_ar": "ذا كراون",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Giza, 6 October City, Cairo Alexandria Desert Road, The Crown",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, طريق القاهرة الإسكندرية الصحراوي, The Crown",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%20Cairo%20Alexandria%20Desert%20Road%2C%20The%20Crown"
+  },
+  {
+    "project_en": "The Gate Towers",
+    "project_ar": "ذا جيت تاورز",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "North Coast, Al Alamein, New Alamein City, The Gate Towers",
+    "name_ar": "North Coast, Al Alamein, New Alamein City, The Gate Towers",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Al%20Alamein%2C%20New%20Alamein%20City%2C%20The%20Gate%20Towers"
+  },
+  {
+    "project_en": "The Giselle",
+    "project_ar": "ذا جيسيل",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, New Cairo City",
+    "name_ar": "القاهرة, القاهرة الجديدة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City"
+  },
+  {
+    "project_en": "The Greek Plage",
+    "project_ar": "ذا جريك بلاج",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "North Coast, Sidi Abdel Rahman, Plage",
+    "name_ar": "North Coast, Sidi Abdel Rahman, Plage",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Sidi%20Abdel%20Rahman%2C%20Plage"
+  },
+  {
+    "project_en": "The Iris in SwanLake Residence",
+    "project_ar": "ذا آيريس في سوان ليك ريزيدنس",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, New Cairo City, Swan Lake Residence",
+    "name_ar": "Cairo, New Cairo City, Swan Lake Residence",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20Swan%20Lake%20Residence"
+  },
+  {
+    "project_en": "The Island Marina 5",
+    "project_ar": "جزيرة مارينا 5",
+    "developer_en": "Housing & Development Co.",
+    "developer_ar": "شركة الإسكان والتعمير",
+    "name_en": "North Coast, Al Alamein",
+    "name_ar": "الساحل الشمالي, العلمين",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Al%20Alamein"
+  },
+  {
+    "project_en": "The Lake View",
+    "project_ar": "ذا ليك فيو",
+    "developer_en": "Not available",
+    "developer_ar": "غير متوفر",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, The Lake View",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الخامس، مجمعات التجمع الخامس، ذا ليك فيو",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+5th+Settlement+5th+Settlement+Compounds+The+Lake+View"
+  },
+  {
+    "project_en": "The Nines",
+    "project_ar": "ذا ناينز",
+    "developer_en": "Orascom Development",
+    "developer_ar": "أوراسكوم للتنمية",
+    "name_en": "Red Sea, Hurghada, El Gouna, Nines",
+    "name_ar": "البحر الأحمر, الغردقة, الجونة, Nines",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Red%20Sea%2C%20Hurghada%2C%20El%20Gouna%2C%20Nines"
+  },
+  {
+    "project_en": "The North Park Mountain View ICity",
+    "project_ar": "ذا نورث بارك ماونتن فيو اي سيتي",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View iCity",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Mountain View iCity",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Mountain%20View%20iCity"
+  },
+  {
+    "project_en": "The Plateau",
+    "project_ar": "ذا بلاتو",
+    "developer_en": "MARAKEZ",
+    "developer_ar": "مراكز",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, District 5",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, 5th Settlement Compounds, District 5",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20District%205"
+  },
+  {
+    "project_en": "The Residences",
+    "project_ar": "ذا ريزيدنسز",
+    "developer_en": "Hyde Park Developments",
+    "developer_ar": "هايد بارك للتطوير",
+    "name_en": "Cairo, New Cairo City, Hyde Park, The Residences",
+    "name_ar": "Cairo, New Cairo City, Hyde Park, The Residences",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20Hyde%20Park%2C%20The%20Residences"
+  },
+  {
+    "project_en": "The Scarlet In Swanlake",
+    "project_ar": "ذا سكارليت في سوان ليك",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Swan Lake Residence",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Swan Lake Residence",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Swan%20Lake%20Residence"
+  },
+  {
+    "project_en": "The Selina Swanlake",
+    "project_ar": "ذا سيلينا سوان ليك",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Swan Lake Residence",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Swan Lake Residence",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Swan%20Lake%20Residence"
+  },
+  {
+    "project_en": "The Valleys",
+    "project_ar": "ذا فاليز",
+    "developer_en": "Hassan Allam Holding",
+    "developer_ar": "حسن علام القابضة",
+    "name_en": "Cairo, Mostakbal City - Future City, The Valleys",
+    "name_ar": "القاهرة, مدينة المستقبل, The Valleys",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20Mostakbal%20City%20-%20Future%20City%2C%20The%20Valleys"
+  },
+  {
+    "project_en": "The View",
+    "project_ar": "ذا فيو",
+    "developer_en": "Waterway Developments",
+    "developer_ar": "ووتر واي للتطوير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 90 Street, The Waterway View",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 90 Street, The Waterway View",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%2090%20Street%2C%20The%20Waterway%20View"
+  },
+  {
+    "project_en": "The Village",
+    "project_ar": "ذا فيليج",
+    "developer_en": "Palm Hills Developments",
+    "developer_ar": "بالم هيلز للتطوير",
+    "name_en": "Cairo, New Cairo City, South Investors Area, The Village",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، منطقة المستثمرين الجنوبية، ذا فيليج",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+South+Investors+Area+The+Village"
+  },
+  {
+    "project_en": "The Waterway Branded Residence",
+    "project_ar": "ذا ووترواي براندد ريزيدنس",
+    "developer_en": "Waterway Developments",
+    "developer_ar": "ووتر واي للتطوير",
+    "name_en": "Cairo, New Cairo City, The Waterway Branded Residence",
+    "name_ar": "Cairo, New Cairo City, The Waterway Branded Residence",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%20Waterway%20Branded%20Residence"
+  },
+  {
+    "project_en": "The Waterway North Coast",
+    "project_ar": "ذا ووترواي الساحل الشمالي",
+    "developer_en": "Waterway Developments",
+    "developer_ar": "ووتر واي للتطوير",
+    "name_en": "North Coast, Qesm Ad Dabaah, The Waterway",
+    "name_ar": "North Coast, Qesm Ad Dabaah, The Waterway",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Qesm%20Ad%20Dabaah%2C%20The%20Waterway"
+  },
+  {
+    "project_en": "The Waterway Villas",
+    "project_ar": "ذا ووترواي فيلاز",
+    "developer_en": "Waterway Developments",
+    "developer_ar": "ووتر واي للتطوير",
+    "name_en": "Cairo, New Cairo City, Ext North Inves Area, The Waterway Villas",
+    "name_ar": "Cairo, New Cairo City, Ext North Inves Area, The Waterway Villas",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20Ext%20North%20Inves%20Area%2C%20The%20Waterway%20Villas"
+  },
+  {
+    "project_en": "The Wave Plage",
+    "project_ar": "ذا ويف بلاج",
+    "developer_en": "Mountain View",
+    "developer_ar": "ماونتن فيو",
+    "name_en": "North Coast, Sidi Abdel Rahman, Plage",
+    "name_ar": "North Coast, Sidi Abdel Rahman, Plage",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Sidi%20Abdel%20Rahman%2C%20Plage"
+  },
+  {
+    "project_en": "The Willows",
+    "project_ar": "ذا ويلوز",
+    "developer_en": "Roya For Real Estate Company",
+    "developer_ar": "رؤية للتطوير العقاري",
+    "name_en": "Cairo, New Cairo City",
+    "name_ar": "القاهرة, القاهرة الجديدة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City"
+  },
+  {
+    "project_en": "Tonino Lamborghini Compound",
+    "project_ar": "تونينو لامبورجيني كومباوند",
+    "developer_en": "New Plan Developments",
+    "developer_ar": "نيو بلان للتطوير",
+    "name_en": "Cairo, New Capital City, New Capital Compounds, Tonino Lamborghini - ATIKA Residence",
+    "name_ar": "القاهرة, العاصمة الإدارية الجديدة, New Capital Compounds, Tonino Lamborghini - ATIKA Residence",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Capital%20City%2C%20New%20Capital%20Compounds%2C%20Tonino%20Lamborghini%20-%20ATIKA%20Residence"
+  },
+  {
+    "project_en": "Triangle",
+    "project_ar": "تراينجل",
+    "developer_en": "Waterway Developments",
+    "developer_ar": "ووتر واي للتطوير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, Triangle",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, Triangle",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%20Triangle"
+  },
+  {
+    "project_en": "True Compound",
+    "project_ar": "ترو كومباوند",
+    "developer_en": "El Mansour Developments",
+    "developer_ar": "المنصور للتطوير",
+    "name_en": "Cairo, Nasr City, Nasr City Compounds, True",
+    "name_ar": "Cairo, Nasr City, Nasr City Compounds, True",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Nasr%20City%2C%20Nasr%20City%20Compounds%2C%20True"
+  },
+  {
+    "project_en": "True Gate",
+    "project_ar": "ترو جيت",
+    "developer_en": "El Mansour Developments",
+    "developer_ar": "المنصور للتطوير",
+    "name_en": "Cairo, Nasr City, Nasr City Compounds, True",
+    "name_ar": "Cairo, Nasr City, Nasr City Compounds, True",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20Nasr%20City%2C%20Nasr%20City%20Compounds%2C%20True"
+  },
+  {
+    "project_en": "Tuban El Gouna",
+    "project_ar": "توبان الجونة",
+    "developer_en": "Orascom Development",
+    "developer_ar": "أوراسكوم للتنمية",
+    "name_en": "Red Sea, Hurghada, El Gouna",
+    "name_ar": "البحر الأحمر, الغردقة, الجونة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Red%20Sea%2C%20Hurghada%2C%20El%20Gouna"
+  },
+  {
+    "project_en": "V West",
+    "project_ar": "في ويست",
+    "developer_en": "Pledge Development",
+    "developer_ar": "بليدج للتطوير",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, مدينة زايد الجديدة",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City"
+  },
+  {
+    "project_en": "V40",
+    "project_ar": "في 40",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, North Teseen St., V40",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, North Teseen St., V40",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%20North%20Teseen%20St.%2C%20V40"
+  },
+  {
+    "project_en": "Village Gardens Katameya",
+    "project_ar": "فيليدج جاردن قطامية",
+    "developer_en": "Palm Hills",
+    "developer_ar": "بالم هيلز",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Village Gardens Katameya",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Village Gardens Katameya",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Village%20Gardens%20Katameya"
+  },
+  {
+    "project_en": "Village Gardens Katameya (VGK)",
+    "project_ar": "فيليج جاردنز قطامية",
+    "developer_en": "Palm Hills Developments",
+    "developer_ar": "بالم هيلز للتطوير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Village Gardens Katameya",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، التجمع الخامس، مجمعات التجمع الخامس، فيليج جاردنز كتاميا",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+The+5th+Settlement+5th+Settlement+Compounds+Village+Gardens+Katameya"
+  },
+  {
+    "project_en": "Village Gate",
+    "project_ar": "بوابة فيليج",
+    "developer_en": "Palm Hills Developments",
+    "developer_ar": "بالم هيلز للتطوير",
+    "name_en": "Cairo, New Cairo City, South Investors Area, Palm Hills Village Gate",
+    "name_ar": "القاهرة، مدينة القاهرة الجديدة، منطقة المستثمرين الجنوبية، بوابة بالم هيلز فيليج",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo+New+Cairo+City+South+Investors+Area+Palm+Hills+Village+Gate"
+  },
+  {
+    "project_en": "Villette Compound",
+    "project_ar": "فيلت",
+    "developer_en": "Sodic",
+    "developer_ar": "سوديك",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Villette",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, 5th Settlement Compounds, Villette",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Villette"
+  },
+  {
+    "project_en": "Vye",
+    "project_ar": "فاي",
+    "developer_en": "Sodic",
+    "developer_ar": "سوديك",
+    "name_en": "Giza, Sheikh Zayed City, New Zayed City, Vye Sodic",
+    "name_ar": "الجيزة, مدينة الشيخ زايد, مدينة زايد الجديدة, Vye Sodic",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City%2C%20New%20Zayed%20City%2C%20Vye%20Sodic"
+  },
+  {
+    "project_en": "W Signature",
+    "project_ar": "دبليو سيغنتشر",
+    "developer_en": "Waterway Developments",
+    "developer_ar": "ووتر واي للتطوير",
+    "name_en": "Cairo, New Cairo City, South Investors Area, W Signature By Waterway",
+    "name_ar": "Cairo, New Cairo City, South Investors Area, W Signature By Waterway",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20South%20Investors%20Area%2C%20W%20Signature%20By%20Waterway"
+  },
+  {
+    "project_en": "WBR1",
+    "project_ar": "دبليو بي آر 1",
+    "developer_en": "Waterway Developments",
+    "developer_ar": "ووتر واي للتطوير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, WBR1 WATERWAY",
+    "name_ar": "Cairo, New Cairo City, The 5th Settlement, WBR1 WATERWAY",
+    "google_maps": "https://www.google.com/maps?q=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%20WBR1%20WATERWAY"
+  },
+  {
+    "project_en": "Water Chalet - Ogami",
+    "project_ar": "ووتر شاليه - أوجامي",
+    "developer_en": "Sodic",
+    "developer_ar": "سوديك",
+    "name_en": "North Coast, Ras Al Hekma, Ogami",
+    "name_ar": "الساحل الشمالي, راس الحكمة, Ogami",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=North%20Coast%2C%20Ras%20Al%20Hekma%2C%20Ogami"
+  },
+  {
+    "project_en": "West Dunes",
+    "project_ar": "ويست ديونز",
+    "developer_en": "Pledge Development",
+    "developer_ar": "بليدج للتطوير",
+    "name_en": "Giza, 6 October City, 6 October Compounds, West Dunes",
+    "name_ar": "الجيزة, مدينة 6 أكتوبر, كمبوندات 6 أكتوبر, West Dunes",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%206%20October%20City%2C%206%20October%20Compounds%2C%20West%20Dunes"
+  },
+  {
+    "project_en": "Westdays",
+    "project_ar": "ويستدايز",
+    "developer_en": "IL Cazar Developments",
+    "developer_ar": "آي إل قصر للتطوير",
+    "name_en": "Giza, 6 October City, West days",
+    "name_ar": "Giza, 6 October City, West days",
+    "google_maps": "https://www.google.com/maps?q=Giza%2C%206%20October%20City%2C%20West%20days"
+  },
+  {
+    "project_en": "Winter",
+    "project_ar": "وينتر العلمين الجديدة",
+    "developer_en": "New Generation Developments (NGD)",
+    "developer_ar": "نيو جنريشن للتطوير",
+    "name_en": "North Coast, Al Alamein, New Alamein City, Winter New Alamein",
+    "name_ar": "North Coast, Al Alamein, New Alamein City, Winter New Alamein",
+    "google_maps": "https://www.google.com/maps?q=North%20Coast%2C%20Al%20Alamein%2C%20New%20Alamein%20City%2C%20Winter%20New%20Alamein"
+  },
+  {
+    "project_en": "Zahya",
+    "project_ar": "زاهية",
+    "developer_en": "City Edge",
+    "developer_ar": "سيتي إيدج",
+    "name_en": "Al Daqahlya, New Mansoura, Zahya New Mansoura",
+    "name_ar": "Al Daqahlya, New Mansoura, Zahya New Mansoura",
+    "google_maps": "https://www.google.com/maps?q=Al%20Daqahlya%2C%20New%20Mansoura%2C%20Zahya%20New%20Mansoura"
+  },
+  {
+    "project_en": "Zed East",
+    "project_ar": "زيد إيست",
+    "developer_en": "Ora Developers",
+    "developer_ar": "أورا للتطوير",
+    "name_en": "Cairo, New Cairo City, The 5th Settlement, 5th Settlement Compounds, Zed East",
+    "name_ar": "القاهرة, القاهرة الجديدة, التجمع الخامس, 5th Settlement Compounds, Zed East",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Cairo%2C%20New%20Cairo%20City%2C%20The%205th%20Settlement%2C%205th%20Settlement%20Compounds%2C%20Zed%20East"
+  },
+  {
+    "project_en": "Zed West",
+    "project_ar": "زيد ويست",
+    "developer_en": "Ora Developers",
+    "developer_ar": "أورا للتطوير",
+    "name_en": "Giza, Sheikh Zayed City",
+    "name_ar": "الجيزة, مدينة الشيخ زايد",
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=Giza%2C%20Sheikh%20Zayed%20City"
+  }
+]

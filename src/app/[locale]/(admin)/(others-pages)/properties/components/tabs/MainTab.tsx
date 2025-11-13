@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import { useForm, useWatch, useController } from "react-hook-form";
 import { postData, getData } from "@/libs/axios/server";
-import { AxiosHeaders } from "axios";
+import axios, { AxiosHeaders } from "axios";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Phone, Mail, MessageCircle, Home, Bed, Bath,
@@ -14,12 +14,10 @@ import {
   PropertyStatistics,
   PropertyData,
   FormInputs,
-  ImagePreview,
-  LocationData
+  ImagePreview
 } from '@/types/PropertyTypes';
 import Toast from '@/components/Toast';
 import RichTextEditor from '@/components/RichTextEditor';
-import GoogleLocationSearch from '@/components/common/GoogleLocationInput';
 // import { useRouter } from "@/i18n/routing";
 
 interface MainTabProps {
@@ -51,6 +49,14 @@ type AgentOption = {
   role: string;
 };
 
+type AreaOption = {
+  id: number;
+  name: string;
+  image: string;
+  google_maps: string;
+  developer: string;
+};
+
 export const MainTab: React.FC<MainTabProps> = ({ 
   property, 
   propertystat, 
@@ -72,10 +78,14 @@ export const MainTab: React.FC<MainTabProps> = ({
   const [descriptionEn, setDescriptionEn] = useState<string>("");
   const [descriptionAr, setDescriptionAr] = useState<string>("");
   const [imagePreview, setImagePreview] = useState<ImagePreview | null>(null);
-  const [locationValue, setLocationValue] = useState<string>("");
-  const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [propertyTypes, setPropertyTypes] = useState<SelectOption[]>([]);
   const [agents, setAgents] = useState<AgentOption[]>([]);
+  const [areas, setAreas] = useState<AreaOption[]>([]);
+  const [areaSearch, setAreaSearch] = useState<string>(property.area?.name || "");
+  const [isLoadingAreas, setIsLoadingAreas] = useState<boolean>(false);
+  const [isAreaDropdownOpen, setIsAreaDropdownOpen] = useState<boolean>(false);
+  const [selectedArea, setSelectedArea] = useState<AreaOption | null>(null);
+  const areaDropdownRef = useRef<HTMLDivElement>(null);
   const [expandedSections, setExpandedSections] = useState({
     basic: true,
     pricing: true,
@@ -159,14 +169,10 @@ export const MainTab: React.FC<MainTabProps> = ({
       reset(formData);
       setDescriptionEn(property.descriptions?.en?.description || "");
       setDescriptionAr(property.descriptions?.ar?.description || "");
-      setLocationValue(property.property_locations?.[0]?.location || "");
-      if (property.property_locations?.[0]) {
-        setLocationData({
-          address: property.property_locations[0].location,
-          placeId: property.property_locations[0].location_place_id,
-          lat: property.property_locations[0].location_lat,
-          lng: property.property_locations[0].location_lng,
-        });
+      // Set selected area if property has area_id
+      if (property.area_id) {
+        // We'll fetch the area details when needed
+        setValue("area_id", property.area_id.toString());
       }
       if (property.cover) {
         setImagePreview({
@@ -199,6 +205,64 @@ export const MainTab: React.FC<MainTabProps> = ({
       fetchDropdownData();
     }
   }, [isEditMode, locale, t]);
+
+  // Fetch areas with search
+  useEffect(() => {
+    if (!isEditMode) return;
+    
+    const fetchAreas = async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+      if (!token) return;
+
+      setIsLoadingAreas(true);
+      try {
+        const params = areaSearch ? { search: areaSearch } : {};
+        const response = await axios.get(
+          "https://proplix.shop/api/v1/area-search",
+          {
+            params,
+            headers: new AxiosHeaders({ Authorization: `Bearer ${token}`, lang: locale })
+          }
+        );
+          setAreas(response.data.data);
+          // If we have a selected area_id, find and set it
+          if (property.area_id && !selectedArea) {
+            const area = response.data.find((a: AreaOption) => a.id === property.area_id);
+            if (area) {
+              setSelectedArea(area);
+            }
+        }
+      } catch (error) {
+        console.error("Error fetching areas:", error);
+      } finally {
+        setIsLoadingAreas(false);
+      }
+    };
+
+    // Fetch immediately on mount, then debounce on search
+    if (!areaSearch) {
+      fetchAreas();
+    } else {
+      const debounceTimer = setTimeout(() => {
+        fetchAreas();
+      }, 300);
+      return () => clearTimeout(debounceTimer);
+    }
+  }, [areaSearch, locale, isEditMode, property.area_id, selectedArea]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!isEditMode) return;
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      if (areaDropdownRef.current && !areaDropdownRef.current.contains(event.target as Node)) {
+        setIsAreaDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isEditMode]);
 
   const getStatusColor = (status: string) => {
     const option = statusOptions.find(opt => opt.value === status);
@@ -698,12 +762,9 @@ export const MainTab: React.FC<MainTabProps> = ({
       formData.append("landing_space", data.landing_space || "");
     }
     
-    // Location
-    formData.append("location", locationValue);
-    if (locationData) {
-      formData.append("location_place_id", locationData.placeId);
-      if (locationData.lat) formData.append("location_lat", locationData.lat.toString());
-      if (locationData.lng) formData.append("location_lng", locationData.lng.toString());
+    // Area
+    if (data.area_id) {
+      formData.append("area_id", data.area_id);
     }
     
     // English
@@ -979,7 +1040,7 @@ export const MainTab: React.FC<MainTabProps> = ({
       {toast.show && <Toast message={toast.message} type={toast.type} duration={3000} />}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Information */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
           <SectionHeader 
             title={t("basic_information")} 
             icon={<Home className="w-5 h-5 text-[#F26A3F]" />}
@@ -988,25 +1049,76 @@ export const MainTab: React.FC<MainTabProps> = ({
           />
           {expandedSections.basic && (
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="w-full min-w-0">
-                <GoogleLocationSearch
-                  label={t("location")}
-                  name="location"
-                  value={locationValue}
-                  onChange={(value, googleLocationData) => {
-                    setLocationValue(value);
-                    setValue("location", value);
-                    if (googleLocationData) {
-                      setLocationData(googleLocationData);
-                    }
-                  }}
-                  placeholder={t("enter_your_location")}
-                  required={true}
-                  dir="ltr"
-                  error={!!errors.location}
-                  errorMessage={errors.location ? t("field_required") : undefined}
-                  t={t}
-                />
+              <div className="space-y-2" ref={areaDropdownRef}>
+                <label className="block text-sm font-medium text-dark dark:text-white">
+                  {t("area")}
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={selectedArea ? selectedArea.name : areaSearch}
+                    onChange={(e) => {
+                      setAreaSearch(e.target.value);
+                      setSelectedArea(null);
+                      setIsAreaDropdownOpen(true);
+                    }}
+                    onFocus={() => setIsAreaDropdownOpen(true)}
+                    placeholder={t("select_area")}
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30"
+                  />
+                  {isLoadingAreas && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  {isAreaDropdownOpen && areas.length > 0 && (
+                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {areas.map((area, index) => (
+                        <div key={area.id}>
+                          {index > 0 && <div className="border-t border-slate-200 dark:border-slate-600"></div>}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setValue("area_id", area.id.toString());
+                              setSelectedArea(area);
+                              setAreaSearch("");
+                              setIsAreaDropdownOpen(false);
+                            }}
+                            className="w-full px-4 py-3 text-left hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex flex-col gap-1"
+                          >
+                            <span className="text-slate-900 dark:text-slate-100">{area.name}</span>
+                            {area.developer && (
+                              <span className="text-xs text-slate-500 dark:text-slate-400">{area.developer}</span>
+                            )}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {isAreaDropdownOpen && !isLoadingAreas && areas.length === 0 && areaSearch && (
+                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg p-4 text-center text-slate-500 dark:text-slate-400">
+                      {t("No areas found")}
+                    </div>
+                  )}
+                </div>
+                <select
+                  {...register("area_id", { required: true })}
+                  className="hidden"
+                >
+                  <option value="">{t("select_area")}</option>
+                  {areas.map((area) => (
+                    <option key={area.id} value={area.id}>
+                      {area.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.area_id && (
+                  <p className="text-red-500 text-sm flex items-center">
+                    <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+                    {t("field_required")}
+                  </p>
+                )}
               </div>
               <InputField
                 label={t("property_type")}

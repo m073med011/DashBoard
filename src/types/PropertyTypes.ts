@@ -145,6 +145,7 @@ export type PropertyData = {
   mortgage: string;
   paid_months: number | null;
   location?: string;
+  area_id: number;
   created_at: string;
   views?: number;
   starting_day: string | null; // Added starting_day

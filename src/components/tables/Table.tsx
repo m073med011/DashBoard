@@ -10,6 +10,7 @@ type Column<T> = {
   key: keyof T;
   label: string;
   render?: (item: T) => React.ReactNode;
+  headerRender?: () => React.ReactNode;
 };
 
 type TableProps<T> = {
@@ -81,7 +82,7 @@ export default function Table<T extends { id: number }>({
             <tr>
               {columns.map((col) => (
                 <th key={String(col.key)} className="px-4 py-3 border border-gray-200 dark:border-gray-700 text-center" style={{ width: 'fit-content', minWidth: '120px', maxWidth: '300px' }}>
-                  {t(col.label)}
+                  {col.headerRender ? col.headerRender() : (col.label ? t(col.label) : '')}
                 </th>
               ))}
               <th className="px-4 py-3 border border-gray-200 dark:border-gray-700 text-center" style={{ width: 'fit-content', minWidth: '200px', maxWidth: '400px' }}>{t('Actions')}</th>
