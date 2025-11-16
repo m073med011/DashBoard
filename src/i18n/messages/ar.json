@@ -28,6 +28,7 @@
   "Comming Soon": "قريبا",
   "Tables": {
      "nameInvalidError": "يجب أن يكون الاسم من 1-30 حرفًا ويحتوي على أحرف ومسافات فقط",
+     "Status": "الحالة",
     "phoneInvalidError": "يجب أن يكون رقم الهاتف 11 رقمًا ويبدأ بـ 01",
     "passwordMismatchError": "يجب أن تتطابق كلمات المرور تمامًا",
     "Confirm New Password":"تأكيد كلمة المرور الجديدة",
@@ -134,7 +135,7 @@
     "Google Maps": "خرائط جوجل"
   },
   "types": {
-    
+    "Status": "الحالة",
     "Create": "إنشاء",
     "Cancel": "إلغاء",
     "Update": "تحديث",
@@ -400,6 +401,7 @@
     },
     "Tables": {
       "contact": "التواصل",
+      "Status": "الحالة",
       "agent saved successfully": "تم حفظ العميل بنجاح",
       "Owner saved successfully": "تم حفظ المالك بنجاح",
       "Owner deleted successfully": "تم حذف المالك بنجاح",
@@ -745,7 +747,7 @@
     "Square Meters": "المتر المربع",
     "Bedroom": "غرفة النوم",
     "Bathroom": "الحمام",
-    "Status": "الحالة",
+    "status": "الحالة",
     "Select Status": "اختر الحالة",
     "Available": "متاح",
     "Sold": "مباع",
@@ -792,7 +794,7 @@
     "Locations": "المواقع",
     "Floor Plan": "مخطط الطابق",
     "approval_status": "حالة الموافقة",
-    "status": "الحالة",
+    "Status": "الحالة",
     "Select Property Type": "اختر نوع العقار",
     "property_title": "عنوان العقار",
     "area": "المنطقة",

@@ -11,7 +11,7 @@ import ImageWithFallback from '@/components/ImageWithFallback';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import ImageUploadField from "@/components/ImageUploadField";
-
+import MultiSelect from "@/components/form/MultiSelect";
 
 import { TYPE_IMAGE_SIZE } from "@/libs/constants/imageSizes";
 
@@ -19,6 +19,7 @@ type TypeItem = {
   id: number;
   title: string;
   image: string | null;
+  status?: string[];
   descriptions: {
     en: { title: string; image: string | null };
     ar: { title: string; image: string | null };
@@ -50,6 +51,18 @@ export default function TypesPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
+  
+  // Type status multiselect state
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  
+  // Type status options
+  const typeStatusOptions = [
+    { value: 'all', text: 'All', selected: false },
+    { value: 'rent', text: 'Rent', selected: false },
+    { value: 'sale', text: 'Sale', selected: false },
+    { value: 'commercial-sale', text: 'Commercial Sale', selected: false },
+    { value: 'commercial-rent', text: 'Commercial Rent', selected: false },
+  ];
 
   const [modalState, setModalState] = useState<{
     type: 'create' | 'edit' | 'view' | 'quick' | null;
@@ -65,6 +78,11 @@ export default function TypesPage() {
     setPreviewImage(null);
     setSelectedFile(null);
     setRemoveExistingImage(false);
+  };
+
+  const resetFormStates = () => {
+    resetImageStates();
+    setSelectedTypes([]);
   };
 
   // Handle image upload from ImageUploadField component
@@ -90,10 +108,11 @@ export default function TypesPage() {
         Authorization: `Bearer ${authToken}`,
       }));
 
-      const normalized = (res.data ?? []).map((item: TypeItem) => ({
+      const normalized = (res.data ?? []).map((item: any) => ({
         id: item.id,
         title: item.title,
         image: item.image,
+        status: item.status || [], // status comes as array from API
         descriptions: item.descriptions,
         titleObj: {
           en: item.descriptions?.en?.title || item.title || '',
@@ -155,6 +174,11 @@ export default function TypesPage() {
       payload.append('remove_image', 'true');
     }
 
+    // Add types as comma-separated string
+    if (selectedTypes.length > 0) {
+      payload.append('types', selectedTypes.join(','));
+    }
+
     try {
       if (modalState.type === 'create') {
         await postData('owner/types', payload, new AxiosHeaders({ Authorization: `Bearer ${token}` }));
@@ -164,7 +188,7 @@ export default function TypesPage() {
       
       window.location.reload();
       setModalState({ type: null });
-      resetImageStates();
+      resetFormStates();
       showToast("Type saved successfully", 'success');
       router.refresh();
     } catch (error) {
@@ -175,12 +199,17 @@ export default function TypesPage() {
 
   const handleModalOpen = (type: 'create' | 'edit' | 'view', item?: TypeItem) => {
     setModalState({ type, item });
-    resetImageStates();
+    resetFormStates();
+    
+    // Pre-populate selected types when editing from status array
+    if (type === 'edit' && item?.status && Array.isArray(item.status)) {
+      setSelectedTypes(item.status);
+    }
   };
 
   const handleModalClose = () => {
     setModalState({ type: null });
-    resetImageStates();
+    resetFormStates();
   };
 
   return (
@@ -217,6 +246,25 @@ export default function TypesPage() {
                   <div className="h-15 w-15 bg-gray-200 rounded flex items-center justify-center text-xs">
                     {t("No Image")}
                   </div>
+                ),
+            },
+            {
+              key: 'status',
+              label: t("Status") || 'Status',
+              render: (item) =>
+                item.status && Array.isArray(item.status) && item.status.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {item.status.map((status, index) => (
+                      <span
+                        key={index}
+                        className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs"
+                      >
+                        {status}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-gray-400 dark:text-gray-500">-</span>
                 ),
             },
           ]}
@@ -268,6 +316,22 @@ export default function TypesPage() {
                   height={200}
                   className="rounded-lg border shadow-md object-cover max-w-full"
                 />
+              </div>
+            )}
+
+            {modalState.item?.status && Array.isArray(modalState.item.status) && modalState.item.status.length > 0 && (
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t("Status") || "Status"}</p>
+                <div className="flex flex-wrap gap-2">
+                  {modalState.item.status.map((status, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm"
+                    >
+                      {status}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
             <div className="flex justify-end pt-4">
@@ -332,6 +396,17 @@ export default function TypesPage() {
               accept="image/*"
               allowedSizes={TYPE_IMAGE_SIZE.width + 'x' + TYPE_IMAGE_SIZE.height}
             />
+
+            {/* Type Status Multiselect */}
+            <div>
+              <MultiSelect
+                key={`types-select-${modalState.item?.id || 'new'}`}
+                label={t("Types") || "Types"}
+                options={typeStatusOptions}
+                defaultSelected={selectedTypes}
+                onChange={(selected) => setSelectedTypes(selected)}
+              />
+            </div>
 
             <div className="flex justify-end gap-2 pt-4">
               <button
