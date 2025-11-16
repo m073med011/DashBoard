@@ -13,7 +13,6 @@ import axios, { AxiosHeaders } from "axios";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations, useLocale } from "next-intl";
 import Toast from "@/components/Toast";
-import ProfiTextEditor from "@/components/ProfiTextEditor";
 import {
   ChevronDown,
   ChevronUp,
@@ -1269,13 +1268,21 @@ const CreatePropertyPage = () => {
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     {t("description_ar")} <span className="text-red-500">*</span>
                   </label>
-                  <div className="">
-                    <ProfiTextEditor
-                      value={descriptionAr}
-                      onChange={setDescriptionAr}
-                      placeholder="Enter description in Arabic..."
-                    />
-                  </div>
+                  <textarea
+                    value={descriptionAr}
+                    onChange={(e) => setDescriptionAr(e.target.value)}
+                    placeholder="Enter description in Arabic..."
+                    required
+                    rows={6}
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30 resize-y"
+                    dir="rtl"
+                  />
+                  {!descriptionAr && errors.description_ar && (
+                    <p className="text-red-500 text-sm flex items-center mt-1">
+                      <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+                      {t("field_required")}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -1315,13 +1322,21 @@ const CreatePropertyPage = () => {
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     {t("description_en")} <span className="text-red-500">*</span>
                   </label>
-                  <div className="border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden">
-                    <ProfiTextEditor
-                      value={descriptionEn}
-                      onChange={setDescriptionEn}
-                      placeholder="Enter description in English..."
-                    />
-                  </div>
+                  <textarea
+                    value={descriptionEn}
+                    onChange={(e) => setDescriptionEn(e.target.value)}
+                    placeholder="Enter description in English..."
+                    required
+                    rows={6}
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-orange-200/30 resize-y"
+                    dir="ltr"
+                  />
+                  {!descriptionEn && errors.description_en && (
+                    <p className="text-red-500 text-sm flex items-center mt-1">
+                      <span className="w-1 h-1 bg-red-500 rounded-full mr-2"></span>
+                      {t("field_required")}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
