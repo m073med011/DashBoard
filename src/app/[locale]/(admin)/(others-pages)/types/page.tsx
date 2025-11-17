@@ -108,7 +108,7 @@ export default function TypesPage() {
         Authorization: `Bearer ${authToken}`,
       }));
 
-      const normalized = (res.data ?? []).map((item: any) => ({
+      const normalized = (res.data ?? []).map((item: TypeItem) => ({
         id: item.id,
         title: item.title,
         image: item.image,
