@@ -771,6 +771,8 @@
     "Type": "Type",
     "Rent": "Rent",
     "Sale": "Sale",
+    "commercial_rent": "Commercial Rent",
+    "commercial_sale": "Commercial Sale",
     "Immediate Delivery": "Immediate Delivery",
     "Select Option": "Select Option",
     "Yes": "Yes",

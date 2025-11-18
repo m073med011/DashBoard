@@ -679,6 +679,8 @@
     "rent": "إيجار",
     "sale": "بيع",
     "type": "النوع",
+    "commercial_rent": "إيجار تجاري",
+    "commercial_sale": "بيع تجاري",
     "apartment": "شقة",
     "office": "مكتب",
     "immediate_delivery": "التسليم الفوري",

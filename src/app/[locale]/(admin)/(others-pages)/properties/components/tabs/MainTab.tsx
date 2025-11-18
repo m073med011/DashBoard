@@ -1159,6 +1159,8 @@ export const MainTab: React.FC<MainTabProps> = ({
                 options={[
                   { value: "rent", label: t("rent") },
                   { value: "sale", label: t("sale") },
+                  { value: "commercial_rent", label: t("commercial_rent") },
+                  { value: "commercial_sale", label: t("commercial_sale") },
                 ]}
                 placeholder={t("select_status")}
               />
